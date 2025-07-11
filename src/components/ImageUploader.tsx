@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import * as Sentry from '@sentry/nextjs'
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'error'
 
@@ -28,13 +29,21 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const { user } = useAuth()
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files || files.length === 0) return
+    return Sentry.startSpan(
+      {
+        op: "ui.upload",
+        name: "Image Upload Process",
+      },
+      async (span) => {
+        const files = event.target.files
+        if (!files || files.length === 0) return
 
-    if (!user) {
-      setError('Please sign in to upload images')
-      return
-    }
+        span.setAttribute("fileCount", files.length);
+
+        if (!user) {
+          setError('Please sign in to upload images')
+          return
+        }
 
     // Validate all files first
     const validFiles: File[] = []
@@ -57,6 +66,8 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
     console.log(`📸 Uploading ${validFiles.length} images...`)
     setError('')
     await uploadMultipleImages(validFiles)
+      }
+    );
   }
 
   const uploadMultipleImages = async (files: File[]) => {
@@ -77,6 +88,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
       
     } catch (error) {
       console.error('Multi-upload error:', error)
+      Sentry.captureException(error)
       setStatus('error')
       setError('Some uploads failed. Please try again.')
     }

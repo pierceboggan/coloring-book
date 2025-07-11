@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateColoringPage } from '@/lib/openai'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
-  console.log('🚀 API route /api/generate-coloring-page called');
-  
-  try {
+  return Sentry.startSpan(
+    {
+      op: "http.server",
+      name: "POST /api/generate-coloring-page",
+    },
+    async (span) => {
+      console.log('🚀 API route /api/generate-coloring-page called');
+      
+      try {
     console.log('📥 Parsing request body...');
     const body = await request.json()
     console.log('✅ Request body parsed successfully:', body);
     
     const { imageId, imageUrl } = body
+    
+    span.setAttribute("imageId", imageId);
+    span.setAttribute("hasImageUrl", !!imageUrl);
 
     if (!imageId || !imageUrl) {
       console.error('❌ Missing required fields:', { imageId, imageUrl })
@@ -106,6 +116,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('💥 API Error caught:', error)
+    Sentry.captureException(error)
     
     // Extract imageId from the original body if available
     let imageId
@@ -139,4 +150,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+    }
+  );
 }
