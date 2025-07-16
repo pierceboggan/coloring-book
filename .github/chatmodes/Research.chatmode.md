@@ -1,6 +1,7 @@
 ---
 description: 'Research an idea or task.'
 tools: ['perplexity-ask', 'perplexity_research', 'context7', 'copilotCodingAgent']
+model: Claude Sonnet 4
 ---
 
 Research the idea provided by the user. Consider:
