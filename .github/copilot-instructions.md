@@ -1,113 +1,113 @@
-# AI Coloring Book - Copilot Instructions
+# ColoringBook.AI - AI Agent Instructions
 
-## Project Overview
-This is a Next.js 15 app that transforms photos into coloring pages using OpenAI's Responses API. Users upload images, which are processed into black-and-white line art suitable for coloring.
+## Architecture Overview
 
-## Core Architecture
+**Core Flow**: User uploads photos → AI generates coloring pages → User creates photobooks/albums
+- Next.js 15 App Router with TypeScript
+- Supabase for database, storage, and authentication
+- OpenAI Responses API for image-to-coloring-page conversion
+- Sentry for error monitoring, extensive console logging
 
-### Tech Stack
-- **Frontend**: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS
-- **Backend**: Next.js API routes, Supabase (database + auth + storage)
-- **AI**: OpenAI Responses API (gpt-4o model)
-- **Monitoring**: Sentry for error tracking and performance monitoring
-- **Deployment**: Vercel with environment variables
+## Key Components & Data Flow
 
-### Key Components Flow
-1. **Upload**: `ImageUploader` → Supabase Storage → Database record
-2. **Processing**: API calls `generateColoringPage()` → OpenAI Responses API → Updates database
-3. **Dashboard**: Real-time subscription to database changes + polling fallback
-4. **Sharing**: Family albums with shareable codes
+### Image Processing Pipeline
+1. **Upload** (`src/components/ImageUploader.tsx`) → Supabase Storage
+2. **Database Insert** → `images` table with `status: 'processing'`
+3. **Background Processing** → `/api/generate-coloring-page` calls OpenAI
+4. **Result Storage** → Processed coloring page with watermark
+5. **Status Update** → `status: 'completed'`, real-time updates via Supabase subscriptions
 
-## Critical Developer Knowledge
-
-### Authentication Pattern
-- **Development**: Password protection (`parkcityutah`) via `PasswordProtection` component
-- **User Auth**: Supabase auth with email/password via `AuthContext`
-- **Database**: RLS policies enforce user isolation
-
-### API Route Structure
-- `POST /api/generate-coloring-page` - Main AI processing endpoint
-- `GET /api/family-albums/[shareCode]` - Public album sharing
-- `DELETE /api/images/[id]` - Image deletion with cleanup
-- All routes use Sentry spans for monitoring
-
-### Database Schema (Supabase)
+### Database Schema (`src/lib/supabase.ts`)
 ```typescript
 images: {
-  id: string
-  user_id: string
-  original_url: string
-  coloring_page_url: string | null
-  name: string
+  id: string, user_id: string, original_url: string, 
+  coloring_page_url: string | null, name: string,
   status: 'uploading' | 'processing' | 'completed' | 'error'
-  created_at: string
-  updated_at: string
 }
 ```
 
-### OpenAI Integration Pattern
-- Uses **Responses API** (not Chat Completions)
-- Converts images to base64 for API calls
-- Standard prompt: "Create a black and white coloring book page... bold black outlines, no shading..."
-- Custom prompts supported via `generateColoringPageWithCustomPrompt()`
+### Authentication Pattern
+- **Development**: Password protection (`parkcityutah`) via `PasswordProtection` component
+- **Production**: Supabase Auth with React Context (`src/contexts/AuthContext.tsx`)
+- **Middleware**: Server-side auth handling with cookie management
+
+## Critical Implementation Details
+
+### OpenAI Integration (`src/lib/openai.ts`)
+- Uses **Responses API** (not DALL-E directly) with base64 image input
+- Prompt: "Create a black and white coloring book page..." with specific styling requirements
+- Image watermarking via Sharp library (`src/lib/imageProcessor.ts`)
+- Extensive error handling and logging
+
+### API Route Patterns
+- **POST** `/api/generate-coloring-page` - Main AI processing endpoint
+- **GET/POST** `/api/family-albums/[shareCode]` - Album sharing functionality
+- **DELETE** `/api/images/[id]` - Image cleanup
+- All routes use `supabaseAdmin` for server-side operations
+
+### Real-time Updates
+Dashboard uses Supabase real-time subscriptions with fallback polling:
+```typescript
+subscription = supabase.channel('images_changes')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'images' }, ...)
+```
 
 ## Development Workflow
 
-### Environment Setup
-Required `.env.local` variables:
-```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-OPENAI_API_KEY=
-NEXT_PUBLIC_APP_URL=
-```
-
-### Common Commands
+### Setup & Environment
 ```bash
-npm run dev          # Development server
-npm run build        # Production build
-npm run lint         # ESLint checking
+npm install
+# Required env vars in .env.local:
+NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, 
+SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY
+npm run dev
 ```
 
-### Real-time Updates
-Dashboard uses dual approach:
-1. **Primary**: Supabase real-time subscriptions
-2. **Fallback**: Polling every 3 seconds if real-time fails
+### Key Files to Understand
+- `src/app/page.tsx` - Landing page with upload flow
+- `src/app/dashboard/page.tsx` - User image management
+- `src/components/PhotobookCreator.tsx` - PDF generation with jsPDF
+- `src/components/FamilyAlbumCreator.tsx` - Shareable album creation
 
-## Key Conventions
+### Error Handling Conventions
+- Console logging with emojis (🚀, ❌, ✅) for easy debugging
+- Sentry integration with span tracking
+- Graceful degradation (watermarking failures return original image)
+- Status-based UI states with proper loading indicators
 
-### Error Handling
-- All API routes wrapped in Sentry spans
-- Console logging with emoji prefixes (🚀, ✅, ❌, 🎨)
-- Status tracking in database (`processing` → `completed` | `error`)
+## Project-Specific Patterns
 
-### Component Patterns
-- All interactive components are client-side (`'use client'`)
-- Context providers at root level (`AuthProvider`, `PasswordProtection`)
-- Consistent loading states with Lucide React icons
+### Client-Server Communication
+- Use `supabase` client for user operations
+- Use `supabaseAdmin` for privileged server operations
+- All mutations update status fields for UI feedback
 
-### File Organization
-- `/api/` - Next.js API routes
-- `/components/` - Reusable UI components
-- `/contexts/` - React contexts
-- `/lib/` - Utility functions (supabase, openai, etc.)
+### Image Processing
+- Sharp for watermarking and image manipulation
+- Supabase Storage for both original and processed images
+- Base64 conversion for OpenAI API compatibility
+
+### Feature Flags & Development
+- Password protection for development environment
+- Subscription-based limits (max 20 pages per photobook)
+- Watermark system for free tier (future premium feature)
 
 ## Common Tasks
 
-### Adding New Features
-1. Check if user authentication is required
-2. Add API route with Sentry monitoring
-3. Update database schema if needed
-4. Add real-time subscription for live updates
+### Adding New Image Processing Features
+1. Extend the `generateColoringPageWithCustomPrompt` function
+2. Update the `images` table schema if needed
+3. Add UI controls in `RegenerateModal` component
+4. Test with various image types and sizes
 
-### Debugging AI Issues
-- Check OpenAI API limits and usage
-- Verify base64 image conversion is working
-- Monitor Sentry for AI processing errors
-- Test with different image formats/sizes
+### Debugging Processing Issues
+1. Check console logs with emoji patterns
+2. Verify OpenAI API key and organization
+3. Check Supabase storage policies and bucket configuration
+4. Monitor real-time subscription connectivity
 
-### Database Operations
-- Use `supabaseAdmin` for service role operations
-- Use `supabase` for client-side operations
-- All user data is isolated via RLS policies
+### Adding New API Endpoints
+- Follow the pattern in `/api/generate-coloring-page/route.ts`
+- Use proper error handling and Sentry tracking
+- Include detailed console logging
+- Use `supabaseAdmin` for privileged operations
