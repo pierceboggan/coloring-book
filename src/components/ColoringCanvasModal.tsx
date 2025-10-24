@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { X, Undo2, Trash2, Download, Droplet } from 'lucide-react'
+import { X, Undo2, Trash2, Download, Droplet, Sparkles } from 'lucide-react'
 
 interface ColoringCanvasModalProps {
   imageUrl: string
@@ -200,116 +200,123 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="relative flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800">Color your page</h2>
-            <p className="text-sm text-gray-500">Use the brush controls below to add color and download your finished artwork.</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
-            aria-label="Close coloring canvas"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="flex flex-1 flex-col gap-4 overflow-hidden px-6 py-4 sm:flex-row">
-          <div className="flex flex-1 items-center justify-center overflow-auto rounded-xl border border-gray-200 bg-gray-50 p-2">
-            <div className="relative w-full max-w-full">
-              <canvas
-                ref={canvasRef}
-                className={`h-full w-full max-h-[70vh] rounded-lg border border-gray-200 bg-white object-contain ${
-                  isCanvasReady ? '' : 'pointer-events-none opacity-0'
-                }`}
-                onPointerDown={startDrawing}
-                onPointerMove={draw}
-                onPointerUp={stopDrawing}
-                onPointerLeave={stopDrawing}
-                onPointerCancel={stopDrawing}
-              />
-              {!isCanvasReady && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg border border-dashed border-purple-200 bg-white/80 p-6 text-center text-sm text-gray-600">
-                  {loadError ? (
-                    <>
-                      <p className="mb-2 font-medium text-gray-700">{loadError}</p>
-                      <p>If this keeps happening, use the download button on your dashboard card.</p>
-                    </>
-                  ) : (
-                    <p>Loading coloring page...</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex w-full flex-col gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:w-64">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/50 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-5xl">
+        <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#A0E7E5]/40 blur-2xl" aria-hidden="true" />
+        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
+          <div className="flex flex-col gap-4 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-gray-700">Brush color</h3>
-              <div className="grid grid-cols-5 gap-2">
-                {PRESET_COLORS.map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setBrushColor(color)}
-                    style={{ backgroundColor: color }}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition ${
-                      brushColor === color ? 'border-gray-900 ring-2 ring-offset-1 ring-gray-900' : 'border-white shadow'
-                    }`}
-                    aria-label={`Select ${color} brush`}
-                  >
-                    {color === '#f9fafb' && <Droplet className="h-4 w-4 text-gray-400" />}
-                  </button>
-                ))}
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">
+                <Sparkles className="h-4 w-4" />
+                Coloring studio
+              </div>
+              <h2 className="mt-3 text-3xl font-extrabold text-[#3A2E39]">Color your page</h2>
+              <p className="text-sm font-medium text-[#594144]">Use the brush controls below to add color and download your finished artwork.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="self-start rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-2 text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5 md:self-auto"
+              aria-label="Close coloring canvas"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="flex flex-1 flex-col gap-6 overflow-hidden px-8 py-6 lg:flex-row">
+            <div className="flex flex-1 items-center justify-center overflow-auto rounded-[2rem] border-4 border-[#A0E7E5] bg-[#E0F7FA]/80 p-4">
+              <div className="relative w-full max-w-full">
+                <canvas
+                  ref={canvasRef}
+                  className={`h-full w-full max-h-[70vh] rounded-[1.5rem] border-4 border-[#A0E7E5]/70 bg-white object-contain ${
+                    isCanvasReady ? '' : 'pointer-events-none opacity-0'
+                  }`}
+                  onPointerDown={startDrawing}
+                  onPointerMove={draw}
+                  onPointerUp={stopDrawing}
+                  onPointerLeave={stopDrawing}
+                  onPointerCancel={stopDrawing}
+                />
+                {!isCanvasReady && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[1.5rem] border-4 border-dashed border-[#FFD166] bg-[#FFF3BF]/80 p-6 text-center text-sm font-semibold text-[#AA6A00]">
+                    {loadError ? (
+                      <>
+                        <p className="mb-2 text-[#3A2E39]">{loadError}</p>
+                        <p className="text-xs font-medium text-[#AA6A00]">If this keeps happening, use the download button on your dashboard card.</p>
+                      </>
+                    ) : (
+                      <p>Loading coloring page...</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700" htmlFor="brush-size">
-                Brush size
-              </label>
-              <input
-                id="brush-size"
-                type="range"
-                min={2}
-                max={30}
-                value={brushSize}
-                onChange={event => setBrushSize(Number(event.target.value))}
-                className="w-full"
-              />
-              <div className="mt-1 text-xs text-gray-500">{brushSize}px</div>
-            </div>
+            <div className="flex w-full flex-col gap-5 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-5 lg:w-72">
+              <div>
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Brush color</h3>
+                <div className="grid grid-cols-5 gap-2">
+                  {PRESET_COLORS.map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setBrushColor(color)}
+                      style={{ backgroundColor: color }}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition ${
+                        brushColor === color ? 'border-[#3A2E39] ring-2 ring-offset-1 ring-[#3A2E39]' : 'border-white shadow-[3px_3px_0_0_rgba(0,0,0,0.08)]'
+                      }`}
+                      aria-label={`Select ${color} brush`}
+                    >
+                      {color === '#f9fafb' && <Droplet className="h-4 w-4 text-[#BFA3B7]" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            <div className="mt-auto flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleUndo}
-                disabled={history.length === 0 || !isCanvasReady}
-                className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition enabled:hover:border-gray-300 enabled:hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Undo2 className="h-4 w-4" />
-                Undo last stroke
-              </button>
-              <button
-                type="button"
-                onClick={handleClear}
-                disabled={!isCanvasReady}
-                className="flex items-center justify-center gap-2 rounded-lg border border-transparent bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Trash2 className="h-4 w-4" />
-                Clear canvas
-              </button>
-              <button
-                type="button"
-                onClick={handleDownload}
-                disabled={!isCanvasReady}
-                className="flex items-center justify-center gap-2 rounded-lg border border-transparent bg-purple-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
-              >
-                <Download className="h-4 w-4" />
-                Download artwork
-              </button>
+              <div>
+                <label className="mb-2 block text-sm font-semibold uppercase tracking-widest text-[#AA6A00]" htmlFor="brush-size">
+                  Brush size
+                </label>
+                <input
+                  id="brush-size"
+                  type="range"
+                  min={2}
+                  max={30}
+                  value={brushSize}
+                  onChange={event => setBrushSize(Number(event.target.value))}
+                  className="w-full accent-[#FF6F91]"
+                />
+                <div className="mt-1 text-xs font-semibold text-[#AA6A00]">{brushSize}px</div>
+              </div>
+
+              <div className="mt-auto flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  disabled={history.length === 0 || !isCanvasReady}
+                  className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-3 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                >
+                  <Undo2 className="h-4 w-4" />
+                  Undo last stroke
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  disabled={!isCanvasReady}
+                  className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-3 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Clear canvas
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={!isCanvasReady}
+                  className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-4 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                >
+                  <Download className="h-4 w-4" />
+                  Download artwork
+                </button>
+              </div>
             </div>
           </div>
         </div>

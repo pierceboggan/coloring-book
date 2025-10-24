@@ -31,43 +31,44 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     return Sentry.startSpan(
       {
-        op: "ui.upload",
-        name: "Image Upload Process",
+        op: 'ui.upload',
+        name: 'Image Upload Process',
       },
       async (span) => {
         const files = event.target.files
-        if (!files || files.length === 0) return
 
-        span.setAttribute("fileCount", files.length);
+        if (!files || files.length === 0) {
+          return
+        }
+
+        span.setAttribute('fileCount', files.length)
 
         if (!user) {
           setError('Please sign in to upload images')
           return
         }
 
-    // Validate all files first
-    const validFiles: File[] = []
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      
-      if (!file.type.startsWith('image/')) {
-        setError(`${file.name} is not an image file`)
-        return
-      }
+        const validFiles: File[] = []
 
-      if (file.size > 10 * 1024 * 1024) {
-        setError(`${file.name} is too large (max 10MB)`)
-        return
-      }
+        for (const file of Array.from(files)) {
+          if (!file.type.startsWith('image/')) {
+            setError(`${file.name} is not an image file`)
+            return
+          }
 
-      validFiles.push(file)
-    }
+          if (file.size > 10 * 1024 * 1024) {
+            setError(`${file.name} is too large (max 10MB)`)
+            return
+          }
 
-    console.log(`📸 Uploading ${validFiles.length} images...`)
-    setError('')
-    await uploadMultipleImages(validFiles)
+          validFiles.push(file)
+        }
+
+        console.log(`📸 Uploading ${validFiles.length} images...`)
+        setError('')
+        await uploadMultipleImages(validFiles)
       }
-    );
+    )
   }
 
   const uploadMultipleImages = async (files: File[]) => {
