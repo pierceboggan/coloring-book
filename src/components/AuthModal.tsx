@@ -14,8 +14,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, signInWithProvider } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +52,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleOAuthSignIn = async (provider: 'google' | 'facebook' | 'apple') => {
+    setError(null)
+    setOauthLoading(provider)
+
+    try {
+      const { error } = await signInWithProvider(provider)
+
+      if (error) {
+        console.error('❌ OAuth authentication error:', provider, error)
+        setError(error.message)
+      } else {
+        console.log('🌐 OAuth authentication initiated for provider:', provider)
+      }
+    } catch (err) {
+      console.error('💥 OAuth authentication exception:', err)
+      setError('An unexpected error occurred while connecting to the provider')
+    } finally {
+      setOauthLoading(null)
     }
   }
 
@@ -112,6 +134,44 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-2 text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3">
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('google')}
+              disabled={oauthLoading !== null}
+              className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              {oauthLoading === 'google' ? 'Connecting to Google…' : 'Continue with Google'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('facebook')}
+              disabled={oauthLoading !== null}
+              className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              {oauthLoading === 'facebook' ? 'Connecting to Facebook…' : 'Continue with Facebook'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('apple')}
+              disabled={oauthLoading !== null}
+              className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              {oauthLoading === 'apple' ? 'Connecting to Apple…' : 'Continue with Apple'}
+            </button>
+          </div>
+        </div>
 
         <div className="mt-4 text-center">
           <button
