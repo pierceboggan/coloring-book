@@ -8,23 +8,9 @@ import { PhotobookCreator } from '@/components/PhotobookCreator'
 import { FamilyAlbumCreator } from '@/components/FamilyAlbumCreator'
 import { RegenerateModal } from '@/components/RegenerateModal'
 import ImageUploader from '@/components/ImageUploader'
-import {
-  Palette,
-  Plus,
-  Download,
-  Trash2,
-  ArrowLeft,
-  Loader2,
-  RefreshCw,
-  Book,
-  Users,
-  RotateCcw,
-  Paintbrush,
-  Sparkles,
-  Star
-} from 'lucide-react'
+import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw, Paintbrush, Sparkles } from 'lucide-react'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
-import { FunBackground } from '@/components/FunBackground'
+import { PromptRemixModal } from '@/components/PromptRemixModal'
 
 interface UserImage {
   id: string
@@ -47,6 +33,7 @@ export default function Dashboard() {
   const [regenerateImage, setRegenerateImage] = useState<UserImage | null>(null)
   const [retryingProcessing, setRetryingProcessing] = useState(false)
   const [activeDrawingImage, setActiveDrawingImage] = useState<UserImage | null>(null)
+  const [promptRemixImage, setPromptRemixImage] = useState<UserImage | null>(null)
 
   const totalImages = images.length
   const completedCount = images.filter(img => img.status === 'completed' && img.coloring_page_url).length
@@ -269,64 +256,56 @@ export default function Dashboard() {
   }
 
   return (
-    <FunBackground>
-      <nav className="container mx-auto px-4 pt-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-full border-4 border-[#FFD166] bg-white/90 px-6 py-4 shadow-[12px_12px_0_0_#FFB3BA] backdrop-blur">
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      {/* Header */}
+      <nav className="container mx-auto px-4 py-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 text-center lg:flex-row lg:items-center lg:gap-4 lg:text-left">
             <button
               onClick={() => router.push('/')}
-              className="flex items-center gap-2 rounded-full border-2 border-transparent bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#E97777] transition-transform hover:-translate-y-0.5 hover:border-[#FFD166]"
+              className="text-gray-600 hover:text-gray-800 flex items-center justify-center lg:justify-start"
             >
               <ArrowLeft className="h-5 w-5" />
               Back to playground
             </button>
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFB3BA] text-white shadow-inner">
-                <Palette className="h-7 w-7" />
-              </div>
-              <div className="text-left">
-                <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-[#FF6F91]">Creative hub</span>
-                <span className="text-2xl font-extrabold text-[#3A2E39]">My Dashboard</span>
-              </div>
+            <div className="flex items-center justify-center gap-2">
+              <Palette className="w-8 h-8 text-purple-600" />
+              <span className="text-2xl font-bold text-gray-800">Dashboard</span>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {user?.email && (
-              <span className="rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#594144] shadow-[6px_6px_0_0_#FFB84C]">
-                {user.email}
-              </span>
-            )}
+          <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
+            <span className="text-sm text-gray-600 text-center lg:text-left">{user?.email}</span>
             <button
               onClick={() => fetchUserImages(true)}
               disabled={refreshing}
-              className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
-              title="Refresh gallery"
+              className="text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors flex items-center justify-center"
+              title="Refresh"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             <button
               onClick={() => setShowFamilyAlbumCreator(true)}
-              disabled={!hasCompletedImages}
-              className="flex items-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              disabled={images.filter(img => img.status === 'completed').length === 0}
+              className="w-full sm:w-auto text-green-600 hover:text-green-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:text-gray-400"
             >
-              <Users className="h-4 w-4" />
-              Family Album
+              <Users className="w-4 h-4" />
+              <span>Family Album</span>
             </button>
             <button
               onClick={() => setShowPhotobookCreator(true)}
-              disabled={!hasCompletedImages}
-              className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              disabled={images.filter(img => img.status === 'completed').length === 0}
+              className="w-full sm:w-auto text-purple-600 hover:text-purple-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:text-gray-400"
             >
-              <Book className="h-4 w-4" />
-              Photobook
+              <Book className="w-4 h-4" />
+              <span>Create Photobook</span>
             </button>
             <button
               onClick={() => setShowUploader(true)}
-              className="flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-6 py-2 text-sm font-semibold text-white shadow-[8px_8px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
             >
-              <Plus className="h-4 w-4" />
-              Upload photos
+              <Plus className="w-4 h-4" />
+              <span>Upload Photos</span>
             </button>
           </div>
         </div>
@@ -419,38 +398,44 @@ export default function Dashboard() {
                 <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
                   <Palette className="h-10 w-10" />
                 </div>
-                <h3 className="text-2xl font-extrabold text-[#3A2E39]">No coloring pages yet</h3>
-                <p className="mt-3 text-base font-medium text-[#594144]">
-                  Upload your first photo to let the crayons-in-the-cloud work their magic!
-                </p>
-                <button
-                  onClick={() => setShowUploader(true)}
-                  className="mt-8 inline-flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-8 py-3 text-sm font-semibold text-white shadow-[10px_10px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  Upload your first photo
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-3">
-              {images.map((image) => (
-                <div
-                  key={image.id}
-                  className="group relative overflow-hidden rounded-[2.5rem] border-4 border-[#FFB3BA] bg-white/90 p-5 shadow-[14px_14px_0_0_#FF8A80] transition-transform hover:-translate-y-1"
-                >
-                  <div className="pointer-events-none absolute -top-6 right-6 h-16 w-16 rounded-full bg-[#FFD166]/50 blur-xl" aria-hidden="true" />
-                  <div className="pointer-events-none absolute -bottom-8 left-4 h-20 w-20 rounded-full bg-[#A0E7E5]/40 blur-xl" aria-hidden="true" />
-                  <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-dashed border-[#A0E7E5] bg-[#E0F7FA]">
-                    <img
-                      src={image.status === 'completed' && image.coloring_page_url ? image.coloring_page_url : image.original_url}
-                      alt={image.name}
-                      className="h-full w-full rounded-[1.25rem] object-cover"
-                    />
-                    {image.status === 'processing' && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[1.25rem] bg-[#FFF3BF]/80 text-[#AA6A00]">
-                        <Loader2 className="h-10 w-10 animate-spin" />
-                        <p className="mt-2 text-sm font-semibold">Brewing lines...</p>
+                
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-800 mb-2 truncate">{image.name}</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    {new Date(image.created_at).toLocaleDateString()}
+                  </p>
+                  
+                  <div className="flex items-center justify-between gap-2">
+                    {image.status === 'completed' && image.coloring_page_url ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={() => setActiveDrawingImage(image)}
+                          className="flex items-center rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 transition hover:border-purple-200 hover:bg-purple-100"
+                        >
+                          <Paintbrush className="mr-1 h-4 w-4" />
+                          Color online
+                        </button>
+                        <button
+                          onClick={() => setPromptRemixImage(image)}
+                          className="flex items-center rounded-lg border border-orange-100 bg-orange-50 px-3 py-2 text-sm font-medium text-orange-600 transition hover:border-orange-200 hover:bg-orange-100"
+                        >
+                          <Sparkles className="mr-1 h-4 w-4" />
+                          Prompt remix
+                        </button>
+                        <button
+                          onClick={() => {
+                            const link = document.createElement('a')
+                            link.href = `/api/download/${image.id}`
+                            link.download = `coloring-page-${image.name}`
+                            document.body.appendChild(link)
+                            link.click()
+                            document.body.removeChild(link)
+                          }}
+                          className="flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+                        >
+                          <Download className="mr-1 h-4 w-4" />
+                          Download
+                        </button>
                       </div>
                     )}
                   </div>
@@ -607,7 +592,16 @@ export default function Dashboard() {
           onClose={() => setActiveDrawingImage(null)}
         />
       )}
-    </FunBackground>
+
+      {promptRemixImage && (
+        <PromptRemixModal
+          isOpen={true}
+          onClose={() => setPromptRemixImage(null)}
+          imageName={promptRemixImage.name}
+          imageUrl={promptRemixImage.original_url}
+        />
+      )}
+    </div>
   )
 }
 

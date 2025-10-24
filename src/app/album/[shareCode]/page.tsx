@@ -138,12 +138,19 @@ export default function SharedAlbumPage() {
   }
 
   return (
-    <FunBackground>
-      <nav className="container mx-auto px-4 pt-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-full border-4 border-[#A0E7E5] bg-white/90 px-6 py-4 shadow-[12px_12px_0_0_#55C6C0] backdrop-blur">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#55C6C0] text-white shadow-inner">
-              <Users className="h-7 w-7" />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 text-center md:flex-row md:items-center md:gap-3 md:text-left">
+              <Users className="w-8 h-8 text-purple-600" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">{album.title}</h1>
+                {album.description && (
+                  <p className="text-gray-600">{album.description}</p>
+                )}
+              </div>
             </div>
             <div className="text-left">
               <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-[#1DB9B3]">Shared album</span>
@@ -160,7 +167,7 @@ export default function SharedAlbumPage() {
             <button
               onClick={downloadPDF}
               disabled={downloadingPdf || album.imageCount === 0}
-              className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-6 py-2 text-sm font-semibold text-white shadow-[8px_8px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {downloadingPdf ? (
                 <>
