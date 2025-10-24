@@ -247,7 +247,7 @@ export default function Dashboard() {
             </div>
             <p className="text-lg font-semibold text-[#3A2E39]">Loading your colorful dashboard...</p>
             <p className="mt-2 text-sm font-medium text-[#FF6F91]">
-              Auth: {authLoading ? 'mixing magic' : 'ready'} • Data: {loading ? 'gathering crayons' : 'ready'}
+              Auth: {authLoading ? 'loading' : 'ready'} • Data: {loading ? 'loading' : 'ready'}
             </p>
           </div>
         </div>
