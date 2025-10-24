@@ -8,7 +8,8 @@ import { PhotobookCreator } from '@/components/PhotobookCreator'
 import { FamilyAlbumCreator } from '@/components/FamilyAlbumCreator'
 import { RegenerateModal } from '@/components/RegenerateModal'
 import ImageUploader from '@/components/ImageUploader'
-import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw } from 'lucide-react'
+import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw, Paintbrush } from 'lucide-react'
+import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 
 interface UserImage {
   id: string
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const [showUploader, setShowUploader] = useState(false)
   const [regenerateImage, setRegenerateImage] = useState<UserImage | null>(null)
   const [retryingProcessing, setRetryingProcessing] = useState(false)
+  const [activeDrawingImage, setActiveDrawingImage] = useState<UserImage | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -366,26 +368,35 @@ export default function Dashboard() {
                     {new Date(image.created_at).toLocaleDateString()}
                   </p>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     {image.status === 'completed' && image.coloring_page_url ? (
-                      <button
-                        onClick={() => {
-                          const link = document.createElement('a')
-                          link.href = `/api/download/${image.id}`
-                          link.download = `coloring-page-${image.name}`
-                          document.body.appendChild(link)
-                          link.click()
-                          document.body.removeChild(link)
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm"
-                      >
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={() => setActiveDrawingImage(image)}
+                          className="flex items-center rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 transition hover:border-purple-200 hover:bg-purple-100"
+                        >
+                          <Paintbrush className="mr-1 h-4 w-4" />
+                          Color online
+                        </button>
+                        <button
+                          onClick={() => {
+                            const link = document.createElement('a')
+                            link.href = `/api/download/${image.id}`
+                            link.download = `coloring-page-${image.name}`
+                            document.body.appendChild(link)
+                            link.click()
+                            document.body.removeChild(link)
+                          }}
+                          className="flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+                        >
+                          <Download className="mr-1 h-4 w-4" />
+                          Download
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-sm text-gray-500 capitalize">{image.status}</span>
                     )}
-                    
+
                     <div className="flex items-center space-x-1">
                       {image.status === 'completed' && image.coloring_page_url && (
                         <button
@@ -475,6 +486,15 @@ export default function Dashboard() {
           }}
         />
       )}
+
+      {activeDrawingImage && activeDrawingImage.coloring_page_url && (
+        <ColoringCanvasModal
+          imageUrl={activeDrawingImage.coloring_page_url}
+          imageName={activeDrawingImage.name}
+          onClose={() => setActiveDrawingImage(null)}
+        />
+      )}
     </div>
   )
 }
+
