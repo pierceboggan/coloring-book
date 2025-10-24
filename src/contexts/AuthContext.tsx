@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: redirectTo ? { redirectTo } : {},
+      options: { redirectTo },
     })
 
     if (error) {
