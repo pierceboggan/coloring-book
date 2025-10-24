@@ -245,26 +245,26 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Header */}
       <nav className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 text-center lg:flex-row lg:items-center lg:gap-4 lg:text-left">
             <button
               onClick={() => router.push('/')}
-              className="text-gray-600 hover:text-gray-800 flex items-center"
+              className="text-gray-600 hover:text-gray-800 flex items-center justify-center lg:justify-start"
             >
               <ArrowLeft className="w-5 h-5 mr-1" />
               Back
             </button>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center gap-2">
               <Palette className="w-8 h-8 text-purple-600" />
               <span className="text-2xl font-bold text-gray-800">Dashboard</span>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <span className="text-sm text-gray-600">{user?.email}</span>
+          <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
+            <span className="text-sm text-gray-600 text-center lg:text-left">{user?.email}</span>
             <button
               onClick={() => fetchUserImages(true)}
               disabled={refreshing}
-              className="text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors flex items-center"
+              className="text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors flex items-center justify-center"
               title="Refresh"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -272,25 +272,25 @@ export default function Dashboard() {
             <button
               onClick={() => setShowFamilyAlbumCreator(true)}
               disabled={images.filter(img => img.status === 'completed').length === 0}
-              className="text-green-600 hover:text-green-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center disabled:text-gray-400"
+              className="w-full sm:w-auto text-green-600 hover:text-green-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:text-gray-400"
             >
-              <Users className="w-4 h-4 mr-2" />
-              Family Album
+              <Users className="w-4 h-4" />
+              <span>Family Album</span>
             </button>
             <button
               onClick={() => setShowPhotobookCreator(true)}
               disabled={images.filter(img => img.status === 'completed').length === 0}
-              className="text-purple-600 hover:text-purple-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center disabled:text-gray-400"
+              className="w-full sm:w-auto text-purple-600 hover:text-purple-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:text-gray-400"
             >
-              <Book className="w-4 h-4 mr-2" />
-              Create Photobook
+              <Book className="w-4 h-4" />
+              <span>Create Photobook</span>
             </button>
             <button
               onClick={() => setShowUploader(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-medium transition-colors flex items-center"
+              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Upload Photos
+              <Plus className="w-4 h-4" />
+              <span>Upload Photos</span>
             </button>
           </div>
         </div>
