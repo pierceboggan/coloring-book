@@ -63,8 +63,14 @@ export async function middleware(req: NextRequest) {
 
   console.log('🔍 Session check result:', session ? 'Authenticated' : 'Not authenticated')
 
-  // Protected API routes
-  if (req.nextUrl.pathname.startsWith('/api/generate-coloring-page')) {
+  const protectedApiPrefixes = [
+    '/api/generate-coloring-page',
+    '/api/regenerate-coloring-page',
+    '/api/retry-processing',
+    '/api/images',
+  ]
+
+  if (protectedApiPrefixes.some(path => req.nextUrl.pathname.startsWith(path))) {
     if (!session) {
       console.log('❌ Blocking unauthenticated request to protected API')
       return NextResponse.json(
@@ -75,9 +81,25 @@ export async function middleware(req: NextRequest) {
     console.log('✅ Allowing authenticated request to protected API')
   }
 
+  if (req.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!session) {
+      console.log('❌ Redirecting unauthenticated user from dashboard')
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = '/'
+      return NextResponse.redirect(redirectUrl)
+    }
+    console.log('✅ Authenticated access to dashboard')
+  }
+
   return response
 }
 
 export const config = {
-  matcher: []
+  matcher: [
+    '/dashboard/:path*',
+    '/api/generate-coloring-page',
+    '/api/regenerate-coloring-page',
+    '/api/retry-processing',
+    '/api/images/:path*',
+  ],
 }
