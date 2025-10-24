@@ -135,8 +135,8 @@ export default function SharedAlbumPage() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 text-center md:flex-row md:items-center md:gap-3 md:text-left">
               <Users className="w-8 h-8 text-purple-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">{album.title}</h1>
@@ -148,7 +148,7 @@ export default function SharedAlbumPage() {
             <button
               onClick={downloadPDF}
               disabled={downloadingPdf || album.imageCount === 0}
-              className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2"
+              className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {downloadingPdf ? (
                 <>

@@ -72,25 +72,25 @@ export default function Home() {
 
       {/* Header */}
       <nav className="relative z-10 container mx-auto px-4 pt-8">
-        <div className="flex items-center justify-between rounded-full border-4 border-[#FFD166] bg-white/90 px-6 py-4 shadow-[10px_10px_0_0_#FFB3BA] backdrop-blur">
-          <div className="flex items-center space-x-3">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between rounded-[2.5rem] border-4 border-[#FFD166] bg-white/90 px-6 py-6 shadow-[10px_10px_0_0_#FFB3BA] backdrop-blur">
+          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:gap-3 sm:text-left">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFB3BA] text-white shadow-inner">
               <Palette className="h-7 w-7" />
             </div>
-            <div className="text-left">
+            <div>
               <span className="block text-sm font-semibold text-[#FF6F91] tracking-widest uppercase">Coloring fun</span>
               <span className="text-2xl font-extrabold text-[#3A2E39]">ColoringBook.AI</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center">
             {user ? (
               <>
-                <span className="text-sm font-semibold text-[#594144] bg-[#FFF3BF] px-4 py-2 rounded-full border-2 border-[#FFD166]">
+                <span className="text-sm font-semibold text-[#594144] bg-[#FFF3BF] px-4 py-2 rounded-full border-2 border-[#FFD166] text-center">
                   {user.email}
                 </span>
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-6 py-2 font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:translate-y-[-2px]"
+                  className="w-full sm:w-auto rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-6 py-2 font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:translate-y-[-2px]"
                 >
                   Dashboard
                 </button>
@@ -99,13 +99,13 @@ export default function Home() {
               <>
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="rounded-full border-4 border-[#FFB3BA] bg-white/90 px-5 py-2 font-semibold text-[#FF6F91] transition-transform hover:translate-y-[-2px]"
+                  className="w-full sm:w-auto rounded-full border-4 border-[#FFB3BA] bg-white/90 px-5 py-2 font-semibold text-[#FF6F91] transition-transform hover:translate-y-[-2px]"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => setShowUploader(true)}
-                  className="rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-6 py-2 font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:translate-y-[-2px]"
+                  className="w-full sm:w-auto rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-6 py-2 font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:translate-y-[-2px]"
                 >
                   Get Started
                 </button>
