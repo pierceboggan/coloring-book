@@ -15,8 +15,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, signInWithProvider } = useAuth()
   const router = useRouter()
   const funMessage = useMemo(() => {
     const messages = [
@@ -62,6 +63,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleOAuthSignIn = async (provider: 'google' | 'facebook' | 'apple') => {
+    setError(null)
+    setOauthLoading(provider)
+
+    try {
+      const { error } = await signInWithProvider(provider)
+
+      if (error) {
+        console.error('❌ OAuth authentication error:', provider, error)
+        setError(error.message)
+      } else {
+        console.log('🌐 OAuth authentication initiated for provider:', provider)
+      }
+    } catch (err) {
+      console.error('💥 OAuth authentication exception:', err)
+      setError('An unexpected error occurred while connecting to the provider')
+    } finally {
+      setOauthLoading(null)
     }
   }
 
