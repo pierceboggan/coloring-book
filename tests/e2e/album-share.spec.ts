@@ -68,7 +68,10 @@ test.describe('Public family album', () => {
     const downloadPromise = page.waitForEvent('download')
     await downloadButton.click()
     const download = await downloadPromise
-    await expect(download.suggestedFilename()).toContain('magical_memories_coloring_book.pdf')
+    // The filename should be a sanitized version of the album title followed by '_coloring_book.pdf'.
+    // This regex allows for underscores or dashes, and is case-insensitive.
+    const expectedFilenamePattern = /^magical[-_]memories_coloring_book\.pdf$/i;
+    await expect(download.suggestedFilename()).toMatch(expectedFilenamePattern);
   })
 
   test('renders an error state when the share code is invalid', async ({ page }) => {
