@@ -8,7 +8,22 @@ import { PhotobookCreator } from '@/components/PhotobookCreator'
 import { FamilyAlbumCreator } from '@/components/FamilyAlbumCreator'
 import { RegenerateModal } from '@/components/RegenerateModal'
 import ImageUploader from '@/components/ImageUploader'
-import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw, Paintbrush, Sparkles } from 'lucide-react'
+import { FunBackground } from '@/components/FunBackground'
+import {
+  Palette,
+  Plus,
+  Download,
+  Trash2,
+  ArrowLeft,
+  Loader2,
+  RefreshCw,
+  Book,
+  Users,
+  RotateCcw,
+  Paintbrush,
+  Sparkles,
+  Star,
+} from 'lucide-react'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 import { PromptRemixModal } from '@/components/PromptRemixModal'
 
