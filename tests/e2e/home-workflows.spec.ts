@@ -1,11 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
-
-const unlockPreview = async (page: Page) => {
-  await page.addInitScript(() => {
-    window.sessionStorage.setItem('dev_authenticated', 'true')
-  })
-}
-
+import { unlockPreview } from './helpers/auth'
 test.describe('Home page workflows', () => {
   test.beforeEach(async ({ page }) => {
     await unlockPreview(page)
