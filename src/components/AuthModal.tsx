@@ -84,7 +84,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
             <button
               onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-50 text-purple-500 transition hover:bg-purple-100"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-50 text-purple-500 transition hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
               aria-label="Close authentication dialog"
             >
               ×
