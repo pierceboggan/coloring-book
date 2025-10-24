@@ -8,8 +8,23 @@ import { PhotobookCreator } from '@/components/PhotobookCreator'
 import { FamilyAlbumCreator } from '@/components/FamilyAlbumCreator'
 import { RegenerateModal } from '@/components/RegenerateModal'
 import ImageUploader from '@/components/ImageUploader'
-import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw, Paintbrush } from 'lucide-react'
+import {
+  Palette,
+  Plus,
+  Download,
+  Trash2,
+  ArrowLeft,
+  Loader2,
+  RefreshCw,
+  Book,
+  Users,
+  RotateCcw,
+  Paintbrush,
+  Sparkles,
+  Star
+} from 'lucide-react'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
+import { FunBackground } from '@/components/FunBackground'
 
 interface UserImage {
   id: string
@@ -32,6 +47,12 @@ export default function Dashboard() {
   const [regenerateImage, setRegenerateImage] = useState<UserImage | null>(null)
   const [retryingProcessing, setRetryingProcessing] = useState(false)
   const [activeDrawingImage, setActiveDrawingImage] = useState<UserImage | null>(null)
+
+  const totalImages = images.length
+  const completedCount = images.filter(img => img.status === 'completed' && img.coloring_page_url).length
+  const processingCount = images.filter(img => img.status === 'processing').length
+  const hasCompletedImages = completedCount > 0
+  const isProcessing = processingCount > 0
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -231,224 +252,320 @@ export default function Dashboard() {
   if (authLoading || loading) {
     console.log('🔄 Dashboard loading state:', { authLoading, loading, user: !!user })
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading your dashboard...</p>
-          <p className="text-xs text-gray-400 mt-2">Auth: {authLoading ? 'loading' : 'ready'} | Data: {loading ? 'loading' : 'ready'}</p>
+      <FunBackground>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="rounded-[2.75rem] border-4 border-[#FFB3BA] bg-white/90 px-12 py-10 text-center shadow-[14px_14px_0_0_#FF8A80]">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
+              <Loader2 className="h-10 w-10 animate-spin" />
+            </div>
+            <p className="text-lg font-semibold text-[#3A2E39]">Loading your colorful dashboard...</p>
+            <p className="mt-2 text-sm font-medium text-[#FF6F91]">
+              Auth: {authLoading ? 'mixing magic' : 'ready'} • Data: {loading ? 'gathering crayons' : 'ready'}
+            </p>
+          </div>
         </div>
-      </div>
+      </FunBackground>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      {/* Header */}
-      <nav className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+    <FunBackground>
+      <nav className="container mx-auto px-4 pt-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-full border-4 border-[#FFD166] bg-white/90 px-6 py-4 shadow-[12px_12px_0_0_#FFB3BA] backdrop-blur">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/')}
-              className="text-gray-600 hover:text-gray-800 flex items-center"
+              className="flex items-center gap-2 rounded-full border-2 border-transparent bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#E97777] transition-transform hover:-translate-y-0.5 hover:border-[#FFD166]"
             >
-              <ArrowLeft className="w-5 h-5 mr-1" />
-              Back
+              <ArrowLeft className="h-5 w-5" />
+              Back to playground
             </button>
-            <div className="flex items-center space-x-2">
-              <Palette className="w-8 h-8 text-purple-600" />
-              <span className="text-2xl font-bold text-gray-800">Dashboard</span>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFB3BA] text-white shadow-inner">
+                <Palette className="h-7 w-7" />
+              </div>
+              <div className="text-left">
+                <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-[#FF6F91]">Creative hub</span>
+                <span className="text-2xl font-extrabold text-[#3A2E39]">My Dashboard</span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <span className="text-sm text-gray-600">{user?.email}</span>
+          <div className="flex flex-wrap items-center gap-3">
+            {user?.email && (
+              <span className="rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#594144] shadow-[6px_6px_0_0_#FFB84C]">
+                {user.email}
+              </span>
+            )}
             <button
               onClick={() => fetchUserImages(true)}
               disabled={refreshing}
-              className="text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors flex items-center"
-              title="Refresh"
+              className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              title="Refresh gallery"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
             </button>
             <button
               onClick={() => setShowFamilyAlbumCreator(true)}
-              disabled={images.filter(img => img.status === 'completed').length === 0}
-              className="text-green-600 hover:text-green-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center disabled:text-gray-400"
+              disabled={!hasCompletedImages}
+              className="flex items-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
             >
-              <Users className="w-4 h-4 mr-2" />
+              <Users className="h-4 w-4" />
               Family Album
             </button>
             <button
               onClick={() => setShowPhotobookCreator(true)}
-              disabled={images.filter(img => img.status === 'completed').length === 0}
-              className="text-purple-600 hover:text-purple-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center disabled:text-gray-400"
+              disabled={!hasCompletedImages}
+              className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
             >
-              <Book className="w-4 h-4 mr-2" />
-              Create Photobook
+              <Book className="h-4 w-4" />
+              Photobook
             </button>
             <button
               onClick={() => setShowUploader(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-medium transition-colors flex items-center"
+              className="flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-6 py-2 text-sm font-semibold text-white shadow-[8px_8px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Upload Photos
+              <Plus className="h-4 w-4" />
+              Upload photos
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Your Coloring Pages</h1>
-              <p className="text-gray-600">Manage and download all your AI-generated coloring pages</p>
+      <main className="container mx-auto px-4 pb-24 pt-12">
+        <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 px-8 py-10 shadow-[18px_18px_0_0_#55C6C0]">
+          <div className="pointer-events-none absolute -top-10 right-10 h-24 w-24 rounded-full bg-[#FF8A80]/70" aria-hidden="true" />
+          <div className="pointer-events-none absolute -bottom-8 left-6 h-20 w-20 rounded-full bg-[#B4F8C8]/70" aria-hidden="true" />
+          <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#E97777]">
+                <Sparkles className="h-4 w-4" />
+                Studio status
+              </div>
+              <h1 className="text-4xl font-extrabold text-[#3A2E39] md:text-5xl">
+                Your Coloring Pages Playground
+              </h1>
+              <p className="text-lg font-medium text-[#594144]">
+                Keep track of every doodle-ready download, peek at works-in-progress, and build magical books for your crew.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB] px-4 py-2 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80]">
+                  <Star className="h-4 w-4" />
+                  {totalImages} creations
+                </div>
+                <div className="flex items-center gap-2 rounded-full border-4 border-dashed border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0]">
+                  <Paintbrush className="h-4 w-4" />
+                  {completedCount} ready to color
+                </div>
+                {isProcessing && (
+                  <div className="flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C]">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {processingCount} brewing
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex w-full flex-col gap-3 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-6 shadow-[12px_12px_0_0_#FF8A80] md:max-w-xs">
+              <p className="text-center text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Quick actions</p>
+              <button
+                onClick={() => setShowUploader(true)}
+                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-4 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+              >
+                <Plus className="h-4 w-4" />
+                Upload new memories
+              </button>
               <button
                 onClick={() => fetchUserImages(true)}
                 disabled={refreshing}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-4 py-3 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
-                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                <span>Refresh Status</span>
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh gallery
               </button>
-              
-              {images.some(img => img.status === 'processing') && (
-                <button
-                  onClick={retryStuckImages}
-                  disabled={retryingProcessing}
-                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                >
-                  <Loader2 className={`w-4 h-4 ${retryingProcessing ? 'animate-spin' : ''}`} />
-                  <span>Fix Stuck Images</span>
-                </button>
-              )}
+              <button
+                onClick={retryStuckImages}
+                disabled={!isProcessing || retryingProcessing}
+                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-3 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              >
+                <Loader2 className={`h-4 w-4 ${retryingProcessing ? 'animate-spin' : ''}`} />
+                Fix stuck pages
+              </button>
+              <button
+                onClick={() => setShowFamilyAlbumCreator(true)}
+                disabled={!hasCompletedImages}
+                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-white px-4 py-3 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              >
+                <Users className="h-4 w-4" />
+                Build family album
+              </button>
+              <button
+                onClick={() => setShowPhotobookCreator(true)}
+                disabled={!hasCompletedImages}
+                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-4 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+              >
+                <Book className="h-4 w-4" />
+                Create photobook
+              </button>
             </div>
           </div>
         </div>
 
-        {images.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto">
-              <Palette className="w-16 h-16 text-purple-600 mx-auto mb-6" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">No coloring pages yet</h3>
-              <p className="text-gray-600 mb-6">Upload your first photo to create a beautiful coloring page!</p>
-              <button
-                onClick={() => setShowUploader(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors"
-              >
-                Upload Your First Photo
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {images.map((image) => (
-              <div key={image.id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="aspect-square bg-gray-100 relative">
-                  <img
-                    src={image.status === 'completed' && image.coloring_page_url ? image.coloring_page_url : image.original_url}
-                    alt={image.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {image.status === 'processing' && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <div className="text-white text-center">
-                        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-                        <p className="text-sm">Processing...</p>
-                      </div>
-                    </div>
-                  )}
+        <section className="mt-16 space-y-8">
+          {images.length === 0 ? (
+            <div className="mx-auto max-w-2xl">
+              <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#FFB3BA] bg-white/90 p-12 text-center shadow-[18px_18px_0_0_#FF8A80]">
+                <div className="pointer-events-none absolute -top-10 right-10 h-24 w-24 rounded-full bg-[#FF8A80]/40" aria-hidden="true" />
+                <div className="pointer-events-none absolute -bottom-8 left-8 h-24 w-24 rounded-full bg-[#A0E7E5]/40" aria-hidden="true" />
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
+                  <Palette className="h-10 w-10" />
                 </div>
-                
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2 truncate">{image.name}</h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    {new Date(image.created_at).toLocaleDateString()}
-                  </p>
-                  
-                  <div className="flex items-center justify-between gap-2">
-                    {image.status === 'completed' && image.coloring_page_url ? (
-                      <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-2xl font-extrabold text-[#3A2E39]">No coloring pages yet</h3>
+                <p className="mt-3 text-base font-medium text-[#594144]">
+                  Upload your first photo to let the crayons-in-the-cloud work their magic!
+                </p>
+                <button
+                  onClick={() => setShowUploader(true)}
+                  className="mt-8 inline-flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-8 py-3 text-sm font-semibold text-white shadow-[10px_10px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
+                >
+                  <Plus className="h-4 w-4" />
+                  Upload your first photo
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-3">
+              {images.map((image) => (
+                <div
+                  key={image.id}
+                  className="group relative overflow-hidden rounded-[2.5rem] border-4 border-[#FFB3BA] bg-white/90 p-5 shadow-[14px_14px_0_0_#FF8A80] transition-transform hover:-translate-y-1"
+                >
+                  <div className="pointer-events-none absolute -top-6 right-6 h-16 w-16 rounded-full bg-[#FFD166]/50 blur-xl" aria-hidden="true" />
+                  <div className="pointer-events-none absolute -bottom-8 left-4 h-20 w-20 rounded-full bg-[#A0E7E5]/40 blur-xl" aria-hidden="true" />
+                  <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-dashed border-[#A0E7E5] bg-[#E0F7FA]">
+                    <img
+                      src={image.status === 'completed' && image.coloring_page_url ? image.coloring_page_url : image.original_url}
+                      alt={image.name}
+                      className="h-full w-full rounded-[1.25rem] object-cover"
+                    />
+                    {image.status === 'processing' && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[1.25rem] bg-[#FFF3BF]/80 text-[#AA6A00]">
+                        <Loader2 className="h-10 w-10 animate-spin" />
+                        <p className="mt-2 text-sm font-semibold">Brewing lines...</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-5 space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="max-w-[14rem] truncate text-lg font-extrabold text-[#3A2E39]">{image.name}</h3>
+                        <p className="text-sm font-medium text-[#594144]/70">
+                          {new Date(image.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      {image.status === 'completed' && image.coloring_page_url ? (
+                        <span className="rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#1DB9B3]">
+                          Ready!
+                        </span>
+                      ) : (
+                        <span className="rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#AA6A00]">
+                          {image.status}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      {image.status === 'completed' && image.coloring_page_url ? (
+                        <div className="flex flex-wrap items-center gap-3">
+                          <button
+                            onClick={() => setActiveDrawingImage(image)}
+                            className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
+                          >
+                            <Paintbrush className="h-4 w-4" />
+                            Color online
+                          </button>
+                          <button
+                            onClick={() => {
+                              const link = document.createElement('a')
+                              link.href = `/api/download/${image.id}`
+                              link.download = `coloring-page-${image.name}`
+                              document.body.appendChild(link)
+                              link.click()
+                              document.body.removeChild(link)
+                            }}
+                            className="flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-4 py-2 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                          >
+                            <Download className="h-4 w-4" />
+                            Download
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-xs font-semibold capitalize text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C]">
+                          {image.status}
+                        </span>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        {image.status === 'completed' && image.coloring_page_url && (
+                          <button
+                            onClick={() => setRegenerateImage(image)}
+                            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] text-[#AA6A00] shadow-[4px_4px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
+                            title="Regenerate"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
-                          onClick={() => setActiveDrawingImage(image)}
-                          className="flex items-center rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 transition hover:border-purple-200 hover:bg-purple-100"
+                          onClick={() => deleteImage(image.id)}
+                          className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                          title="Delete"
                         >
-                          <Paintbrush className="mr-1 h-4 w-4" />
-                          Color online
-                        </button>
-                        <button
-                          onClick={() => {
-                            const link = document.createElement('a')
-                            link.href = `/api/download/${image.id}`
-                            link.download = `coloring-page-${image.name}`
-                            document.body.appendChild(link)
-                            link.click()
-                            document.body.removeChild(link)
-                          }}
-                          className="flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
-                        >
-                          <Download className="mr-1 h-4 w-4" />
-                          Download
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                    ) : (
-                      <span className="text-sm text-gray-500 capitalize">{image.status}</span>
-                    )}
-
-                    <div className="flex items-center space-x-1">
-                      {image.status === 'completed' && image.coloring_page_url && (
-                        <button
-                          onClick={() => setRegenerateImage(image)}
-                          className="text-orange-500 hover:text-orange-700 p-2 transition-colors"
-                          title="Regenerate"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => deleteImage(image.id)}
-                        className="text-red-500 hover:text-red-700 p-2 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Upload Modal */}
-      {showUploader && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-800">Upload Photos</h2>
-              <button
-                onClick={() => setShowUploader(false)}
-                className="text-gray-500 hover:text-gray-700 p-2"
-              >
-                ✕
-              </button>
+              ))}
             </div>
-            <div className="p-6">
-              <ImageUploader 
-                onUploadComplete={() => {
-                  setShowUploader(false)
-                  fetchUserImages(true)
-                }}
-              />
+          )}
+        </section>
+      </main>
+
+      {showUploader && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-4xl">
+            <div className="pointer-events-none absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#9BF6FF]/40 blur-2xl" aria-hidden="true" />
+            <div className="relative overflow-hidden rounded-[2.5rem] border-4 border-[#FFB3BA] bg-[#FFF5D6]/95 p-8 shadow-[18px_18px_0_0_#FF8A80]">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-3 py-1 text-xs font-semibold uppercase tracking-widest text-[#E97777]">
+                    <Sparkles className="h-3 w-3" />
+                    Upload station
+                  </p>
+                  <h2 className="mt-4 text-3xl font-extrabold text-[#3A2E39]">Upload Photos</h2>
+                  <p className="text-sm font-medium text-[#594144]">Drop in your favorite snapshots and we will turn them into coloring adventures.</p>
+                </div>
+                <button
+                  onClick={() => setShowUploader(false)}
+                  className="rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-2 text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                  aria-label="Close uploader"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="mt-8">
+                <ImageUploader
+                  onUploadComplete={() => {
+                    setShowUploader(false)
+                    fetchUserImages(true)
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Family Album Creator Modal */}
       {showFamilyAlbumCreator && (
         <FamilyAlbumCreator
           images={images}
@@ -456,7 +573,6 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Photobook Creator Modal */}
       {showPhotobookCreator && (
         <PhotobookCreator
           images={images}
@@ -464,20 +580,17 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Regenerate Modal */}
       {regenerateImage && (
         <RegenerateModal
           isOpen={true}
           onClose={() => setRegenerateImage(null)}
           imageId={regenerateImage.id}
           imageName={regenerateImage.name}
-          originalUrl={regenerateImage.original_url}
           currentColoringPageUrl={regenerateImage.coloring_page_url || ''}
           onRegenerateComplete={(regeneratedUrl) => {
-            // Update the image with the new coloring page URL
-            setImages(prev => 
-              prev.map(img => 
-                img.id === regenerateImage.id 
+            setImages(prev =>
+              prev.map(img =>
+                img.id === regenerateImage.id
                   ? { ...img, coloring_page_url: regeneratedUrl }
                   : img
               )
@@ -494,7 +607,7 @@ export default function Dashboard() {
           onClose={() => setActiveDrawingImage(null)}
         />
       )}
-    </div>
+    </FunBackground>
   )
 }
 

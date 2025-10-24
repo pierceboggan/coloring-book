@@ -1,14 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { X, RefreshCw, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { X, RefreshCw, Loader2, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react'
 
 interface RegenerateModalProps {
   isOpen: boolean
   onClose: () => void
   imageId: string
   imageName: string
-  originalUrl: string
   currentColoringPageUrl: string
   onRegenerateComplete: (regeneratedUrl: string) => void
 }
@@ -18,7 +17,6 @@ export function RegenerateModal({
   onClose,
   imageId,
   imageName,
-  originalUrl,
   currentColoringPageUrl,
   onRegenerateComplete
 }: RegenerateModalProps) {
@@ -31,8 +29,6 @@ export function RegenerateModal({
   const handleRegenerate = async () => {
     setIsRegenerating(true)
     setError(null)
-    
-    console.log('🔄 Regenerating coloring page with feedback:', feedback)
 
     try {
       const response = await fetch('/api/regenerate-coloring-page', {
@@ -43,7 +39,7 @@ export function RegenerateModal({
         body: JSON.stringify({
           imageId,
           feedback: feedback.trim(),
-          userId: 'current-user-id' // This should come from auth context
+          userId: 'current-user-id'
         }),
       })
 
@@ -54,8 +50,6 @@ export function RegenerateModal({
 
       const result = await response.json()
       setRegeneratedUrl(result.regeneratedColoringPageUrl)
-      console.log('✅ Regeneration completed successfully')
-      
     } catch (err) {
       console.error('❌ Error regenerating coloring page:', err)
       setError(err instanceof Error ? err.message : 'Failed to regenerate coloring page')
@@ -68,174 +62,175 @@ export function RegenerateModal({
     if (version === 'regenerated' && regeneratedUrl) {
       onRegenerateComplete(regeneratedUrl)
     }
-    // If original is selected, we don't need to do anything
     onClose()
   }
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <RefreshCw className="w-6 h-6 text-orange-600" />
-            <h2 className="text-2xl font-bold text-gray-800">Regenerate Coloring Page</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/50 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-5xl">
+        <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#A0E7E5]/40 blur-2xl" aria-hidden="true" />
+        <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#FFB3BA] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#FF8A80]">
+          <div className="flex items-start justify-between gap-4 border-b-4 border-dashed border-[#FFD166] px-8 py-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FF6F91] text-white shadow-inner">
+                <RefreshCw className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FF6F91]">One-time makeover</p>
+                <h2 className="text-3xl font-extrabold text-[#3A2E39]">Regenerate coloring page</h2>
+                <p className="text-sm font-medium text-[#594144]">Tweak the vibe of <span className="font-semibold text-[#FF6F91]">&quot;{imageName}&quot;</span> and choose the version you love most.</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-2 text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+              aria-label="Close regenerate modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 p-2"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
 
-        <div className="p-6">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">"{imageName}"</h3>
-            <p className="text-gray-600 text-sm">
-              You can regenerate this coloring page once. Tell us what you'd like to change, and we'll create a new version for you to compare.
-            </p>
-          </div>
+          <div className="flex-1 overflow-y-auto px-8 py-6">
+            {!regeneratedUrl ? (
+              <div className="space-y-6">
+                <div className="rounded-[2rem] border-4 border-dashed border-[#A0E7E5] bg-[#E0F7FA]/80 p-6">
+                  <h3 className="text-lg font-extrabold text-[#3A2E39]">Current coloring page</h3>
+                  <p className="mt-2 text-sm font-medium text-[#1DB9B3]">You can request tweaks once per image.</p>
+                  <div className="mt-4 overflow-hidden rounded-[1.5rem] border-4 border-[#A0E7E5] bg-white/80 p-3">
+                    <img src={currentColoringPageUrl} alt="Current coloring page" className="w-full rounded-[1rem] object-contain" />
+                  </div>
+                </div>
 
-          {!regeneratedUrl ? (
-            <>
-              {/* Current Version */}
-              <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">Current Coloring Page:</h4>
-                <div className="bg-gray-50 rounded-xl p-4 max-w-sm">
-                  <img
-                    src={currentColoringPageUrl}
-                    alt="Current coloring page"
-                    className="w-full rounded-lg"
+                <div className="rounded-[2rem] border-4 border-dashed border-[#FFD166] bg-[#FFF3BF]/80 p-6">
+                  <label className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[#AA6A00]">
+                    <Sparkles className="h-4 w-4" />
+                    What would you like to change? (Optional)
+                  </label>
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    className="mt-3 w-full rounded-2xl border-2 border-[#FFD166] bg-white/80 px-4 py-3 text-[#3A2E39] focus:border-[#FF6F91] focus:outline-none"
+                    placeholder="e.g., 'Make it simpler', 'Thicker lines', 'More cartoon vibes'"
+                    rows={4}
+                    disabled={isRegenerating}
                   />
-                </div>
-              </div>
-
-              {/* Feedback Form */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  What would you like to change? (Optional)
-                </label>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                  placeholder="e.g., 'Too complex, make it simpler' or 'Lines are too thin' or 'Add more details'"
-                  rows={3}
-                  disabled={isRegenerating}
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  Common requests: simpler/more complex, thicker/thinner lines, more/fewer details, more cartoon-like, more realistic
-                </p>
-              </div>
-
-              {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end space-x-3">
-                <button
-                  onClick={onClose}
-                  className="px-6 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                  disabled={isRegenerating}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleRegenerate}
-                  disabled={isRegenerating}
-                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                >
-                  {isRegenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Regenerating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4" />
-                      <span>Regenerate</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Version Comparison */}
-              <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-4">Choose your preferred version:</h4>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Original Version */}
-                  <div className={`bg-gray-50 rounded-xl p-4 cursor-pointer transition-all ${
-                    selectedVersion === 'original' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-100'
-                  }`} onClick={() => setSelectedVersion('original')}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h5 className="font-medium text-gray-800">Original Version</h5>
-                      {selectedVersion === 'original' && (
-                        <ThumbsUp className="w-5 h-5 text-blue-600" />
-                      )}
-                    </div>
-                    <img
-                      src={currentColoringPageUrl}
-                      alt="Original coloring page"
-                      className="w-full rounded-lg"
-                    />
-                  </div>
-
-                  {/* Regenerated Version */}
-                  <div className={`bg-gray-50 rounded-xl p-4 cursor-pointer transition-all ${
-                    selectedVersion === 'regenerated' ? 'ring-2 ring-green-500 bg-green-50' : 'hover:bg-gray-100'
-                  }`} onClick={() => setSelectedVersion('regenerated')}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h5 className="font-medium text-gray-800">Regenerated Version</h5>
-                      {selectedVersion === 'regenerated' && (
-                        <ThumbsUp className="w-5 h-5 text-green-600" />
-                      )}
-                    </div>
-                    <img
-                      src={regeneratedUrl}
-                      alt="Regenerated coloring page"
-                      className="w-full rounded-lg"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {feedback && (
-                <div className="mb-6 p-4 bg-orange-50 rounded-lg">
-                  <p className="text-sm text-gray-700">
-                    <strong>Your feedback:</strong> "{feedback}"
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-[#AA6A00]">
+                    Tip: mention line weight, detail level, or mood so our crayons know what to adjust.
                   </p>
                 </div>
-              )}
 
-              {/* Selection Buttons */}
-              <div className="flex items-center justify-end space-x-3">
-                <button
-                  onClick={() => handleVersionSelection('original')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                >
-                  <span>Use Original</span>
-                </button>
-                <button
-                  onClick={() => handleVersionSelection('regenerated')}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-                >
-                  <span>Use Regenerated</span>
-                </button>
+                {error && (
+                  <div className="rounded-[1.5rem] border-4 border-[#FFB3BA] bg-[#FFE6EB] p-4 text-sm font-semibold text-[#FF6F91]">
+                    {error}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    onClick={onClose}
+                    className="rounded-full border-4 border-[#FFB3BA] bg-white px-6 py-3 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                    disabled={isRegenerating}
+                  >
+                    Keep original
+                  </button>
+                  <button
+                    onClick={handleRegenerate}
+                    disabled={isRegenerating}
+                    className="rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-8 py-3 text-sm font-semibold text-white shadow-[8px_8px_0_0_#f2557b] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                  >
+                    {isRegenerating ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Regenerating...
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        <RefreshCw className="h-4 w-4" />
+                        Regenerate magic
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="rounded-[2rem] border-4 border-[#A0E7E5] bg-[#E0F7FA]/80 p-6">
+                  <h3 className="text-lg font-extrabold text-[#3A2E39]">Compare & pick your favorite</h3>
+                  <p className="mt-2 text-sm font-medium text-[#1DB9B3]">Tap a card below to lock in your preferred version.</p>
+                  <div className="mt-6 grid gap-6 md:grid-cols-2">
+                    <button
+                      className={`group flex flex-col gap-4 rounded-[1.75rem] border-4 px-4 py-4 text-left transition-transform hover:-translate-y-0.5 ${
+                        selectedVersion === 'original'
+                          ? 'border-[#FF6F91] bg-white shadow-[10px_10px_0_0_#FF8A80]'
+                          : 'border-dashed border-[#A0E7E5] bg-white/80 shadow-[8px_8px_0_0_#A0E7E5]/40'
+                      }`}
+                      onClick={() => setSelectedVersion('original')}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">
+                          <ThumbsDown className="h-4 w-4" />
+                          Original version
+                        </div>
+                        {selectedVersion === 'original' && <ThumbsUp className="h-5 w-5 text-[#FF6F91]" />}
+                      </div>
+                      <div className="overflow-hidden rounded-[1.25rem] border-4 border-[#FFB3BA] bg-white/80 p-3">
+                        <img src={currentColoringPageUrl} alt="Original coloring page" className="w-full rounded-[1rem] object-contain" />
+                      </div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Keep what you already have</p>
+                    </button>
 
-              <p className="text-xs text-gray-500 mt-4 text-center">
-                This choice is final. You can only regenerate each image once.
-              </p>
-            </>
-          )}
+                    <button
+                      className={`group flex flex-col gap-4 rounded-[1.75rem] border-4 px-4 py-4 text-left transition-transform hover:-translate-y-0.5 ${
+                        selectedVersion === 'regenerated'
+                          ? 'border-[#55C6C0] bg-white shadow-[10px_10px_0_0_#55C6C0]'
+                          : 'border-dashed border-[#55C6C0] bg-white/80 shadow-[8px_8px_0_0_#55C6C0]/40'
+                      }`}
+                      onClick={() => setSelectedVersion('regenerated')}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[#1DB9B3]">
+                          <Sparkles className="h-4 w-4" />
+                          Regenerated version
+                        </div>
+                        {selectedVersion === 'regenerated' && <ThumbsUp className="h-5 w-5 text-[#55C6C0]" />}
+                      </div>
+                      <div className="overflow-hidden rounded-[1.25rem] border-4 border-[#A0E7E5] bg-white/80 p-3">
+                        <img src={regeneratedUrl} alt="Regenerated coloring page" className="w-full rounded-[1rem] object-contain" />
+                      </div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#1DB9B3]">Fresh lines, same memory</p>
+                    </button>
+                  </div>
+                </div>
+
+                {feedback && (
+                  <div className="rounded-[1.5rem] border-4 border-dashed border-[#FFD166] bg-[#FFF3BF]/80 p-4 text-sm font-semibold text-[#AA6A00]">
+                    <span className="uppercase tracking-widest">Your request:</span> &quot;{feedback}&quot;
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    onClick={() => handleVersionSelection('original')}
+                    className="rounded-full border-4 border-[#FFB3BA] bg-white px-6 py-3 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                  >
+                    Use original
+                  </button>
+                  <button
+                    onClick={() => handleVersionSelection('regenerated')}
+                    className="rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-8 py-3 text-sm font-semibold text-white shadow-[8px_8px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
+                  >
+                    Use regenerated
+                  </button>
+                </div>
+
+                <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#AA6A00]">
+                  This choice is final. Each image can be regenerated once.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
