@@ -215,9 +215,11 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
       <div
         className={`
-          relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer
-          ${status === 'idle' ? 'border-gray-300 hover:border-purple-400 hover:bg-purple-50 hover:shadow-lg' : 'border-gray-200'}
-          ${status === 'uploading' || status === 'processing' ? 'bg-gray-50 border-gray-300' : ''}
+          relative cursor-pointer rounded-[2.5rem] border-4 border-dashed p-12 text-center transition-all duration-300
+          ${status === 'idle' ? 'border-[#FFB3BA] bg-white/90 hover:border-[#FF6F91] hover:bg-[#FFE6EB] hover:shadow-[12px_12px_0_0_#FFB3BA]' : ''}
+          ${status === 'uploading' || status === 'processing' ? 'border-[#FFD166] bg-[#FFF3BF] shadow-[10px_10px_0_0_#FFB84C]' : ''}
+          ${status === 'completed' ? 'border-[#A0E7E5] bg-[#E0F7FA] shadow-[10px_10px_0_0_#55C6C0]' : ''}
+          ${status === 'error' ? 'border-red-300 bg-red-50 shadow-[10px_10px_0_0_rgba(239,68,68,0.35)]' : ''}
         `}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -235,13 +237,13 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
         {status === 'idle' && (
           <>
-            <div className="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-              <Upload className="w-10 h-10 text-purple-600" />
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
+              <Upload className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-3">
+            <h3 className="mb-3 text-2xl font-extrabold text-[#3A2E39]">
               {user ? 'Drop your images here or click to browse' : 'Sign in to upload images'}
             </h3>
-            <p className="text-gray-500 text-base">
+            <p className="text-base font-semibold text-[#594144]">
               {user ? 'Supports JPEG, PNG, WebP • Max 10MB each • Select multiple files' : 'Create an account to transform your photos into coloring pages'}
             </p>
           </>
@@ -249,22 +251,22 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
         {(status === 'uploading' || status === 'processing') && (
           <>
-            <div className="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-              <Loader2 className="w-10 h-10 text-purple-600 animate-spin" />
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FFD166] text-white shadow-inner">
+              <Loader2 className="h-10 w-10 animate-spin" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-3">
+            <h3 className="mb-3 text-2xl font-extrabold text-[#3A2E39]">
               {status === 'uploading' ? 'Uploading your images...' : 'Creating your coloring pages...'}
             </h3>
-            <p className="text-gray-500 text-base mb-4">
-              {status === 'uploading' 
-                ? `Processing ${processingCount} images` 
+            <p className="mb-4 text-base font-semibold text-[#594144]">
+              {status === 'uploading'
+                ? `Processing ${processingCount} images`
                 : `Completed ${completedCount} of ${processingCount} images`
               }
             </p>
             {processingCount > 1 && (
-              <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
-                <div 
-                  className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+              <div className="mx-auto h-2 w-full max-w-xs rounded-full bg-white/60">
+                <div
+                  className="h-2 rounded-full bg-[#FF6F91] transition-all duration-300"
                   style={{ width: `${(completedCount / processingCount) * 100}%` }}
                 />
               </div>
@@ -274,18 +276,18 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
         {status === 'completed' && (
           <>
-            <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-              <ImageIcon className="w-10 h-10 text-green-600" />
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#55C6C0] text-white shadow-inner">
+              <ImageIcon className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-3">
+            <h3 className="mb-3 text-2xl font-extrabold text-[#3A2E39]">
               {processingCount === 1 ? 'Coloring page created!' : `${processingCount} coloring pages created!`}
             </h3>
-            <p className="text-gray-500 text-base mb-6">
+            <p className="mb-6 text-base font-semibold text-[#594144]">
               Your images have been processed and are now available in your dashboard
             </p>
             <button
               onClick={resetUploader}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-colors"
+              className="rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-6 py-3 font-semibold text-white shadow-[8px_8px_0_0_#f2557b] transition-transform hover:translate-y-[-2px]"
             >
               Upload More Images
             </button>
@@ -294,15 +296,15 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
         {status === 'error' && (
           <>
-            <div className="bg-red-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-              <Upload className="w-10 h-10 text-red-600" />
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-red-400 text-white shadow-inner">
+              <Upload className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold text-red-600 mb-3">
+            <h3 className="mb-3 text-2xl font-extrabold text-red-600">
               Something went wrong
             </h3>
             <button
               onClick={resetUploader}
-              className="text-purple-600 hover:text-purple-700 font-medium text-lg"
+              className="text-lg font-semibold text-[#FF6F91] underline-offset-4 hover:underline"
             >
               Try again
             </button>

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext';
-import { PasswordProtection } from '@/components/PasswordProtection';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +12,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const baloo = Baloo_2({
+  variable: "--font-baloo",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -27,13 +33,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${baloo.variable} antialiased`}
       >
-        <PasswordProtection>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </PasswordProtection>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
