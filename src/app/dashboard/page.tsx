@@ -8,8 +8,9 @@ import { PhotobookCreator } from '@/components/PhotobookCreator'
 import { FamilyAlbumCreator } from '@/components/FamilyAlbumCreator'
 import { RegenerateModal } from '@/components/RegenerateModal'
 import ImageUploader from '@/components/ImageUploader'
-import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw, Paintbrush } from 'lucide-react'
+import { Palette, Plus, Download, Trash2, ArrowLeft, Loader2, RefreshCw, Book, Users, RotateCcw, Paintbrush, Sparkles } from 'lucide-react'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
+import { PromptRemixModal } from '@/components/PromptRemixModal'
 
 interface UserImage {
   id: string
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const [regenerateImage, setRegenerateImage] = useState<UserImage | null>(null)
   const [retryingProcessing, setRetryingProcessing] = useState(false)
   const [activeDrawingImage, setActiveDrawingImage] = useState<UserImage | null>(null)
+  const [promptRemixImage, setPromptRemixImage] = useState<UserImage | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -379,6 +381,13 @@ export default function Dashboard() {
                           Color online
                         </button>
                         <button
+                          onClick={() => setPromptRemixImage(image)}
+                          className="flex items-center rounded-lg border border-orange-100 bg-orange-50 px-3 py-2 text-sm font-medium text-orange-600 transition hover:border-orange-200 hover:bg-orange-100"
+                        >
+                          <Sparkles className="mr-1 h-4 w-4" />
+                          Prompt remix
+                        </button>
+                        <button
                           onClick={() => {
                             const link = document.createElement('a')
                             link.href = `/api/download/${image.id}`
@@ -492,6 +501,15 @@ export default function Dashboard() {
           imageUrl={activeDrawingImage.coloring_page_url}
           imageName={activeDrawingImage.name}
           onClose={() => setActiveDrawingImage(null)}
+        />
+      )}
+
+      {promptRemixImage && (
+        <PromptRemixModal
+          isOpen={true}
+          onClose={() => setPromptRemixImage(null)}
+          imageName={promptRemixImage.name}
+          imageUrl={promptRemixImage.original_url}
         />
       )}
     </div>
