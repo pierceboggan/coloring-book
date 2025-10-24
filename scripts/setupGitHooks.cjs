@@ -53,10 +53,6 @@ if (!snippetPresent) {
   if (updatedContent.length > 0 && !updatedContent.endsWith('\n')) {
     updatedContent += '\n';
   }
-  if (updatedContent.length > 0 && !updatedContent.endsWith('\n\n')) {
-    updatedContent += '\n';
-  }
-
   updatedContent += `${hookSnippet}\n`;
 }
 
