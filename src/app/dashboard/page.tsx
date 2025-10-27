@@ -273,55 +273,69 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Header */}
-      <nav className="container mx-auto px-4 py-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col gap-3 text-center lg:flex-row lg:items-center lg:gap-4 lg:text-left">
-            <button
-              onClick={() => router.push('/')}
-              className="text-gray-600 hover:text-gray-800 flex items-center justify-center lg:justify-start"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              Back to playground
-            </button>
-            <div className="flex items-center justify-center gap-2">
-              <Palette className="w-8 h-8 text-purple-600" />
-              <span className="text-2xl font-bold text-gray-800">Dashboard</span>
+      <nav className="container mx-auto px-4 pt-10">
+        <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#FFB3BA] bg-white/90 px-6 py-8 shadow-[18px_18px_0_0_#FF8A80]">
+          <div className="pointer-events-none absolute -top-16 left-6 h-28 w-28 rounded-full bg-[#FFD6E0]/70 blur-sm" aria-hidden="true" />
+          <div className="pointer-events-none absolute -bottom-10 right-8 h-24 w-24 rounded-full bg-[#B4F8C8]/80 blur-[2px]" aria-hidden="true" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 text-center lg:flex-row lg:items-center lg:gap-5 lg:text-left">
+              <button
+                onClick={() => router.push('/')}
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#FF8BA7] bg-white/80 px-4 py-2 text-sm font-semibold text-[#FF6F91] shadow-[0_6px_0_0_rgba(255,143,188,0.5)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(255,143,188,0.55)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF8BA7]"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to playground
+              </button>
+              <div className="flex items-center justify-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#C3B5FF] to-[#FF8BA7] text-white shadow-[0_8px_0_0_rgba(255,139,167,0.35)]">
+                  <Palette className="h-6 w-6" />
+                </span>
+                <div className="text-gray-800">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FF8BA7]">Studio HQ</p>
+                  <span className="text-3xl font-extrabold text-[#3A2E39]">Dashboard</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
-            <span className="text-sm text-gray-600 text-center lg:text-left">{user?.email}</span>
-            <button
-              onClick={() => fetchUserImages(true)}
-              disabled={refreshing}
-              className="text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors flex items-center justify-center"
-              title="Refresh"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
-            <button
-              onClick={() => setShowFamilyAlbumCreator(true)}
-              disabled={images.filter(img => img.status === 'completed').length === 0}
-              className="w-full sm:w-auto text-green-600 hover:text-green-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:text-gray-400"
-            >
-              <Users className="w-4 h-4" />
-              <span>Family Album</span>
-            </button>
-            <button
-              onClick={() => setShowPhotobookCreator(true)}
-              disabled={images.filter(img => img.status === 'completed').length === 0}
-              className="w-full sm:w-auto text-purple-600 hover:text-purple-700 px-4 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2 disabled:text-gray-400"
-            >
-              <Book className="w-4 h-4" />
-              <span>Create Photobook</span>
-            </button>
-            <button
-              onClick={() => setShowUploader(true)}
-              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Upload Photos</span>
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
+              {user?.email && (
+                <span className="inline-flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-[#E0FBFC] px-4 py-2 text-sm font-medium text-[#3A2E39] shadow-[0_4px_0_0_rgba(160,231,229,0.6)]">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#55C6C0]" />
+                  {user.email}
+                </span>
+              )}
+              <button
+                onClick={() => fetchUserImages(true)}
+                disabled={refreshing}
+                className="inline-flex items-center gap-2 rounded-full border-2 border-[#C3B5FF] bg-[#F3F0FF] px-4 py-2 text-sm font-semibold text-[#6C63FF] shadow-[0_6px_0_0_rgba(195,181,255,0.5)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(195,181,255,0.55)] disabled:translate-y-0 disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
+                title="Refresh"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+              <button
+                onClick={() => setShowFamilyAlbumCreator(true)}
+                disabled={images.filter(img => img.status === 'completed').length === 0}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#B4F8C8] bg-[#E9FFE5] px-4 py-2 text-sm font-semibold text-[#2F9D66] shadow-[0_6px_0_0_rgba(180,248,200,0.5)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(180,248,200,0.55)] sm:w-auto disabled:translate-y-0 disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
+              >
+                <Users className="h-4 w-4" />
+                <span>Family Album</span>
+              </button>
+              <button
+                onClick={() => setShowPhotobookCreator(true)}
+                disabled={images.filter(img => img.status === 'completed').length === 0}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#D96C00] shadow-[0_6px_0_0_rgba(255,209,102,0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(255,209,102,0.6)] sm:w-auto disabled:translate-y-0 disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
+              >
+                <Book className="h-4 w-4" />
+                <span>Create Photobook</span>
+              </button>
+              <button
+                onClick={() => setShowUploader(true)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#FF8BA7] bg-gradient-to-r from-[#FF8BA7] to-[#FF6F91] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_0_0_rgba(255,111,145,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_0_0_rgba(255,111,145,0.65)] sm:w-auto"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Upload Photos</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
