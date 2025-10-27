@@ -39,6 +39,57 @@ interface UserImage {
   created_at: string
 }
 
+const getOrdinalSuffix = (day: number) => {
+  const remainder = day % 100
+
+  if (remainder >= 11 && remainder <= 13) {
+    return 'th'
+  }
+
+  switch (day % 10) {
+    case 1:
+      return 'st'
+    case 2:
+      return 'nd'
+    case 3:
+      return 'rd'
+    default:
+      return 'th'
+  }
+}
+
+const formatImageDate = (value: string) => {
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date)
+  const day = date.getDate()
+  const year = date.getFullYear()
+  const formattedDate = `${month} ${day}${getOrdinalSuffix(day)}, ${year}`
+
+  const startOfDay = (input: Date) => new Date(input.getFullYear(), input.getMonth(), input.getDate())
+  const today = startOfDay(new Date())
+  const targetDay = startOfDay(date)
+  const msPerDay = 1000 * 60 * 60 * 24
+  const diffInDays = Math.round((today.getTime() - targetDay.getTime()) / msPerDay)
+
+  let relativeLabel: string
+
+  if (diffInDays === 0) {
+    relativeLabel = 'today'
+  } else if (diffInDays > 0) {
+    relativeLabel = diffInDays === 1 ? '1 day ago' : `${diffInDays} days ago`
+  } else {
+    const daysAhead = Math.abs(diffInDays)
+    relativeLabel = daysAhead === 1 ? 'in 1 day' : `in ${daysAhead} days`
+  }
+
+  return `${formattedDate} (${relativeLabel})`
+}
+
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -567,7 +618,7 @@ export default function Dashboard() {
                           </div>
                         )}
                         <p className="text-sm font-medium text-[#594144]/70">
-                          {new Date(image.created_at).toLocaleDateString()}
+                          {formatImageDate(image.created_at)}
                         </p>
                       </div>
                       {image.status === 'completed' && image.coloring_page_url ? (
