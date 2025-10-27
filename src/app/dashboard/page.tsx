@@ -413,48 +413,34 @@ export default function Dashboard() {
                 <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
                   <Palette className="h-10 w-10" />
                 </div>
-                
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2 truncate">{image.name}</h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    {new Date(image.created_at).toLocaleDateString()}
-                  </p>
-                  
-                  <div className="flex items-center justify-between gap-2">
-                    {image.status === 'completed' && image.coloring_page_url ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          onClick={() => setActiveDrawingImage(image)}
-                          className="flex items-center rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 transition hover:border-purple-200 hover:bg-purple-100"
-                        >
-                          <Paintbrush className="mr-1 h-4 w-4" />
-                          Color online
-                        </button>
-                        <button
-                          onClick={() => setPromptRemixImage(image)}
-                          className="flex items-center rounded-lg border border-orange-100 bg-orange-50 px-3 py-2 text-sm font-medium text-orange-600 transition hover:border-orange-200 hover:bg-orange-100"
-                        >
-                          <Sparkles className="mr-1 h-4 w-4" />
-                          Prompt remix
-                        </button>
-                        <button
-                          onClick={() => {
-                            const link = document.createElement('a')
-                            link.href = `/api/download/${image.id}`
-                            link.download = `coloring-page-${image.name}`
-                            document.body.appendChild(link)
-                            link.click()
-                            document.body.removeChild(link)
-                          }}
-                          className="flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700"
-                        >
-                          <Download className="mr-1 h-4 w-4" />
-                          Download
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-5 space-y-4">
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">No coloring pages yet</h3>
+                <p className="text-gray-600 mb-6">Upload some photos to get started!</p>
+                <button
+                  onClick={() => setShowUploader(true)}
+                  className="inline-flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-6 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                >
+                  <Plus className="h-4 w-4" />
+                  Upload Photos
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {images.map((image) => (
+                <div
+                  key={image.id}
+                  className="relative overflow-hidden rounded-[2.5rem] border-4 border-[#FFB3BA] bg-white/90 shadow-[12px_12px_0_0_#FF8A80] transition-transform hover:-translate-y-1"
+                >
+                  {image.coloring_page_url && (
+                    <div className="aspect-square overflow-hidden bg-gray-100">
+                      <img
+                        src={image.coloring_page_url}
+                        alt={image.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 space-y-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h3 className="max-w-[14rem] truncate text-lg font-extrabold text-[#3A2E39]">{image.name}</h3>
@@ -481,7 +467,14 @@ export default function Dashboard() {
                             className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
                           >
                             <Paintbrush className="h-4 w-4" />
-                            Color online
+                            Color
+                          </button>
+                          <button
+                            onClick={() => setPromptRemixImage(image)}
+                            className="flex items-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
+                          >
+                            <Sparkles className="h-4 w-4" />
+                            Remix
                           </button>
                           <button
                             onClick={() => {

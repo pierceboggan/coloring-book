@@ -17,6 +17,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [loading, setLoading] = useState(false)
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false)
   const { signIn, signUp, signInWithProvider } = useAuth()
   const router = useRouter()
   const funMessage = useMemo(() => {
@@ -47,15 +48,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setError(error.message)
       } else {
         console.log('✅ Authentication successful:', isLogin ? 'Sign In' : 'Sign Up')
-        onClose()
-        setEmail('')
-        setPassword('')
         if (isLogin) {
           console.log('🚀 Redirecting to dashboard after successful login')
+          onClose()
+          setEmail('')
+          setPassword('')
           router.push('/dashboard')
         } else {
           console.log('📧 Sign up successful, check email for confirmation')
-          setError('Please check your email to confirm your account')
+          setShowEmailConfirmation(true)
         }
       }
     } catch (err) {
@@ -113,16 +114,45 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </button>
           </div>
 
-          <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 p-4 text-sm text-purple-700">
-            <div className="flex items-start gap-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-purple-500 shadow-sm">
-                <Wand2 className="h-4 w-4" />
-              </span>
-              <p className="leading-relaxed">{funMessage}</p>
+          {showEmailConfirmation ? (
+            <div className="space-y-6">
+              <div className="rounded-2xl bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 p-6 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-green-500 shadow-sm">
+                  <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                  </svg>
+                </div>
+                <h3 className="mb-2 text-lg font-bold text-gray-800">
+                  Please check your email to confirm your account
+                </h3>
+                <p className="text-sm text-gray-600">
+                  We've sent a confirmation link to <strong>{email}</strong>. Click the link in the email to activate your account and start creating!
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEmailConfirmation(false)
+                  setEmail('')
+                  setPassword('')
+                  onClose()
+                }}
+                className="w-full rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
+              >
+                Got it!
+              </button>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 p-4 text-sm text-purple-700">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-purple-500 shadow-sm">
+                    <Wand2 className="h-4 w-4" />
+                  </span>
+                  <p className="leading-relaxed">{funMessage}</p>
+                </div>
+              </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
@@ -172,6 +202,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
             </button>
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>
