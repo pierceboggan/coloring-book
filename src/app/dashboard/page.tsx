@@ -23,6 +23,9 @@ import {
   Paintbrush,
   Sparkles,
   Star,
+  Pencil,
+  X,
+  Check,
 } from 'lucide-react'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 import { PromptRemixModal } from '@/components/PromptRemixModal'
@@ -49,6 +52,9 @@ export default function Dashboard() {
   const [retryingProcessing, setRetryingProcessing] = useState(false)
   const [activeDrawingImage, setActiveDrawingImage] = useState<UserImage | null>(null)
   const [promptRemixImage, setPromptRemixImage] = useState<UserImage | null>(null)
+  const [editingImageId, setEditingImageId] = useState<string | null>(null)
+  const [imageNameInput, setImageNameInput] = useState('')
+  const [renamingImageId, setRenamingImageId] = useState<string | null>(null)
 
   const totalImages = images.length
   const completedCount = images.filter(img => img.status === 'completed' && img.coloring_page_url).length
@@ -251,6 +257,66 @@ export default function Dashboard() {
     }
   }
 
+  const startRenamingImage = (image: UserImage) => {
+    setEditingImageId(image.id)
+    setImageNameInput(image.name)
+    setRenamingImageId(null)
+  }
+
+  const cancelRenamingImage = () => {
+    setEditingImageId(null)
+    setImageNameInput('')
+    setRenamingImageId(null)
+  }
+
+  const saveImageName = async (imageId: string) => {
+    const trimmedName = imageNameInput.trim()
+
+    if (!trimmedName) {
+      alert('Image name cannot be empty.')
+      return
+    }
+
+    const currentImage = images.find(img => img.id === imageId)
+    if (currentImage && currentImage.name === trimmedName) {
+      cancelRenamingImage()
+      return
+    }
+
+    try {
+      setRenamingImageId(imageId)
+
+      const response = await fetch(`/api/images/${imageId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: trimmedName })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to rename image')
+      }
+
+      setImages(prev =>
+        prev.map(img =>
+          img.id === imageId
+            ? { ...img, name: result.data?.name ?? trimmedName }
+            : img
+        )
+      )
+
+      cancelRenamingImage()
+    } catch (error) {
+      console.error('❌ Failed to rename image:', error)
+      alert(`Failed to rename image: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setRenamingImageId(null)
+    }
+  }
+
   if (authLoading || loading) {
     console.log('🔄 Dashboard loading state:', { authLoading, loading, user: !!user })
     return (
@@ -442,8 +508,64 @@ export default function Dashboard() {
                   )}
                   <div className="p-6 space-y-4">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="max-w-[14rem] truncate text-lg font-extrabold text-[#3A2E39]">{image.name}</h3>
+                      <div className="flex-1 space-y-2">
+                        {editingImageId === image.id ? (
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                            <input
+                              value={imageNameInput}
+                              onChange={(event) => setImageNameInput(event.target.value)}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                  event.preventDefault()
+                                  saveImageName(image.id)
+                                }
+                                if (event.key === 'Escape') {
+                                  event.preventDefault()
+                                  cancelRenamingImage()
+                                }
+                              }}
+                              className="w-full rounded-full border-2 border-[#FFB3BA] px-4 py-2 text-sm font-semibold text-[#3A2E39] shadow-[4px_4px_0_0_#FF8A80] focus:outline-none focus:ring-2 focus:ring-[#FF6F91] sm:w-64"
+                              maxLength={120}
+                              aria-label="Image name"
+                            />
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => saveImageName(image.id)}
+                                disabled={renamingImageId === image.id}
+                                className="flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#1DB9B3] shadow-[4px_4px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+                              >
+                                {renamingImageId === image.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Check className="h-3.5 w-3.5" />
+                                )}
+                                <span>{renamingImageId === image.id ? 'Saving' : 'Save'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelRenamingImage}
+                                className="flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                                <span>Cancel</span>
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <h3 className="max-w-[14rem] truncate text-lg font-extrabold text-[#3A2E39]">{image.name}</h3>
+                            <button
+                              type="button"
+                              onClick={() => startRenamingImage(image)}
+                              className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                              title="Rename"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Rename image</span>
+                            </button>
+                          </div>
+                        )}
                         <p className="text-sm font-medium text-[#594144]/70">
                           {new Date(image.created_at).toLocaleDateString()}
                         </p>
