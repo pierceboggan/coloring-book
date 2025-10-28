@@ -33,21 +33,21 @@ struct PhotoPickerView: UIViewControllerRepresentable {
             picker.dismiss(animated: true)
 
             guard let provider = results.first?.itemProvider, provider.canLoadObject(ofClass: UIImage.self) else {
-                parent.onComplete(.failure(PickerError.noSelection))
+                self.parent.onComplete(.failure(PickerError.noSelection))
                 return
             }
 
             provider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { url, error in
                 if let error = error {
                     DispatchQueue.main.async {
-                        parent.onComplete(.failure(error))
+                        self.parent.onComplete(.failure(error))
                     }
                     return
                 }
 
                 guard let url = url else {
                     DispatchQueue.main.async {
-                        parent.onComplete(.failure(PickerError.unableToLoad))
+                        self.parent.onComplete(.failure(PickerError.unableToLoad))
                     }
                     return
                 }
@@ -60,12 +60,12 @@ struct PhotoPickerView: UIViewControllerRepresentable {
                     }
                     try FileManager.default.copyItem(at: url, to: tempURL)
                     DispatchQueue.main.async {
-                        parent.imageURL = tempURL
-                        parent.onComplete(.success(tempURL))
+                        self.parent.imageURL = tempURL
+                        self.parent.onComplete(.success(tempURL))
                     }
                 } catch {
                     DispatchQueue.main.async {
-                        parent.onComplete(.failure(error))
+                        self.parent.onComplete(.failure(error))
                     }
                 }
             }

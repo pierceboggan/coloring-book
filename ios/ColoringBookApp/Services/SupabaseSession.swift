@@ -22,13 +22,13 @@ final class SupabaseSession: ObservableObject {
 
     func signIn(email: String, password: String) async {
         await performAuthAction {
-            try await client.auth.signIn(email: email, password: password)
+            try await self.client.auth.signIn(email: email, password: password)
         }
     }
 
     func signUp(email: String, password: String) async {
         await performAuthAction {
-            try await client.auth.signUp(email: email, password: password)
+            try await self.client.auth.signUp(email: email, password: password)
         }
     }
 
@@ -55,15 +55,18 @@ final class SupabaseSession: ObservableObject {
     }
 
     private func observeAuthChanges() {
-        authStateTask = Task {
-            for await state in client.auth.authStateChanges {
-                switch state.event {
-                case .initialSession, .signedIn:
-                    user = state.session?.user
-                case .signedOut:
-                    user = nil
-                default:
-                    break
+        authStateTask = Task { [weak self] in
+            guard let self = self else { return }
+            for await state in await self.client.auth.authStateChanges {
+                await MainActor.run {
+                    switch state.event {
+                    case .initialSession, .signedIn:
+                        self.user = state.session?.user
+                    case .signedOut:
+                        self.user = nil
+                    default:
+                        break
+                    }
                 }
             }
         }

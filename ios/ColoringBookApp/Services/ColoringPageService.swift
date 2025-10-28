@@ -25,10 +25,10 @@ final class ColoringPageService: ObservableObject {
             var request = URLRequest(url: requestURL)
             request.httpMethod = "GET"
 
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await self.session.data(for: request)
             try Self.validate(response: response)
 
-            let payload = try decoder.decode(ImageJobListResponse.self, from: data)
+            let payload = try self.decoder.decode(ImageJobListResponse.self, from: data)
             let jobs = payload.data
             self.jobs = jobs.sorted(by: { $0.updatedAt > $1.updatedAt })
         }
@@ -47,7 +47,7 @@ final class ColoringPageService: ObservableObject {
             ]
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-            let (_, response) = try await session.data(for: request)
+            let (_, response) = try await self.session.data(for: request)
             try Self.validate(response: response)
         }
     }
