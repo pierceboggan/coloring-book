@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     async (span) => {
       console.log('🚀 API route /api/generate-coloring-page called')
 
-      let body: { imageId?: string; imageUrl?: string } | null = null
+      let body: { imageId?: string; imageUrl?: string; age?: number } | null = null
 
       try {
         console.log('📥 Parsing request body...')
@@ -20,9 +20,17 @@ export async function POST(request: NextRequest) {
         console.log('✅ Request body parsed successfully:', body)
 
         const { imageId, imageUrl } = body
+        const requestedAge = typeof body?.age === 'number' && Number.isFinite(body.age)
+          ? Math.round(body.age)
+          : undefined
+
+        const clampedAge = requestedAge
+          ? Math.min(12, Math.max(2, requestedAge))
+          : undefined
 
         span.setAttribute('imageId', imageId)
         span.setAttribute('hasImageUrl', !!imageUrl)
+        span.setAttribute('agePreference', clampedAge ?? 'unspecified')
 
         if (!imageId || !imageUrl) {
           console.error('❌ Missing required fields:', { imageId, imageUrl })
@@ -32,8 +40,8 @@ export async function POST(request: NextRequest) {
           )
         }
 
-        console.log('🎨 About to call generateColoringPage with URL:', imageUrl)
-        const coloringPageUrl = await generateColoringPage(imageUrl)
+        console.log('🎨 About to call generateColoringPage with URL:', imageUrl, 'age:', clampedAge)
+        const coloringPageUrl = await generateColoringPage(imageUrl, { age: clampedAge })
         console.log('✅ generateColoringPage completed, result:', coloringPageUrl.substring(0, 50) + '...')
 
         if (!coloringPageUrl) {

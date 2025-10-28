@@ -19,12 +19,32 @@ interface ImageUploaderProps {
   onUploadComplete?: () => void
 }
 
+const MIN_AGE = 2
+const MAX_AGE = 10
+
+function describeAgeStyle(age: number): string {
+  if (age <= 3) {
+    return 'Designed with huge shapes and extra-bold lines so toddlers can scribble freely.'
+  }
+
+  if (age <= 5) {
+    return 'Clear outlines and roomy spaces—perfect for preschool artists finding their grip.'
+  }
+
+  if (age <= 8) {
+    return 'Balanced detail and variety to keep early elementary kids engaged without overwhelming them.'
+  }
+
+  return 'Fine lines and intricate patterns tailored to big kids who crave more challenge.'
+}
+
 export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) {
   const [status, setStatus] = useState<UploadStatus>('idle')
-  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([])
+  const [, setUploadedImages] = useState<UploadedImage[]>([])
   const [error, setError] = useState<string>('')
   const [processingCount, setProcessingCount] = useState(0)
   const [completedCount, setCompletedCount] = useState(0)
+  const [targetAge, setTargetAge] = useState<number>(4)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
 
@@ -42,6 +62,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
         }
 
         span.setAttribute('fileCount', files.length)
+        span.setAttribute('targetAge', targetAge)
 
         if (!user) {
           setError('Please sign in to upload images')
@@ -66,17 +87,17 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
         console.log(`📸 Uploading ${validFiles.length} images...`)
         setError('')
-        await uploadMultipleImages(validFiles)
+        await uploadMultipleImages(validFiles, targetAge)
       }
     )
   }
 
-  const uploadMultipleImages = async (files: File[]) => {
+  const uploadMultipleImages = async (files: File[], age: number) => {
     setStatus('uploading')
     setProcessingCount(files.length)
     setCompletedCount(0)
     
-    const uploadPromises = files.map(file => uploadSingleImage(file))
+    const uploadPromises = files.map(file => uploadSingleImage(file, age))
     
     try {
       await Promise.all(uploadPromises)
@@ -95,7 +116,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
     }
   }
 
-  const uploadSingleImage = async (file: File): Promise<void> => {
+  const uploadSingleImage = async (file: File, age: number): Promise<void> => {
     try {
       console.log(`📤 Uploading ${file.name}...`)
 
@@ -103,7 +124,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
       const filePath = `uploads/${fileName}`
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('images')
         .upload(filePath, file)
 
@@ -137,7 +158,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
       setUploadedImages(prev => [...prev, uploadedImage])
 
       // Generate coloring page in background
-      generateColoringPage(dbData.id, publicUrl).then(() => {
+      requestColoringPageGeneration(dbData.id, publicUrl, age).then(() => {
         setCompletedCount(prev => prev + 1)
         console.log(`✅ Completed processing ${file.name}`)
       }).catch(err => {
@@ -150,14 +171,14 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
     }
   }
 
-  const generateColoringPage = async (imageId: string, imageUrl: string) => {
+  const requestColoringPageGeneration = async (imageId: string, imageUrl: string, age: number) => {
     try {
       const response = await fetch('/api/generate-coloring-page', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ imageId, imageUrl }),
+        body: JSON.stringify({ imageId, imageUrl, age }),
       })
 
       if (!response.ok) {
@@ -247,6 +268,44 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
             <p className="text-base font-semibold text-[#594144]">
               {user ? 'Supports JPEG, PNG, WebP • Max 10MB each • Select multiple files' : 'Create an account to transform your photos into coloring pages'}
             </p>
+            <div
+              className="mx-auto mt-8 w-full max-w-md text-left"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <label
+                htmlFor="age-slider"
+                className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#594144]"
+              >
+                Age focus
+              </label>
+              <div className="mb-3 flex justify-between text-[11px] font-semibold text-[#9B6A6C]">
+                <span>Toddlers ({MIN_AGE})</span>
+                <span>Big kids ({MAX_AGE})</span>
+              </div>
+              <input
+                id="age-slider"
+                type="range"
+                min={MIN_AGE}
+                max={MAX_AGE}
+                step={1}
+                value={targetAge}
+                onChange={(event) => setTargetAge(Number(event.target.value))}
+                onPointerDown={(event) => event.stopPropagation()}
+                onPointerUp={(event) => event.stopPropagation()}
+                disabled={!user}
+                aria-valuetext={`Tailored for ages ${targetAge}`}
+                className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#FFE6EB]"
+                style={{ accentColor: '#FF6F91' }}
+              />
+              <div className="mt-4 rounded-2xl border border-[#FFD6DC] bg-white/80 p-4 text-sm font-semibold text-[#3A2E39] shadow-sm">
+                <p className="mb-1">
+                  Tailored for ages <span className="font-extrabold">{targetAge}</span>
+                </p>
+                <p className="text-xs font-medium text-[#7A5A5C]">
+                  {describeAgeStyle(targetAge)}
+                </p>
+              </div>
+            </div>
           </>
         )}
 
@@ -263,6 +322,9 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
                 ? `Processing ${processingCount} images`
                 : `Completed ${completedCount} of ${processingCount} images`
               }
+            </p>
+            <p className="mb-4 text-sm font-semibold text-[#7A5A5C]">
+              Crafted with an age {targetAge} focus — {describeAgeStyle(targetAge)}
             </p>
             {processingCount > 1 && (
               <div className="mx-auto h-2 w-full max-w-xs rounded-full bg-white/60">

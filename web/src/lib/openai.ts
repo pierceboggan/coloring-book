@@ -5,6 +5,17 @@ const openai = new OpenAI({
   organization: 'org-xBug09vn6Yh8Uf19bKLjgxxu',
 })
 
+type ImageDetailLevel = 'low' | 'auto' | 'high'
+
+export interface ColoringPageOptions {
+  age?: number
+}
+
+interface PromptConfig {
+  promptSuffix: string
+  detailLevel: ImageDetailLevel
+}
+
 // Helper function to convert image URL to base64
 async function imageUrlToBase64(url: string): Promise<string> {
   const response = await fetch(url);
@@ -13,12 +24,61 @@ async function imageUrlToBase64(url: string): Promise<string> {
   return buffer.toString('base64');
 }
 
-export async function generateColoringPage(imageUrl: string): Promise<string> {
-  const defaultPrompt = "Create a black and white coloring book page based on this image. Transform it into simple, clean line art suitable for coloring with bold black outlines, no shading or fills, family-friendly content, and thick outlines perfect for coloring on a pure white background. Style: coloring book, line art, black and white only."
-  return await generateColoringPageWithCustomPrompt(imageUrl, defaultPrompt)
+function buildPromptForAge(age?: number): PromptConfig {
+  const safeAge = typeof age === 'number' && Number.isFinite(age)
+    ? Math.round(age)
+    : undefined
+
+  if (!safeAge) {
+    return {
+      promptSuffix: 'Keep the line art moderately detailed with a mix of medium and bold outlines that work well for elementary-aged children.',
+      detailLevel: 'auto',
+    }
+  }
+
+  if (safeAge <= 3) {
+    return {
+      promptSuffix: 'Design the page for a toddler aged about 2-3 years old with very large, simple shapes, lots of open white space, and only a few bold outlines so it is not overwhelming.',
+      detailLevel: 'low',
+    }
+  }
+
+  if (safeAge <= 5) {
+    return {
+      promptSuffix: 'Aim for a preschool-friendly page for ages 4-5 with clear silhouettes, medium-sized coloring areas, and limited interior detail so young kids can stay within the lines.',
+      detailLevel: 'auto',
+    }
+  }
+
+  if (safeAge <= 8) {
+    return {
+      promptSuffix: 'Target early elementary artists around ages 6-8 with richer line work, a few smaller details, and varied line weights that still feel approachable.',
+      detailLevel: 'high',
+    }
+  }
+
+  return {
+    promptSuffix: 'Create an intricate page for kids 9 and up with lots of fine line work, patterns, and interesting textures that reward careful coloring.',
+    detailLevel: 'high',
+  }
 }
 
-export async function generateColoringPageWithCustomPrompt(imageUrl: string, customPrompt: string): Promise<string> {
+export async function generateColoringPage(imageUrl: string, options: ColoringPageOptions = {}): Promise<string> {
+  const defaultPrompt = "Create a black and white coloring book page based on this image. Transform it into simple, clean line art suitable for coloring with bold black outlines, no shading or fills, family-friendly content, and thick outlines perfect for coloring on a pure white background. Style: coloring book, line art, black and white only."
+  const { promptSuffix, detailLevel } = buildPromptForAge(options.age)
+  const prompt = `${defaultPrompt} ${promptSuffix}`.trim()
+  return await generateColoringPageWithCustomPrompt(imageUrl, prompt, { detail: detailLevel })
+}
+
+interface GenerationOptions {
+  detail?: ImageDetailLevel
+}
+
+export async function generateColoringPageWithCustomPrompt(
+  imageUrl: string,
+  customPrompt: string,
+  options: GenerationOptions = {}
+): Promise<string> {
   try {
     console.log('🎨 Starting coloring page generation for image:', imageUrl);
     console.log('📝 Using prompt:', customPrompt);
@@ -43,7 +103,7 @@ export async function generateColoringPageWithCustomPrompt(imageUrl: string, cus
             {
               type: "input_image",
               image_url: `data:image/jpeg;base64,${base64Image}`,
-              detail: "high"
+              detail: options.detail ?? "high"
             },
           ],
         },
@@ -87,7 +147,7 @@ export async function generateColoringPageWithCustomPrompt(imageUrl: string, cus
       const fileName = `coloring-page-${Date.now()}.png`;
       const filePath = `coloring-pages/${fileName}`;
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('images')
         .upload(filePath, buffer, {
           contentType: 'image/png'

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 import { PromptRemixModal } from '@/components/PromptRemixModal'
+import { VariantsPanel } from '@/components/VariantsPanel'
 
 interface UserImage {
   id: string
@@ -703,6 +704,39 @@ export default function Dashboard() {
                         </button>
                       </div>
                     </div>
+
+                    {/* Variants Panel - Only show for completed images */}
+                    {image.status === 'completed' && image.coloring_page_url && (
+                      <VariantsPanel
+                        imageName={image.name}
+                        originalUrl={image.original_url}
+                        onVariantSelected={async (variantUrl) => {
+                          try {
+                            // Update the image's primary coloring_page_url
+                            const { error } = await supabase
+                              .from('images')
+                              .update({ coloring_page_url: variantUrl })
+                              .eq('id', image.id)
+
+                            if (error) throw error
+
+                            // Update local state
+                            setImages(prev =>
+                              prev.map(img =>
+                                img.id === image.id
+                                  ? { ...img, coloring_page_url: variantUrl }
+                                  : img
+                              )
+                            )
+
+                            console.log('✅ Updated primary coloring page to variant')
+                          } catch (error) {
+                            console.error('❌ Failed to update variant:', error)
+                            alert('Failed to set variant as primary')
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
