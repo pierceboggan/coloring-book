@@ -48,7 +48,8 @@ ehthumbs.db
 Thumbs.db
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/mcp.json
 .idea/
 *.swp
 *.swo
@@ -65,5 +66,8 @@ logs
 .vercel
 
 # TypeScript incremental compilation
-.tsbuildinfo
 next-env.d.ts
+
+# iOS local overrides
+ios/ColoringBookApp/AppConfig.local.swift
+ios/ColoringBookApp/Assets.xcassets/AppIcon.appiconset/*.png
