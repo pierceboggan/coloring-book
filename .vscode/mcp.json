@@ -1,0 +1,28 @@
+{
+  "clients": [
+    {
+      "name": "xcodebuild",
+      "binary": "xcodebuild-mcp",
+      "args": [
+        "--project",
+        "ios/ColoringBookApp/ColoringBookApp.xcodeproj"
+      ]
+    },
+    {
+      "name": "playwright",
+      "binary": "playwright-mcp",
+      "args": [
+        "--config",
+        "apps/web/playwright.config.ts"
+      ]
+    },
+    {
+      "name": "next",
+      "binary": "next-mcp",
+      "args": [
+        "--cwd",
+        "apps/web"
+      ]
+    }
+  ]
+}
