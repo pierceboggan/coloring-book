@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, Image as ImageIcon, Loader2, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import * as Sentry from '@sentry/nextjs'
+import { VARIANT_THEMES } from '@/lib/variants'
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'error'
 
@@ -47,6 +48,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const [targetAge, setTargetAge] = useState<number>(4)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
+  const promptIdeas = VARIANT_THEMES.slice(0, 4)
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     return Sentry.startSpan(
@@ -306,6 +308,30 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
                 </p>
               </div>
             </div>
+            <div className="mx-auto mt-8 w-full max-w-2xl rounded-[1.75rem] border-2 border-[#C3B5FF] bg-[#F6F3FF]/80 p-5 text-left shadow-[8px_8px_0_0_#A599E9]">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C3B5FF] text-white shadow-inner">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold uppercase tracking-wide text-[#6C63FF]">Scene prompt ideas</h4>
+                  <p className="text-xs font-semibold text-[#594144]/70">
+                    Save these for later—after upload, head to the Uploads view to remix your photo with our favorite adventures.
+                  </p>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    {promptIdeas.map((idea) => (
+                      <div
+                        key={idea.id}
+                        className="rounded-xl border-2 border-[#E5E0FF] bg-white/90 p-3"
+                      >
+                        <p className="text-sm font-semibold text-[#3A2E39]">{idea.title}</p>
+                        <p className="mt-1 text-xs font-medium text-[#6C63FF]">{idea.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </>
         )}
 
@@ -347,6 +373,9 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
             </h3>
             <p className="mb-6 text-base font-semibold text-[#594144]">
               Your images have been processed and are now available in your dashboard
+            </p>
+            <p className="mb-6 text-sm font-semibold text-[#6C63FF]">
+              Tip: switch to the Uploads tab to try scene prompts or generate variants from your new photo.
             </p>
             <button
               onClick={resetUploader}
