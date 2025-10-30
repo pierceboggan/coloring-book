@@ -12,6 +12,13 @@ interface RouteParams {
   }
 }
 
+function isExpired(expiresAt: string | null): boolean {
+  if (!expiresAt) return false
+  const expiresDate = new Date(expiresAt)
+  if (Number.isNaN(expiresDate.getTime())) return false
+  return expiresDate.getTime() < Date.now()
+}
+
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { shareCode } = params
   const { searchParams } = new URL(request.url)
@@ -47,11 +54,29 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    if (isExpired(album.expires_at)) {
+      console.warn('⏰ Album link expired:', shareCode)
+      return NextResponse.json(
+        { error: 'Album link has expired' },
+        { status: 410 }
+      )
+    }
+
+    if (downloadPdf && album.downloads_enabled === false) {
+      console.warn('⛔ PDF download blocked for album:', shareCode)
+      return NextResponse.json(
+        { error: 'Downloads are disabled for this album' },
+        { status: 403 }
+      )
+    }
+
     // Filter only completed images with coloring pages
     const albumImages = (album.album_images ?? []) as AlbumImageRow[]
     const completedImages = albumImages
       .map(ai => ai.images)
       .filter(img => img.status === 'completed' && img.coloring_page_url && !img.archived_at)
+
+    const coverImage = completedImages.find(image => image.id === album.cover_image_id) || null
 
     if (downloadPdf) {
       // Generate and return PDF
@@ -115,7 +140,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           // Add image name at bottom
           pdf.setFontSize(10)
           pdf.text(image.name, pageWidth / 2, pageHeight - 15, { align: 'center' })
-          
+
         } catch (imageError) {
           console.error(`❌ Error processing image ${image.name}:`, imageError)
         }
@@ -140,7 +165,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           description: album.description,
           createdAt: album.created_at,
           images: completedImages,
-          imageCount: completedImages.length
+          imageCount: completedImages.length,
+          coverImage,
+          expiresAt: album.expires_at,
+          commentsEnabled: album.comments_enabled,
+          downloadsEnabled: album.downloads_enabled
         }
       })
     }
@@ -151,6 +180,122 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { 
         error: error instanceof Error ? error.message : 'Failed to fetch album',
         success: false 
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  const { shareCode } = params
+
+  try {
+    const body = await request.json()
+    const {
+      userId,
+      downloadsEnabled,
+      expiresAt,
+      commentsEnabled,
+      coverImageId,
+    } = body
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'userId is required' },
+        { status: 400 }
+      )
+    }
+
+    const { data: album, error } = await supabase
+      .from('family_albums')
+      .select('*')
+      .eq('share_code', shareCode)
+      .single()
+
+    if (error || !album) {
+      console.error('❌ Album not found during update:', error)
+      return NextResponse.json(
+        { error: 'Album not found' },
+        { status: 404 }
+      )
+    }
+
+    if (album.user_id !== userId) {
+      return NextResponse.json(
+        { error: 'You do not have permission to update this album' },
+        { status: 403 }
+      )
+    }
+
+    const updates: Partial<Database['public']['Tables']['family_albums']['Update']> = {}
+
+    if (typeof downloadsEnabled === 'boolean') {
+      updates.downloads_enabled = downloadsEnabled
+    }
+
+    if (typeof commentsEnabled === 'boolean') {
+      updates.comments_enabled = commentsEnabled
+    }
+
+    if (typeof coverImageId === 'string' || coverImageId === null) {
+      updates.cover_image_id = coverImageId ?? null
+    }
+
+    if (typeof expiresAt === 'string') {
+      const parsedExpiresAt = new Date(expiresAt)
+      if (Number.isNaN(parsedExpiresAt.getTime())) {
+        return NextResponse.json(
+          { error: 'Invalid expiration date' },
+          { status: 400 }
+        )
+      }
+      updates.expires_at = parsedExpiresAt.toISOString()
+    } else if (expiresAt === null) {
+      updates.expires_at = null
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({
+        success: true,
+        album: {
+          downloadsEnabled: album.downloads_enabled,
+          commentsEnabled: album.comments_enabled,
+          coverImageId: album.cover_image_id,
+          expiresAt: album.expires_at,
+        }
+      })
+    }
+
+    const { data: updatedAlbum, error: updateError } = await supabase
+      .from('family_albums')
+      .update(updates)
+      .eq('id', album.id)
+      .select()
+      .single()
+
+    if (updateError || !updatedAlbum) {
+      console.error('❌ Failed to update album options:', updateError)
+      return NextResponse.json(
+        { error: 'Failed to update album settings' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      album: {
+        downloadsEnabled: updatedAlbum.downloads_enabled,
+        commentsEnabled: updatedAlbum.comments_enabled,
+        coverImageId: updatedAlbum.cover_image_id,
+        expiresAt: updatedAlbum.expires_at,
+      }
+    })
+  } catch (error) {
+    console.error('💥 Error updating shared album settings:', error)
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : 'Failed to update album settings',
+        success: false
       },
       { status: 500 }
     )

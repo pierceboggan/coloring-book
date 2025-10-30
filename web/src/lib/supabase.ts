@@ -3,6 +3,64 @@ import { createBrowserClient } from '@supabase/ssr'
 export type Database = {
   public: {
     Tables: {
+      album_images: {
+        Row: {
+          id: string
+          album_id: string
+          image_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          album_id: string
+          image_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          album_id?: string
+          image_id?: string
+          created_at?: string
+        }
+      }
+      family_albums: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          share_code: string
+          created_at: string
+          cover_image_id: string | null
+          expires_at: string | null
+          comments_enabled: boolean
+          downloads_enabled: boolean
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          share_code: string
+          created_at?: string
+          cover_image_id?: string | null
+          expires_at?: string | null
+          comments_enabled?: boolean
+          downloads_enabled?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          share_code?: string
+          created_at?: string
+          cover_image_id?: string | null
+          expires_at?: string | null
+          comments_enabled?: boolean
+          downloads_enabled?: boolean
+        }
+      }
       images: {
         Row: {
           id: string
