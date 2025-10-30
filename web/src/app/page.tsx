@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ImageUploader from '@/components/ImageUploader'
@@ -146,9 +147,12 @@ export default function Home() {
                 Create a Coloring Page
                 <ArrowRight className="h-5 w-5" />
               </button>
-              <button className="rounded-full border-4 border-[#A0E7E5] bg-white/90 px-8 py-4 text-lg font-semibold text-[#1DB9B3] shadow-[10px_10px_0_0_#55C6C0] transition-transform hover:translate-y-[-3px]">
+              <Link
+                href="/examples"
+                className="rounded-full border-4 border-[#A0E7E5] bg-white/90 px-8 py-4 text-lg font-semibold text-[#1DB9B3] shadow-[10px_10px_0_0_#55C6C0] transition-transform hover:translate-y-[-3px]"
+              >
                 Peek at Examples
-              </button>
+              </Link>
             </div>
 
             {/* Demo Image */}
