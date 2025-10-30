@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase'
+
+type ImageRow = Database['public']['Tables']['images']['Row']
+type AlbumImageRow = { images: ImageRow }
 import { jsPDF } from 'jspdf'
 
 interface RouteParams {
@@ -27,7 +31,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             name,
             original_url,
             coloring_page_url,
-            status
+            status,
+            archived_at
           )
         )
       `)
@@ -43,9 +48,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Filter only completed images with coloring pages
-    const completedImages = album.album_images
-      .map((ai: any) => ai.images)
-      .filter((img: any) => img.status === 'completed' && img.coloring_page_url)
+    const albumImages = (album.album_images ?? []) as AlbumImageRow[]
+    const completedImages = albumImages
+      .map(ai => ai.images)
+      .filter(img => img.status === 'completed' && img.coloring_page_url && !img.archived_at)
 
     if (downloadPdf) {
       // Generate and return PDF

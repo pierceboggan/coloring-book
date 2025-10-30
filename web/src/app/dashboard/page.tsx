@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -13,7 +14,7 @@ import {
   Palette,
   Plus,
   Download,
-  Trash2,
+  Archive,
   ArrowLeft,
   Loader2,
   RefreshCw,
@@ -41,6 +42,7 @@ interface UserImage {
   created_at: string
   variant_urls?: string[] | null
   variant_prompts?: string[] | null
+  archived_at?: string | null
 }
 
 const getOrdinalSuffix = (day: number) => {
@@ -109,6 +111,7 @@ const getVariantSummaries = (image: UserImage) => {
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
+  const userId = user?.id ?? null
   const [images, setImages] = useState<UserImage[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -125,6 +128,51 @@ export default function Dashboard() {
   const [renamingImageId, setRenamingImageId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
 
+  const fetchUserImages = useCallback(async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true)
+      }
+      console.log('📸 Fetching images for user:', userId)
+
+      if (!userId) {
+        console.error('❌ No user ID available for fetching images')
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('images')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('❌ Error fetching images:', error)
+        throw error
+      }
+
+      console.log('✅ Fetched images:', data?.length || 0)
+      console.log('🔍 Raw image data:', data)
+      console.log('🔍 Image statuses:', data?.map((img: UserImage) => ({
+        id: img.id.substring(0, 8),
+        name: img.name,
+        status: img.status,
+        hasColoringPage: !!img.coloring_page_url,
+        original_url: img.original_url,
+        coloring_page_url: img.coloring_page_url
+      })))
+
+      const userImages = (data || []) as UserImage[]
+      const nonArchivedImages = userImages.filter(img => !img.archived_at)
+      setImages(nonArchivedImages)
+    } catch (error) {
+      console.error('💥 Failed to fetch images:', error)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [userId])
+
   const totalImages = images.length
   const coloringPages = images.filter(img => img.status === 'completed' && img.coloring_page_url)
   const uploadsViewImages = images
@@ -139,153 +187,114 @@ export default function Dashboard() {
       return
     }
 
-    if (user) {
-      fetchUserImages()
-      
-      // Set up real-time subscription for image updates (with fallback handling)
-      let subscription: any = null
-      let isRealTimeWorking = false
-      
-      try {
-        subscription = supabase
-          .channel('images_changes')
-          .on(
-            'postgres_changes',
-            {
-              event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
-              schema: 'public',
-              table: 'images',
-              filter: `user_id=eq.${user.id}`,
-            },
-            (payload) => {
-              console.log('🔄 Real-time image update received:', payload)
-              console.log('📊 Updated record:', payload.new)
-              fetchUserImages()
-            }
-          )
-          .subscribe((status) => {
-            console.log('📡 Real-time subscription status:', status)
-            if (status === 'SUBSCRIBED') {
-              console.log('✅ Successfully subscribed to real-time updates')
-              isRealTimeWorking = true
-            } else if (status === 'CHANNEL_ERROR') {
-              console.warn('⚠️ Real-time subscription failed, using polling instead')
-              isRealTimeWorking = false
-            }
-          })
-      } catch (error) {
-        console.warn('⚠️ Real-time setup failed, using polling only:', error)
-        isRealTimeWorking = false
-      }
+    if (!userId) {
+      return
+    }
 
-      // Enhanced polling mechanism - more frequent when processing images
-      let pollInterval: NodeJS.Timeout
-      
-      const startPolling = () => {
-        const poll = async () => {
-          try {
-            const { data } = await supabase
-              .from('images')
-              .select('status')
-              .eq('user_id', user.id)
-            
-            const hasProcessingImages = data?.some(img => img.status === 'processing')
-            
-            // Poll more frequently if real-time isn't working or there are processing images
-            if (!isRealTimeWorking || hasProcessingImages) {
-              console.log('🔄 Polling for updates', hasProcessingImages ? '(processing images)' : '(no real-time)')
-              fetchUserImages()
-            }
-            
-            // Schedule next poll with dynamic interval
-            const nextInterval = hasProcessingImages ? 3000 : (isRealTimeWorking ? 15000 : 5000)
-            pollInterval = setTimeout(poll, nextInterval)
-          } catch (error) {
-            console.error('❌ Polling error:', error)
-            pollInterval = setTimeout(poll, 5000) // Retry in 5s on error
+    fetchUserImages()
+
+    // Set up real-time subscription for image updates (with fallback handling)
+    let subscription: RealtimeChannel | null = null
+    let isRealTimeWorking = false
+
+    try {
+      subscription = supabase
+        .channel('images_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+            schema: 'public',
+            table: 'images',
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => {
+            console.log('🔄 Real-time image update received:', payload)
+            console.log('📊 Updated record:', payload.new)
+            fetchUserImages()
           }
-        }
-        
-        poll() // Start first poll immediately
-      }
-      
-      startPolling()
-
-      return () => {
-        if (subscription) {
-          subscription.unsubscribe()
-        }
-        clearTimeout(pollInterval)
-      }
-    }
-  }, [user, authLoading, router])
-
-  const fetchUserImages = async (isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setRefreshing(true)
-      }
-      console.log('📸 Fetching images for user:', user?.id)
-      
-      if (!user?.id) {
-        console.error('❌ No user ID available for fetching images')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('images')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('❌ Error fetching images:', error)
-        throw error
-      }
-
-      console.log('✅ Fetched images:', data?.length || 0)
-      console.log('🔍 Raw image data:', data)
-      console.log('🔍 Image statuses:', data?.map(img => ({ 
-        id: img.id.substring(0, 8), 
-        name: img.name, 
-        status: img.status, 
-        hasColoringPage: !!img.coloring_page_url,
-        original_url: img.original_url,
-        coloring_page_url: img.coloring_page_url
-      })))
-      
-      setImages(data || [])
+        )
+        .subscribe((status) => {
+          console.log('📡 Real-time subscription status:', status)
+          if (status === 'SUBSCRIBED') {
+            console.log('✅ Successfully subscribed to real-time updates')
+            isRealTimeWorking = true
+          } else if (status === 'CHANNEL_ERROR') {
+            console.warn('⚠️ Real-time subscription failed, using polling instead')
+            isRealTimeWorking = false
+          }
+        })
     } catch (error) {
-      console.error('💥 Failed to fetch images:', error)
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
+      console.warn('⚠️ Real-time setup failed, using polling only:', error)
+      isRealTimeWorking = false
     }
-  }
 
-  const deleteImage = async (imageId: string) => {
+    // Enhanced polling mechanism - more frequent when processing images
+    let pollInterval: NodeJS.Timeout
+
+    const startPolling = () => {
+      const poll = async () => {
+        try {
+          const { data } = await supabase
+            .from('images')
+            .select('status')
+            .eq('user_id', userId)
+
+          const hasProcessingImages = data?.some(img => img.status === 'processing')
+
+          // Poll more frequently if real-time isn't working or there are processing images
+          if (!isRealTimeWorking || hasProcessingImages) {
+            console.log('🔄 Polling for updates', hasProcessingImages ? '(processing images)' : '(no real-time)')
+            await fetchUserImages()
+          }
+
+          // Schedule next poll with dynamic interval
+          const nextInterval = hasProcessingImages ? 3000 : (isRealTimeWorking ? 15000 : 5000)
+          pollInterval = setTimeout(poll, nextInterval)
+        } catch (error) {
+          console.error('❌ Polling error:', error)
+          pollInterval = setTimeout(poll, 5000) // Retry in 5s on error
+        }
+      }
+
+      poll() // Start first poll immediately
+    }
+
+    startPolling()
+
+    return () => {
+      subscription?.unsubscribe()
+      clearTimeout(pollInterval)
+    }
+  }, [authLoading, fetchUserImages, router, user, userId])
+
+  const archiveImage = async (imageId: string) => {
     try {
-      console.log('🗑️ Deleting image:', imageId)
-      
+      console.log('🗂️ Archiving image:', imageId)
+
       const response = await fetch(`/api/images/${imageId}`, {
-        method: 'DELETE',
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'archive' }),
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete image')
+        throw new Error(result.error || 'Failed to archive image')
       }
-      
-      console.log('✅ Image deleted successfully via API')
-      
+
+      console.log('✅ Image archived successfully via API')
+
       // Update local state
       setImages(prev => prev.filter(img => img.id !== imageId))
-      
+
     } catch (error) {
-      console.error('❌ Failed to delete image:', error)
+      console.error('❌ Failed to archive image:', error)
       // Show user-friendly error
-      alert(`Failed to delete image: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      alert(`Failed to archive image: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -299,9 +308,9 @@ export default function Dashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userId: user?.id
-        }),
+          body: JSON.stringify({
+            userId
+          }),
       })
 
       if (!response.ok) {
@@ -767,11 +776,11 @@ export default function Dashboard() {
                             </button>
                           )}
                           <button
-                            onClick={() => deleteImage(image.id)}
+                            onClick={() => archiveImage(image.id)}
                             className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
-                            title="Delete"
+                            title="Archive"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Archive className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
@@ -916,11 +925,11 @@ export default function Dashboard() {
                             </button>
                           )}
                           <button
-                            onClick={() => deleteImage(image.id)}
+                            onClick={() => archiveImage(image.id)}
                             className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
-                            title="Delete upload"
+                            title="Archive upload"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Archive className="h-4 w-4" />
                           </button>
                         </div>
                       </div>

@@ -12,6 +12,7 @@ interface UserImage {
   status: 'processing' | 'completed' | 'error'
   created_at: string
   selected?: boolean
+  archived_at?: string | null
 }
 
 interface PhotobookCreatorProps {
@@ -25,7 +26,13 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
   const [photobookTitle, setPhotobookTitle] = useState('My Coloring Book')
   const { user } = useAuth()
 
-  const availableImages = images.filter(img => img.status === 'completed' && img.coloring_page_url && img.coloring_page_url.trim() !== '')
+  const availableImages = images.filter(
+    img =>
+      !img.archived_at &&
+      img.status === 'completed' &&
+      img.coloring_page_url &&
+      img.coloring_page_url.trim() !== ''
+  )
 
   const toggleImageSelection = (image: UserImage) => {
     setSelectedImages(prev => {
