@@ -55,10 +55,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-console.log('🔧 Supabase Client Config:', {
-  url: supabaseUrl,
-  hasKey: !!supabaseAnonKey,
-  keyPrefix: supabaseAnonKey?.substring(0, 20)
-})
-
 export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
