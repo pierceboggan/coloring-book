@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import * as amplitude from '@amplitude/analytics-browser'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
@@ -36,6 +37,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (user?.id) {
+      amplitude.setUserId(user.id)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('🔍 Initial session check:', session ? 'User logged in' : 'No user')
@@ -63,6 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     })
+    amplitude.track('auth_sign_in_completed', {
+      method: 'password',
+      result: error ? 'error' : 'success',
+    })
     if (error) {
       console.error('❌ Sign in failed:', error)
     } else {
@@ -76,6 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+    })
+    amplitude.track('auth_sign_up_completed', {
+      method: 'password',
+      result: error ? 'error' : 'success',
     })
     if (error) {
       console.error('❌ Sign up failed:', error)
@@ -100,6 +115,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: { redirectTo },
     })
 
+    amplitude.track('auth_oauth_sign_in_completed', {
+      provider,
+      result: result.error ? 'error' : 'success',
+    })
+
     if (result.error) {
       console.error('❌ OAuth sign in failed:', provider, result.error)
     } else if (result.data?.url) {
@@ -112,11 +132,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     console.log('🚪 Signing out user')
     await supabase.auth.signOut()
+    amplitude.track('auth_sign_out_completed')
+    amplitude.reset()
     console.log('✅ Sign out complete')
   }
 
   const deleteAccount = async () => {
     console.log('🗑️ Initiating account deletion flow')
+
+    amplitude.track('account_deletion_started')
 
     try {
       const currentSession =
@@ -128,6 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!accessToken) {
         console.error('❌ Account deletion failed: no active session token found')
+        amplitude.track('account_deletion_completed', {
+          result: 'error',
+          reason: 'missing_session',
+        })
         return { error: 'No active session found' }
       }
 
@@ -156,6 +184,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ? String((responseBody as { error?: unknown }).error ?? 'Failed to delete account')
           : 'Failed to delete account'
         console.error('❌ Account deletion request failed:', errorMessage)
+        amplitude.track('account_deletion_completed', {
+          result: 'error',
+          reason: 'request_failed',
+        })
         return { error: errorMessage }
       }
 
@@ -164,9 +196,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null)
 
       console.log('✅ Account deleted and user signed out locally')
+      amplitude.track('account_deletion_completed', {
+        result: 'success',
+      })
       return { error: null }
     } catch (error) {
       console.error('💥 Unexpected error during account deletion:', error)
+      amplitude.track('account_deletion_completed', {
+        result: 'error',
+        reason: 'unexpected_error',
+      })
       return {
         error: error instanceof Error ? error.message : 'Failed to delete account',
       }
