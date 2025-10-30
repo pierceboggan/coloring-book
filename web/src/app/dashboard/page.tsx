@@ -3,12 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { PhotobookCreator } from '@/components/PhotobookCreator'
-import { FamilyAlbumCreator } from '@/components/FamilyAlbumCreator'
-import { RegenerateModal } from '@/components/RegenerateModal'
-import ImageUploader from '@/components/ImageUploader'
 import { FunBackground } from '@/components/FunBackground'
 import {
   Palette,
@@ -29,9 +26,6 @@ import {
   Check,
   Images,
 } from 'lucide-react'
-import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
-import { PromptRemixModal } from '@/components/PromptRemixModal'
-import { VariantsModal } from '@/components/VariantsModal'
 
 interface UserImage {
   id: string
@@ -43,6 +37,11 @@ interface UserImage {
   variant_urls?: string[] | null
   variant_prompts?: string[] | null
   archived_at?: string | null
+}
+
+type VariantSummary = {
+  url: string
+  prompt: string
 }
 
 const getOrdinalSuffix = (day: number) => {
@@ -96,7 +95,7 @@ const formatImageDate = (value: string) => {
   return `${formattedDate} (${relativeLabel})`
 }
 
-const getVariantSummaries = (image: UserImage) => {
+const getVariantSummaries = (image: UserImage): VariantSummary[] => {
   const urls = image.variant_urls || []
   const prompts = image.variant_prompts || []
 
@@ -105,8 +104,108 @@ const getVariantSummaries = (image: UserImage) => {
       url,
       prompt: prompts[index] || 'Custom variant scene',
     }))
-    .filter((variant): variant is { url: string; prompt: string } => Boolean(variant.url))
+    .filter((variant): variant is VariantSummary => Boolean(variant.url))
 }
+
+type PhotobookCreatorProps = {
+  images: UserImage[]
+  onClose: () => void
+}
+
+type FamilyAlbumCreatorProps = {
+  images: UserImage[]
+  onClose: () => void
+}
+
+type RegenerateModalProps = {
+  isOpen: boolean
+  onClose: () => void
+  imageId: string
+  imageName: string
+  currentColoringPageUrl: string
+  onRegenerateComplete: (regeneratedUrl: string) => void
+}
+
+type ImageUploaderProps = {
+  onUploadComplete?: () => void
+}
+
+type ColoringCanvasModalProps = {
+  imageUrl: string
+  imageName: string
+  onClose: () => void
+}
+
+type PromptRemixModalProps = {
+  isOpen: boolean
+  onClose: () => void
+  imageName: string
+  imageUrl: string
+}
+
+type VariantsModalProps = {
+  isOpen: boolean
+  onClose: () => void
+  imageId: string
+  imageName: string
+  originalUrl: string
+  variants: VariantSummary[]
+  onVariantsUpdated: (variants: VariantSummary[]) => void
+  onUseVariant: (variantUrl: string) => Promise<void>
+}
+
+const PhotobookCreator = dynamic<PhotobookCreatorProps>(
+  () =>
+    import('@/components/PhotobookCreator').then((mod) => ({
+      default: mod.PhotobookCreator,
+    })),
+  { ssr: false, loading: () => null }
+)
+
+const FamilyAlbumCreator = dynamic<FamilyAlbumCreatorProps>(
+  () =>
+    import('@/components/FamilyAlbumCreator').then((mod) => ({
+      default: mod.FamilyAlbumCreator,
+    })),
+  { ssr: false, loading: () => null }
+)
+
+const RegenerateModal = dynamic<RegenerateModalProps>(
+  () =>
+    import('@/components/RegenerateModal').then((mod) => ({
+      default: mod.RegenerateModal,
+    })),
+  { ssr: false, loading: () => null }
+)
+
+const ImageUploader = dynamic<ImageUploaderProps>(
+  () => import('@/components/ImageUploader'),
+  { ssr: false, loading: () => null }
+)
+
+const ColoringCanvasModal = dynamic<ColoringCanvasModalProps>(
+  () =>
+    import('@/components/ColoringCanvasModal').then((mod) => ({
+      default: mod.ColoringCanvasModal,
+    })),
+  { ssr: false, loading: () => null }
+)
+
+const PromptRemixModal = dynamic<PromptRemixModalProps>(
+  () =>
+    import('@/components/PromptRemixModal').then((mod) => ({
+      default: mod.PromptRemixModal,
+    })),
+  { ssr: false, loading: () => null }
+)
+
+const VariantsModal = dynamic<VariantsModalProps>(
+  () =>
+    import('@/components/VariantsModal').then((mod) => ({
+      default: mod.VariantsModal,
+    })),
+  { ssr: false, loading: () => null }
+)
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth()
@@ -133,8 +232,6 @@ export default function Dashboard() {
       if (isRefresh) {
         setRefreshing(true)
       }
-      console.log('📸 Fetching images for user:', userId)
-
       if (!userId) {
         console.error('❌ No user ID available for fetching images')
         return
@@ -150,17 +247,6 @@ export default function Dashboard() {
         console.error('❌ Error fetching images:', error)
         throw error
       }
-
-      console.log('✅ Fetched images:', data?.length || 0)
-      console.log('🔍 Raw image data:', data)
-      console.log('🔍 Image statuses:', data?.map((img: UserImage) => ({
-        id: img.id.substring(0, 8),
-        name: img.name,
-        status: img.status,
-        hasColoringPage: !!img.coloring_page_url,
-        original_url: img.original_url,
-        coloring_page_url: img.coloring_page_url
-      })))
 
       const userImages = (data || []) as UserImage[]
       const nonArchivedImages = userImages.filter(img => !img.archived_at)
@@ -208,16 +294,12 @@ export default function Dashboard() {
             table: 'images',
             filter: `user_id=eq.${userId}`,
           },
-          (payload) => {
-            console.log('🔄 Real-time image update received:', payload)
-            console.log('📊 Updated record:', payload.new)
+          () => {
             fetchUserImages()
           }
         )
         .subscribe((status) => {
-          console.log('📡 Real-time subscription status:', status)
           if (status === 'SUBSCRIBED') {
-            console.log('✅ Successfully subscribed to real-time updates')
             isRealTimeWorking = true
           } else if (status === 'CHANNEL_ERROR') {
             console.warn('⚠️ Real-time subscription failed, using polling instead')
@@ -244,7 +326,6 @@ export default function Dashboard() {
 
           // Poll more frequently if real-time isn't working or there are processing images
           if (!isRealTimeWorking || hasProcessingImages) {
-            console.log('🔄 Polling for updates', hasProcessingImages ? '(processing images)' : '(no real-time)')
             await fetchUserImages()
           }
 
@@ -270,8 +351,6 @@ export default function Dashboard() {
 
   const archiveImage = async (imageId: string) => {
     try {
-      console.log('🗂️ Archiving image:', imageId)
-
       const response = await fetch(`/api/images/${imageId}`, {
         method: 'PATCH',
         headers: {
@@ -286,8 +365,6 @@ export default function Dashboard() {
         throw new Error(result.error || 'Failed to archive image')
       }
 
-      console.log('✅ Image archived successfully via API')
-
       // Update local state
       setImages(prev => prev.filter(img => img.id !== imageId))
 
@@ -300,7 +377,6 @@ export default function Dashboard() {
 
   const retryStuckImages = async () => {
     setRetryingProcessing(true)
-    console.log('🔄 Retrying stuck processing images...')
 
     try {
       const response = await fetch('/api/retry-processing', {
@@ -318,7 +394,6 @@ export default function Dashboard() {
       }
 
       const result = await response.json()
-      console.log('✅ Retry processing result:', result)
       
       // Refresh the images after retry
       await fetchUserImages(true)
@@ -490,7 +565,6 @@ export default function Dashboard() {
   }
 
   if (authLoading || loading) {
-    console.log('🔄 Dashboard loading state:', { authLoading, loading, user: !!user })
     return (
       <FunBackground>
         <div className="flex min-h-screen items-center justify-center">
