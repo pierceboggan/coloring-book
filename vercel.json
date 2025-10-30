@@ -1,12 +1,11 @@
 {
   "framework": "nextjs",
-  "buildCommand": "next build",
-  "outputDirectory": ".next",
   "installCommand": "npm install",
+  "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "regions": ["iad1"],
   "functions": {
-    "src/app/api/*/route.ts": {
+    "web/src/app/api/*/route.ts": {
       "maxDuration": 60
     }
   }
