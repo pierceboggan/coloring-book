@@ -22,6 +22,7 @@ interface AuthContextType {
     provider: OAuthProvider
   ) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
+  deleteAccount: () => Promise<{ error: string | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -112,6 +113,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('✅ Sign out complete')
   }
 
+  const deleteAccount = async () => {
+    console.log('🗑️ Initiating account deletion flow')
+
+    try {
+      const currentSession =
+        session ??
+        (await supabase.auth.getSession()).data.session ??
+        null
+
+      const accessToken = currentSession?.access_token
+
+      if (!accessToken) {
+        console.error('❌ Account deletion failed: no active session token found')
+        return { error: 'No active session found' }
+      }
+
+      const response = await fetch('/api/delete-account', {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+
+      let responseBody: unknown
+      try {
+        responseBody = await response.json()
+      } catch (parseError) {
+        console.warn('⚠️ No JSON response body received after account deletion request', parseError)
+        responseBody = null
+      }
+
+      if (!response.ok) {
+        const hasErrorMessage =
+          typeof responseBody === 'object' &&
+          responseBody !== null &&
+          Object.prototype.hasOwnProperty.call(responseBody, 'error')
+
+        const errorMessage = hasErrorMessage
+          ? String((responseBody as { error?: unknown }).error ?? 'Failed to delete account')
+          : 'Failed to delete account'
+        console.error('❌ Account deletion request failed:', errorMessage)
+        return { error: errorMessage }
+      }
+
+      await supabase.auth.signOut()
+      setUser(null)
+      setSession(null)
+
+      console.log('✅ Account deleted and user signed out locally')
+      return { error: null }
+    } catch (error) {
+      console.error('💥 Unexpected error during account deletion:', error)
+      return {
+        error: error instanceof Error ? error.message : 'Failed to delete account',
+      }
+    }
+  }
+
   const value = {
     user,
     session,
@@ -120,6 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signInWithProvider,
     signOut,
+    deleteAccount,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

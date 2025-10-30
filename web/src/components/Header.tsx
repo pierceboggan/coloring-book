@@ -6,7 +6,8 @@ import { AuthModal } from './AuthModal'
 
 export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const { user, signOut, loading } = useAuth()
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const { user, signOut, deleteAccount, loading } = useAuth()
 
   console.log('📊 Header render - User state:', user ? `Logged in as ${user.email}` : 'Not logged in')
 
@@ -40,12 +41,44 @@ export function Header() {
                   <span className="text-sm text-gray-600">
                     {user.email}
                   </span>
-                  <button
-                    onClick={signOut}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    Sign Out
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={async () => {
+                        if (isDeletingAccount) {
+                          return
+                        }
+
+                        const confirmed = window.confirm(
+                          'Deleting your account will permanently remove your coloring pages and uploaded photos. This action cannot be undone. Do you want to continue?'
+                        )
+
+                        if (!confirmed) {
+                          return
+                        }
+
+                        try {
+                          setIsDeletingAccount(true)
+                          const { error } = await deleteAccount()
+
+                          if (error) {
+                            alert(error)
+                          }
+                        } finally {
+                          setIsDeletingAccount(false)
+                        }
+                      }}
+                      className="bg-white text-red-600 px-4 py-2 rounded-md text-sm font-medium border border-red-200 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-60"
+                      disabled={isDeletingAccount}
+                    >
+                      {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
+                    </button>
+                    <button
+                      onClick={signOut}
+                      className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
                 </>
               ) : (
                 <button
