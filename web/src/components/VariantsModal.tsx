@@ -1,0 +1,446 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Sparkles,
+  Loader2,
+  X,
+  Check,
+  Image as ImageIcon,
+  Download,
+  Wand2,
+} from 'lucide-react'
+import { VARIANT_THEMES, getThemePrompt } from '@/lib/variants'
+
+interface VariantSummary {
+  url: string
+  prompt: string
+}
+
+interface GenerationAttempt {
+  id: string
+  prompt: string
+  status: 'loading' | 'success' | 'error'
+  url?: string | null
+  error?: string
+}
+
+interface VariantsModalProps {
+  isOpen: boolean
+  onClose: () => void
+  imageId: string
+  imageName: string
+  originalUrl: string
+  variants: VariantSummary[]
+  onVariantsUpdated: (variants: VariantSummary[]) => void
+  onUseVariant: (variantUrl: string) => Promise<void>
+}
+
+const MAX_VARIANT_PROMPTS = 10
+
+function formatVariantSummariesFromPersisted(value?: {
+  urls?: string[] | null
+  prompts?: string[] | null
+}): VariantSummary[] {
+  if (!value?.urls) {
+    return []
+  }
+
+  return value.urls.map((url, index) => ({
+    url,
+    prompt: value.prompts?.[index] || 'Custom variant scene',
+  }))
+}
+
+export function VariantsModal({
+  isOpen,
+  onClose,
+  imageId,
+  imageName,
+  originalUrl,
+  variants,
+  onVariantsUpdated,
+  onUseVariant,
+}: VariantsModalProps) {
+  const [selectedThemes, setSelectedThemes] = useState<Set<string>>(new Set())
+  const [customPrompt, setCustomPrompt] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [storedVariants, setStoredVariants] = useState<VariantSummary[]>(variants)
+  const [generationAttempts, setGenerationAttempts] = useState<GenerationAttempt[]>([])
+  const [applyInProgress, setApplyInProgress] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      setStoredVariants(variants)
+    } else {
+      setSelectedThemes(new Set())
+      setCustomPrompt('')
+      setGenerationAttempts([])
+      setError(null)
+      setApplyInProgress(null)
+    }
+  }, [isOpen, variants])
+
+  const selectedCount = selectedThemes.size + (customPrompt.trim() ? 1 : 0)
+
+  const selectedThemeObjects = useMemo(
+    () => VARIANT_THEMES.filter(theme => selectedThemes.has(theme.id)),
+    [selectedThemes]
+  )
+
+  const toggleTheme = (themeId: string) => {
+    const updated = new Set(selectedThemes)
+    if (updated.has(themeId)) {
+      updated.delete(themeId)
+    } else {
+      if (updated.size >= MAX_VARIANT_PROMPTS) {
+        setError(`Maximum ${MAX_VARIANT_PROMPTS} prompts at a time`)
+        return
+      }
+      updated.add(themeId)
+    }
+
+    setSelectedThemes(updated)
+    setError(null)
+  }
+
+  const handleGenerate = async () => {
+    const promptInputs = [
+      ...selectedThemeObjects.map(theme => getThemePrompt(theme)),
+      ...(customPrompt.trim() ? [customPrompt.trim()] : []),
+    ]
+
+    if (promptInputs.length === 0) {
+      setError('Pick at least one scene or write your own prompt to start generating variants.')
+      return
+    }
+
+    if (promptInputs.length > MAX_VARIANT_PROMPTS) {
+      setError(`Maximum ${MAX_VARIANT_PROMPTS} prompts at a time`)
+      return
+    }
+
+    setIsGenerating(true)
+    setError(null)
+
+    const attemptIds = promptInputs.map((prompt, index) => ({
+      id: `${Date.now()}-${index}`,
+      prompt,
+      status: 'loading' as const,
+    }))
+    setGenerationAttempts(attemptIds)
+
+    try {
+      const response = await fetch('/api/prompt-remix', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageId,
+          imageUrl: originalUrl,
+          prompts: promptInputs,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || 'Failed to generate variants. Please try again.')
+      }
+
+      const data = await response.json()
+      const results = (data.results || []) as { prompt: string; url: string | null; error?: string }[]
+
+      setGenerationAttempts(
+        results.map((result, index) => ({
+          id: attemptIds[index]?.id || `${Date.now()}-${index}`,
+          prompt: result.prompt,
+          status: result.error || !result.url ? 'error' : 'success',
+          url: result.url,
+          error: result.error,
+        }))
+      )
+
+      if (data.persistedVariants) {
+        const updatedSummaries = formatVariantSummariesFromPersisted(data.persistedVariants)
+        setStoredVariants(updatedSummaries)
+        onVariantsUpdated(updatedSummaries)
+      }
+    } catch (err) {
+      console.error('Variant generation failed:', err)
+      setError(err instanceof Error ? err.message : 'Unable to generate variants right now.')
+      setGenerationAttempts([])
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleUseVariant = async (variantUrl: string) => {
+    try {
+      setApplyInProgress(variantUrl)
+      await onUseVariant(variantUrl)
+    } catch (err) {
+      console.error('Failed to apply variant:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update the coloring page with this variant.')
+    } finally {
+      setApplyInProgress(null)
+    }
+  }
+
+  if (!isOpen) {
+    return null
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/60 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-6xl overflow-hidden rounded-[2.5rem] border-4 border-[#C3B5FF] bg-white shadow-[20px_20px_0_0_#A599E9]">
+        <div className="flex items-center justify-between border-b-4 border-[#C3B5FF] bg-[#F6F3FF] px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C3B5FF] text-white shadow-inner">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#6C63FF]">Variant studio</p>
+              <h2 className="text-xl font-bold text-[#3A2E39]">{imageName}</h2>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#C3B5FF] bg-white text-[#6C63FF] shadow-[4px_4px_0_0_#A599E9] transition-transform hover:-translate-y-0.5"
+            aria-label="Close variants"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,2.8fr)]">
+          <div className="space-y-5">
+            <div className="overflow-hidden rounded-[1.75rem] border-4 border-[#E5E0FF] bg-[#F6F3FF] p-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-[#6C63FF]">Reference photo</h3>
+              <div className="mt-3 overflow-hidden rounded-2xl border-2 border-dashed border-[#C3B5FF]/70 bg-white">
+                <img src={originalUrl} alt={imageName} className="w-full object-cover" />
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border-4 border-[#E5E0FF] bg-white/90 p-5 shadow-[8px_8px_0_0_#D8CEF9]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-bold text-[#3A2E39]">Scene ideas</h3>
+                  <p className="text-sm font-medium text-[#594144]/70">
+                    Pick up to {MAX_VARIANT_PROMPTS} themes or write your own magical adventure.
+                  </p>
+                </div>
+                <div className="rounded-full border-2 border-[#C3B5FF] bg-[#F6F3FF] px-3 py-1 text-xs font-semibold text-[#6C63FF]">
+                  {selectedCount} selected
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {VARIANT_THEMES.map(theme => {
+                  const isSelected = selectedThemes.has(theme.id)
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => toggleTheme(theme.id)}
+                      disabled={isGenerating}
+                      className={`rounded-xl border-2 px-3 py-2 text-left text-xs font-semibold transition-all ${
+                        isSelected
+                          ? 'border-[#6C63FF] bg-[#F3F0FF] text-[#6C63FF] shadow-[4px_4px_0_0_#C3B5FF]'
+                          : 'border-[#E5E0FF] bg-white text-[#594144] hover:border-[#C3B5FF]'
+                      } disabled:cursor-not-allowed disabled:opacity-60`}
+                      title={theme.description}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate">{theme.title}</span>
+                        {isSelected && <Check className="h-3 w-3 flex-shrink-0" />}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="mt-4">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#6C63FF]">
+                  Custom scene (optional)
+                </label>
+                <textarea
+                  value={customPrompt}
+                  onChange={event => setCustomPrompt(event.target.value)}
+                  rows={3}
+                  disabled={isGenerating}
+                  placeholder="E.g., exploring a magical garden with butterflies and sparkling fountains"
+                  className="w-full rounded-xl border-2 border-[#E5E0FF] px-4 py-2 text-sm text-[#3A2E39] focus:border-[#6C63FF] focus:outline-none focus:ring-2 focus:ring-[#C3B5FF]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                />
+              </div>
+
+              {error && (
+                <div className="mt-4 rounded-xl border-2 border-[#FF8BA7] bg-[#FFE6EB] px-4 py-3 text-sm text-[#FF6F91]">
+                  {error}
+                </div>
+              )}
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={isGenerating || selectedCount === 0}
+                  className="inline-flex items-center gap-2 rounded-full border-4 border-[#6C63FF] bg-[#6C63FF] px-6 py-3 text-sm font-bold text-white shadow-[8px_8px_0_0_#5650E0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300 disabled:shadow-none"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Brewing {selectedCount} variant{selectedCount === 1 ? '' : 's'}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5" />
+                      Generate variants
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedThemes(new Set())
+                    setCustomPrompt('')
+                    setError(null)
+                  }}
+                  disabled={isGenerating || (selectedThemes.size === 0 && !customPrompt.trim())}
+                  className="inline-flex items-center gap-2 rounded-full border-4 border-[#C3B5FF] bg-white px-6 py-3 text-sm font-semibold text-[#6C63FF] shadow-[6px_6px_0_0_#A599E9] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:shadow-none"
+                >
+                  <Wand2 className="h-5 w-5" />
+                  Reset selections
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="rounded-[1.75rem] border-4 border-[#A0E7E5] bg-white/90 p-5 shadow-[10px_10px_0_0_#55C6C0]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-bold text-[#3A2E39]">Saved variants</h3>
+                  <p className="text-sm font-medium text-[#594144]/70">
+                    Promote a variant to become the main coloring page or download it for later.
+                  </p>
+                </div>
+                <div className="rounded-full border-2 border-[#A0E7E5] bg-[#E0F7FA] px-3 py-1 text-xs font-semibold text-[#1DB9B3]">
+                  {storedVariants.length} saved
+                </div>
+              </div>
+
+              {storedVariants.length === 0 ? (
+                <div className="mt-5 rounded-2xl border-2 border-dashed border-[#A0E7E5]/60 bg-[#E0F7FA]/40 p-6 text-center">
+                  <p className="text-sm font-semibold text-[#1DB9B3]">
+                    No variants yet. Generate scenes to build your collection!
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {storedVariants.map((variant) => (
+                    <div
+                      key={variant.url}
+                      className="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-[#A0E7E5]/70 bg-white shadow-sm"
+                    >
+                      <div className="aspect-square overflow-hidden border-b-2 border-[#A0E7E5]/60 bg-[#F6F3FF]">
+                        <img src={variant.url} alt={variant.prompt} className="h-full w-full object-cover" />
+                      </div>
+                      <div className="flex flex-1 flex-col gap-3 p-4">
+                        <p className="flex-1 text-sm font-medium text-[#594144] line-clamp-3">{variant.prompt}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleUseVariant(variant.url)}
+                            disabled={applyInProgress === variant.url}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-3 py-1.5 text-xs font-semibold text-white shadow-[4px_4px_0_0_#f2557b] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
+                          >
+                            {applyInProgress === variant.url ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
+                            Use as main page
+                          </button>
+                          <a
+                            href={variant.url}
+                            download={`${imageName}-variant.png`}
+                            className="inline-flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-1.5 text-xs font-semibold text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                          >
+                            <Download className="h-4 w-4" />
+                            Download
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-[1.75rem] border-4 border-dashed border-[#FFD166] bg-[#FFF3BF]/70 p-5 shadow-[8px_8px_0_0_#FFB84C]">
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#AA6A00] shadow-inner">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <h3 className="text-base font-bold text-[#3A2E39]">Latest generation run</h3>
+                    <p className="text-sm font-medium text-[#594144]/70">
+                      We keep track of the most recent prompts so you know what finished and what needs another try.
+                    </p>
+                  </div>
+
+                  {generationAttempts.length === 0 ? (
+                    <p className="text-sm font-semibold text-[#AA6A00]">
+                      Start a new batch to see progress updates here.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {generationAttempts.map(attempt => (
+                        <div
+                          key={attempt.id}
+                          className="flex items-start gap-3 rounded-2xl border-2 border-white/60 bg-white/80 px-4 py-3"
+                        >
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#FFE6EB] text-[#FF6F91]">
+                            {attempt.status === 'loading' ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : attempt.status === 'success' ? (
+                              <Check className="h-5 w-5" />
+                            ) : (
+                              <ImageIcon className="h-5 w-5" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-[#3A2E39]">{attempt.prompt}</p>
+                            {attempt.status === 'error' && (
+                              <p className="text-xs font-medium text-[#FF6F91]">
+                                {attempt.error || 'Variant failed to generate'}
+                              </p>
+                            )}
+                            {attempt.status === 'success' && attempt.url && (
+                              <a
+                                href={attempt.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-1 inline-flex items-center gap-2 text-xs font-semibold text-[#1DB9B3] hover:underline"
+                              >
+                                View preview
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

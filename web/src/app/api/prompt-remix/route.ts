@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateColoringPageWithCustomPrompt } from '@/lib/openai'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import * as Sentry from '@sentry/nextjs'
 
 // Helper to limit concurrent promises
@@ -42,10 +43,11 @@ export async function POST(request: NextRequest) {
     async (span) => {
       try {
         const body = await request.json()
-        const { imageUrl, remixPrompt, prompts } = body as {
+        const { imageUrl, remixPrompt, prompts, imageId } = body as {
           imageUrl?: string
           remixPrompt?: string
           prompts?: string[]
+          imageId?: string
         }
 
         span.setAttribute('hasImageUrl', Boolean(imageUrl))
@@ -79,6 +81,63 @@ export async function POST(request: NextRequest) {
 
         span.setAttribute('promptCount', promptsToProcess.length)
 
+        const persistVariants = async (successfulResults: { prompt: string; url: string | null }[]) => {
+          if (!imageId) {
+            return null
+          }
+
+          try {
+            const { data: existingRecord, error: fetchError } = await supabaseAdmin
+              .from('images')
+              .select('variant_urls, variant_prompts')
+              .eq('id', imageId)
+              .single()
+
+            if (fetchError) {
+              throw fetchError
+            }
+
+            const existingUrls = existingRecord?.variant_urls || []
+            const existingPrompts = existingRecord?.variant_prompts || []
+
+            const updatedUrls = [...existingUrls]
+            const updatedPrompts = [...existingPrompts]
+
+            const newEntries = successfulResults
+              .filter(result => result.url)
+              .map(result => ({ url: result.url as string, prompt: result.prompt }))
+
+            newEntries.forEach(({ url, prompt }) => {
+              if (!updatedUrls.includes(url)) {
+                updatedUrls.push(url)
+                updatedPrompts.push(prompt)
+              }
+            })
+
+            const hasChanges = updatedUrls.length !== existingUrls.length
+
+            if (hasChanges) {
+              const { error: updateError } = await supabaseAdmin
+                .from('images')
+                .update({ variant_urls: updatedUrls, variant_prompts: updatedPrompts })
+                .eq('id', imageId)
+
+              if (updateError) {
+                throw updateError
+              }
+            }
+
+            return {
+              urls: updatedUrls,
+              prompts: updatedPrompts,
+            }
+          } catch (persistError) {
+            console.error('Failed to persist variants:', persistError)
+            Sentry.captureException(persistError)
+            return null
+          }
+        }
+
         // Process prompts with max 5 concurrent
         const tasks = promptsToProcess.map((prompt) => async () => {
           const combinedPrompt = `Transform this reference photo into a fresh black and white coloring book page. Keep the same people, pets, and unique accessories recognizable while placing them in the following new scene: ${prompt}. Maintain playful, family-friendly line art with bold outlines, no shading or color fills, and a clean white background. Ensure proportions remain consistent with the original photo.`
@@ -102,15 +161,22 @@ export async function POST(request: NextRequest) {
               }
             })
 
+          const persistedVariants = await persistVariants(successfulResults)
+
           return NextResponse.json({
             success: true,
             results: successfulResults,
+            persistedVariants,
           })
         } else {
           // Single mode: return single result for backward compatibility
           const result = results[0]
           if (result.status === 'fulfilled') {
-            return NextResponse.json({ success: true, coloringPageUrl: result.value.url })
+            const persistedVariants = await persistVariants([
+              { prompt: promptsToProcess[0], url: result.value.url },
+            ])
+
+            return NextResponse.json({ success: true, coloringPageUrl: result.value.url, persistedVariants })
           } else {
             throw result.reason
           }
