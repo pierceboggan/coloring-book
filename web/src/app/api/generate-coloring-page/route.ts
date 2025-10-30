@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateColoringPage } from '@/lib/openai'
+import { generateColoringPage, ImageGenerationProvider, isImageGenerationProvider } from '@/lib/openai'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import * as Sentry from '@sentry/nextjs'
 
@@ -12,7 +12,12 @@ export async function POST(request: NextRequest) {
     async (span) => {
       console.log('🚀 API route /api/generate-coloring-page called')
 
-      let body: { imageId?: string; imageUrl?: string; age?: number } | null = null
+      let body: {
+        imageId?: string
+        imageUrl?: string
+        age?: number
+        provider?: ImageGenerationProvider | string
+      } | null = null
 
       try {
         console.log('📥 Parsing request body...')
@@ -24,6 +29,10 @@ export async function POST(request: NextRequest) {
           ? Math.round(body.age)
           : undefined
 
+        const provider = isImageGenerationProvider(body?.provider)
+          ? body?.provider
+          : undefined
+
         const clampedAge = requestedAge
           ? Math.min(12, Math.max(2, requestedAge))
           : undefined
@@ -31,6 +40,7 @@ export async function POST(request: NextRequest) {
         span.setAttribute('imageId', imageId)
         span.setAttribute('hasImageUrl', !!imageUrl)
         span.setAttribute('agePreference', clampedAge ?? 'unspecified')
+        span.setAttribute('imageProvider', provider ?? 'default')
 
         if (!imageId || !imageUrl) {
           console.error('❌ Missing required fields:', { imageId, imageUrl })
@@ -41,7 +51,7 @@ export async function POST(request: NextRequest) {
         }
 
         console.log('🎨 About to call generateColoringPage with URL:', imageUrl, 'age:', clampedAge)
-        const coloringPageUrl = await generateColoringPage(imageUrl, { age: clampedAge })
+        const coloringPageUrl = await generateColoringPage(imageUrl, { age: clampedAge, provider })
         console.log('✅ generateColoringPage completed, result:', coloringPageUrl.substring(0, 50) + '...')
 
         if (!coloringPageUrl) {

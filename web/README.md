@@ -11,7 +11,8 @@ Transform any photo into a beautiful coloring page with AI-powered technology. P
 ## ✨ Features
 
 ### 🤖 AI-Powered Processing
-- **Smart Line Art Generation**: Advanced OpenAI Responses API analyzes photos and creates perfect line art
+- **Smart Line Art Generation**: Advanced OpenAI and Google Gemini APIs analyze photos and create perfect line art
+- **Provider Benchmarks**: Built-in evaluation endpoint compares output quality, latency, and cost metadata across providers
 - **Custom Prompts**: Regenerate coloring pages with different styles and complexity levels
 - **Real-time Status Updates**: Live progress tracking during AI processing
 - **Automatic Watermarking**: Professional watermark system for processed images
@@ -44,9 +45,10 @@ Transform any photo into a beautiful coloring page with AI-powered technology. P
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - A Supabase account
 - An OpenAI API key
+- (Optional) A Google Gemini API key for Gemini-based image generation and benchmarking
 
 ### Installation
 
@@ -72,6 +74,16 @@ Transform any photo into a beautiful coloring page with AI-powered technology. P
 
    # OpenAI Configuration
    OPENAI_API_KEY=your_openai_api_key
+
+   # Gemini Configuration (optional)
+   GOOGLE_API_KEY=your_gemini_api_key
+   GEMINI_IMAGE_MODEL=gemini-2.5-flash-image-preview
+   GEMINI_API_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+
+   # Image Generation Defaults (optional)
+   IMAGE_GENERATION_PROVIDER=openai
+   OPENAI_IMAGE_COST_USD=0.00
+   GEMINI_IMAGE_COST_USD=0.00
 
    # App Configuration
    NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -115,8 +127,26 @@ Transform any photo into a beautiful coloring page with AI-powered technology. P
 6. **Open your browser**
    
    Visit [http://localhost:3000](http://localhost:3000)
-   
+
    > **Note**: The development environment is password-protected with: `parkcityutah`
+
+## 🔬 Evaluating image providers
+
+Use the `/api/evaluate-image-providers` route to compare OpenAI and Gemini results side-by-side. The endpoint accepts the same `imageUrl` you send to the standard generator and optionally a custom prompt, target age, detail level, or explicit provider list.
+
+```http
+POST /api/evaluate-image-providers
+Content-Type: application/json
+
+{
+  "imageUrl": "https://example.com/source-photo.jpg",
+  "age": 6,
+  "providers": ["openai", "gemini"],
+  "prompt": "Keep the composition playful but faithful to the original photo."
+}
+```
+
+Each provider response contains the public URL for the generated page plus timing, usage, and cost metadata so you can track quality versus spend.
 
 ## 🚀 Deploy to Vercel
 

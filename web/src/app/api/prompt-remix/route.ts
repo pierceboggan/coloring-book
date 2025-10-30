@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateColoringPageWithCustomPrompt } from '@/lib/openai'
+import { generateColoringPageWithCustomPrompt, ImageGenerationProvider, isImageGenerationProvider } from '@/lib/openai'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import * as Sentry from '@sentry/nextjs'
 
@@ -48,11 +48,17 @@ export async function POST(request: NextRequest) {
           remixPrompt?: string
           prompts?: string[]
           imageId?: string
+          provider?: ImageGenerationProvider | string
         }
+
+        const provider = isImageGenerationProvider(body.provider)
+          ? body.provider
+          : undefined
 
         span.setAttribute('hasImageUrl', Boolean(imageUrl))
         span.setAttribute('hasRemixPrompt', Boolean(remixPrompt))
         span.setAttribute('hasPrompts', Boolean(prompts))
+        span.setAttribute('imageProvider', provider ?? 'default')
 
         if (!imageUrl) {
           return NextResponse.json(
@@ -142,7 +148,7 @@ export async function POST(request: NextRequest) {
         const tasks = promptsToProcess.map((prompt) => async () => {
           const combinedPrompt = `Transform this reference photo into a fresh black and white coloring book page. Keep the same people, pets, and unique accessories recognizable while placing them in the following new scene: ${prompt}. Maintain playful, family-friendly line art with bold outlines, no shading or color fills, and a clean white background. Ensure proportions remain consistent with the original photo.`
 
-          const coloringPageUrl = await generateColoringPageWithCustomPrompt(imageUrl, combinedPrompt)
+          const coloringPageUrl = await generateColoringPageWithCustomPrompt(imageUrl, combinedPrompt, { provider })
           return { prompt, url: coloringPageUrl }
         })
 
