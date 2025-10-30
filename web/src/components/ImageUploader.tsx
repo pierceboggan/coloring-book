@@ -45,6 +45,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const [error, setError] = useState<string>('')
   const [processingCount, setProcessingCount] = useState(0)
   const [completedCount, setCompletedCount] = useState(0)
+  const processingTargetRef = useRef(0)
   const [targetAge, setTargetAge] = useState<number>(4)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
@@ -97,25 +98,52 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const uploadMultipleImages = async (files: File[], age: number) => {
     setStatus('uploading')
     setProcessingCount(files.length)
+    processingTargetRef.current = files.length
     setCompletedCount(0)
-    
+
     const uploadPromises = files.map(file => uploadSingleImage(file, age))
-    
-    try {
-      await Promise.all(uploadPromises)
-      setStatus('completed')
-      
-      // Call completion callback after a short delay
-      setTimeout(() => {
-        onUploadComplete?.()
-      }, 2000)
-      
-    } catch (error) {
-      console.error('Multi-upload error:', error)
-      Sentry.captureException(error)
-      setStatus('error')
-      setError('Some uploads failed. Please try again.')
+
+    const results = await Promise.allSettled(uploadPromises)
+
+    const failedUploads = results
+      .map((result, index) => ({ result, index }))
+      .filter(({ result }) => result.status === 'rejected')
+
+    const successfulUploads = results.length - failedUploads.length
+
+    if (failedUploads.length > 0) {
+      failedUploads.forEach(({ result }) => {
+        if (result.status === 'rejected') {
+          Sentry.captureException(result.reason)
+        }
+      })
+
+      const failedFileNames = failedUploads
+        .map(({ index }) => files[index]?.name)
+        .filter(Boolean)
+        .join(', ')
+
+      setError(
+        failedUploads.length === 1
+          ? `We couldn't upload ${failedFileNames}. Please try again.`
+          : `We couldn't upload these files: ${failedFileNames}. Please try again.`
+      )
     }
+
+    setProcessingCount(successfulUploads)
+    processingTargetRef.current = successfulUploads
+
+    if (successfulUploads === 0) {
+      setStatus('error')
+      return
+    }
+
+    setStatus(failedUploads.length > 0 ? 'processing' : 'completed')
+
+    // Call completion callback after a short delay
+    setTimeout(() => {
+      onUploadComplete?.()
+    }, 2000)
   }
 
   const uploadSingleImage = async (file: File, age: number): Promise<void> => {
@@ -161,7 +189,13 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
       // Generate coloring page in background
       requestColoringPageGeneration(dbData.id, publicUrl, age).then(() => {
-        setCompletedCount(prev => prev + 1)
+        setCompletedCount(prev => {
+          const next = prev + 1
+          if (next === processingTargetRef.current) {
+            setStatus('completed')
+          }
+          return next
+        })
         console.log(`✅ Completed processing ${file.name}`)
       }).catch(err => {
         console.error(`❌ Failed to process ${file.name}:`, err)
