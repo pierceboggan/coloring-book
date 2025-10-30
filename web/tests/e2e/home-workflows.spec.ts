@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { unlockPreview } from './helpers/auth'
 test.describe('Home page workflows', () => {
   test.beforeEach(async ({ page }) => {
