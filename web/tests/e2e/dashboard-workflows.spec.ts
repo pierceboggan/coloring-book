@@ -248,6 +248,16 @@ test.describe('Dashboard workflows', () => {
 
     await setupSupabaseImageMock(page, initialImages)
 
+    await page.route('https://example.com/downloads/photobook.pdf', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/pdf',
+        body: '%PDF-1.4\n%',
+      })
+    })
+
+    let pollCount = 0
+
     await page.route('**/api/generate-photobook', async (route) => {
       const payload = JSON.parse(route.request().postData() || '{}')
       expect(Array.isArray(payload.images)).toBeTruthy()
@@ -255,15 +265,42 @@ test.describe('Dashboard workflows', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ downloadUrl: 'https://example.com/downloads/photobook.pdf' }),
+        body: JSON.stringify({
+          success: true,
+          jobId: 'job-123',
+          pollUrl: '/api/photobook-jobs/job-123',
+          totalCount: payload.images.length ?? 0,
+        }),
       })
     })
 
-    await page.route('https://example.com/downloads/photobook.pdf', async (route) => {
+    await page.route('**/api/photobook-jobs/job-123', async (route) => {
+      pollCount += 1
+
+      const statusPayload =
+        pollCount < 2
+          ? { status: 'queued', processedCount: 0 }
+          : pollCount === 2
+          ? { status: 'processing', processedCount: 1 }
+          : {
+              status: 'completed' as const,
+              processedCount: 2,
+              downloadUrl: 'https://example.com/downloads/photobook.pdf',
+            }
+
       await route.fulfill({
         status: 200,
-        contentType: 'application/pdf',
-        body: '%PDF-1.4\n%',
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'job-123',
+          title: 'Family Adventures',
+          totalCount: 2,
+          createdAt: new Date().toISOString(),
+          startedAt: new Date().toISOString(),
+          completedAt: pollCount >= 3 ? new Date().toISOString() : null,
+          error: null,
+          ...statusPayload,
+        }),
       })
     })
 
@@ -278,6 +315,8 @@ test.describe('Dashboard workflows', () => {
 
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Generate PDF' }).click()
+
+    await expect(page.getByText('Photobook job queued. Preparing to build your PDF…')).toBeVisible()
 
     const download = await downloadPromise
     expect(download.suggestedFilename()).toBe('Family Adventures.pdf')

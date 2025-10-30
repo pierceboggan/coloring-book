@@ -1,5 +1,13 @@
 import { createBrowserClient } from '@supabase/ssr'
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export type Database = {
   public: {
     Tables: {
@@ -100,6 +108,82 @@ export type Database = {
           variant_urls?: string[] | null
           variant_prompts?: string[] | null
           archived_at?: string | null
+        }
+      }
+      photobook_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          payload: Json | null
+          pdf_path: string | null
+          pdf_url: string | null
+          processed_count: number | null
+          started_at: string | null
+          status: 'queued' | 'processing' | 'completed' | 'failed'
+          title: string
+          total_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          pdf_path?: string | null
+          pdf_url?: string | null
+          processed_count?: number | null
+          started_at?: string | null
+          status?: 'queued' | 'processing' | 'completed' | 'failed'
+          title: string
+          total_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          pdf_path?: string | null
+          pdf_url?: string | null
+          processed_count?: number | null
+          started_at?: string | null
+          status?: 'queued' | 'processing' | 'completed' | 'failed'
+          title?: string
+          total_count?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+      }
+      photobooks: {
+        Row: {
+          created_at: string
+          id: string
+          image_count: number
+          pdf_url: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_count: number
+          pdf_url: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_count?: number
+          pdf_url?: string
+          title?: string
+          user_id?: string
         }
       }
     }
