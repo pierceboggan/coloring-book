@@ -1,5 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import type { Database } from '@/lib/supabase'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+
+type ImageRow = Database['public']['Tables']['images']['Row']
+
+async function getAuthenticatedUserId(request: NextRequest) {
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies
+          .getAll()
+          .map(({ name, value }) => ({ name, value }))
+      },
+    },
+  })
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error) {
+    console.error('❌ Failed to verify Supabase session:', error)
+    return null
+  }
+
+  return user?.id ?? null
+}
 
 export async function DELETE(
   request: NextRequest,
@@ -15,6 +50,15 @@ export async function DELETE(
       )
     }
 
+    const userId = await getAuthenticatedUserId(request)
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
     console.log('🗑️ API: Deleting image:', imageId)
 
     // First, get the image to verify it exists
@@ -22,13 +66,25 @@ export async function DELETE(
       .from('images')
       .select('*')
       .eq('id', imageId)
-      .single()
+      .single<ImageRow>()
 
     if (fetchError) {
       console.error('❌ Image not found:', fetchError)
       return NextResponse.json(
         { error: 'Image not found' },
         { status: 404 }
+      )
+    }
+
+    if (existingImage.user_id !== userId) {
+      console.warn('🚫 User attempted to delete image they do not own', {
+        imageId,
+        ownerId: existingImage.user_id,
+        requesterId: userId,
+      })
+      return NextResponse.json(
+        { error: 'You do not have permission to delete this image' },
+        { status: 403 }
       )
     }
 
@@ -43,6 +99,7 @@ export async function DELETE(
       .from('images')
       .delete()
       .eq('id', imageId)
+      .eq('user_id', userId)
       .select()
 
     if (deleteError) {
@@ -87,11 +144,46 @@ export async function PATCH(
       )
     }
 
+    const userId = await getAuthenticatedUserId(request)
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
     const body = (await request.json().catch(() => ({}))) as {
       action?: string
       name?: string
     }
     const action = typeof body.action === 'string' ? body.action : undefined
+
+    const { data: existingImage, error: fetchError } = await supabaseAdmin
+      .from('images')
+      .select('*')
+      .eq('id', imageId)
+      .single<ImageRow>()
+
+    if (fetchError) {
+      console.error('❌ Image not found for update:', fetchError)
+      return NextResponse.json(
+        { error: 'Image not found' },
+        { status: 404 }
+      )
+    }
+
+    if (existingImage.user_id !== userId) {
+      console.warn('🚫 User attempted to modify image they do not own', {
+        imageId,
+        ownerId: existingImage.user_id,
+        requesterId: userId,
+      })
+      return NextResponse.json(
+        { error: 'You do not have permission to modify this image' },
+        { status: 403 }
+      )
+    }
 
     if (action === 'archive' || action === 'restore') {
       const archivedAt = action === 'archive' ? new Date().toISOString() : null
@@ -101,8 +193,9 @@ export async function PATCH(
         .from('images')
         .update({ archived_at: archivedAt })
         .eq('id', imageId)
+        .eq('user_id', userId)
         .select()
-        .single()
+        .single<ImageRow>()
 
       if (archiveError) {
         console.error('❌ Archive operation failed:', archiveError)
@@ -138,8 +231,9 @@ export async function PATCH(
       .from('images')
       .update({ name: newName })
       .eq('id', imageId)
+      .eq('user_id', userId)
       .select()
-      .single()
+      .single<ImageRow>()
 
     if (updateError) {
       console.error('❌ Rename operation failed:', updateError)
