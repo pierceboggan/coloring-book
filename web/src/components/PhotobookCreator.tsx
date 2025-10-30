@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Book, Plus, X, Sparkles } from 'lucide-react'
 
@@ -20,10 +21,20 @@ interface PhotobookCreatorProps {
   onClose: () => void
 }
 
+interface SavedOrder {
+  id: string
+  name: string
+  imageIds: string[]
+  updatedAt: string
+}
+
 export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
   const [selectedImages, setSelectedImages] = useState<UserImage[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [photobookTitle, setPhotobookTitle] = useState('My Coloring Book')
+  const [savedOrders, setSavedOrders] = useState<SavedOrder[]>([])
+  const [selectedPresetId, setSelectedPresetId] = useState('')
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
   const { user } = useAuth()
 
   const availableImages = images.filter(
@@ -49,6 +60,170 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
 
       return [...prev, image]
     })
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const storedOrders = window.localStorage.getItem('photobookOrders')
+      if (storedOrders) {
+        const parsed = JSON.parse(storedOrders) as SavedOrder[]
+        setSavedOrders(parsed)
+      }
+    } catch (error) {
+      console.error('❌ Failed to load saved photobook orders:', error)
+    }
+  }, [])
+
+  const persistOrders = (orders: SavedOrder[]) => {
+    setSavedOrders(orders)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('photobookOrders', JSON.stringify(orders))
+    }
+  }
+
+  const reorderSelectedImages = (fromIndex: number, toIndex: number) => {
+    setSelectedImages(prev => {
+      if (fromIndex === toIndex) return prev
+      if (fromIndex < 0 || fromIndex >= prev.length) return prev
+      if (toIndex < 0 || toIndex >= prev.length) return prev
+
+      const updated = [...prev]
+      const [movedItem] = updated.splice(fromIndex, 1)
+      updated.splice(toIndex, 0, movedItem)
+      return updated
+    })
+  }
+
+  const handleDragStart = (index: number) => {
+    setDraggingIndex(index)
+  }
+
+  const handleDragEnter = (index: number) => {
+    setDraggingIndex(current => {
+      if (current === null || current === index) {
+        return current
+      }
+
+      reorderSelectedImages(current, index)
+      return index
+    })
+  }
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+  }
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null)
+  }
+
+  const handleKeyboardReorder = (event: KeyboardEvent<HTMLDivElement>, index: number) => {
+    if (event.key === 'ArrowUp' && index > 0) {
+      event.preventDefault()
+      reorderSelectedImages(index, index - 1)
+    }
+
+    if (event.key === 'ArrowDown' && index < selectedImages.length - 1) {
+      event.preventDefault()
+      reorderSelectedImages(index, index + 1)
+    }
+  }
+
+  const generateId = () => {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID()
+    }
+    return `preset-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  }
+
+  const saveCurrentOrder = () => {
+    if (selectedImages.length === 0) {
+      alert('Select pages before saving an arrangement')
+      return
+    }
+
+    const presetName = window.prompt('Name this arrangement:', photobookTitle)
+    if (!presetName) {
+      return
+    }
+
+    const trimmedName = presetName.trim()
+    if (trimmedName === '') {
+      alert('Please provide a name for your arrangement')
+      return
+    }
+
+    const imageIds = selectedImages.map(img => img.id)
+    const existing = savedOrders.find(order => order.name.toLowerCase() === trimmedName.toLowerCase())
+
+    if (existing) {
+      const updatedOrders = savedOrders.map(order =>
+        order.id === existing.id
+          ? { ...order, imageIds, updatedAt: new Date().toISOString() }
+          : order
+      )
+      persistOrders(updatedOrders)
+      setSelectedPresetId(existing.id)
+      return
+    }
+
+    const newOrder: SavedOrder = {
+      id: generateId(),
+      name: trimmedName,
+      imageIds,
+      updatedAt: new Date().toISOString(),
+    }
+
+    const orders = [...savedOrders, newOrder]
+    persistOrders(orders)
+    setSelectedPresetId(newOrder.id)
+  }
+
+  const applyPreset = (presetId: string) => {
+    const preset = savedOrders.find(order => order.id === presetId)
+    if (!preset) return
+
+    const availableMap = new Map(availableImages.map(image => [image.id, image]))
+    const orderedImages: UserImage[] = []
+
+    preset.imageIds.forEach(id => {
+      const image = availableMap.get(id)
+      if (image) {
+        orderedImages.push(image)
+        availableMap.delete(id)
+      }
+    })
+
+    if (orderedImages.length === 0) {
+      alert('None of the saved pages are currently available. Generate or select them to apply this arrangement.')
+      return
+    }
+
+    const missingCount = preset.imageIds.length - orderedImages.length
+    if (missingCount > 0) {
+      alert(`${missingCount} page(s) from this arrangement are missing. They will be skipped.`)
+    }
+
+    const remainingSelected = selectedImages.filter(img => !preset.imageIds.includes(img.id) && availableMap.has(img.id))
+    setSelectedImages([...orderedImages, ...remainingSelected])
+  }
+
+  const handlePresetChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value
+    setSelectedPresetId(value)
+    if (value) {
+      applyPreset(value)
+    }
+  }
+
+  const deletePreset = (presetId: string) => {
+    const updated = savedOrders.filter(order => order.id !== presetId)
+    persistOrders(updated)
+    if (selectedPresetId === presetId) {
+      setSelectedPresetId('')
+    }
   }
 
   const generatePhotobook = async () => {
@@ -194,11 +369,48 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-[#3A2E39]">Photobook Order ({selectedImages.length})</h3>
                 {selectedImages.length > 0 && (
-                  <span className="rounded-full border-2 border-[#A0E7E5] bg-white px-3 py-1 text-xs font-semibold text-[#1DB9B3]">
-                    Drag to reorder (coming soon)
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border-2 border-[#A0E7E5] bg-white px-3 py-1 text-xs font-semibold text-[#1DB9B3]">
+                      Drag to reorder
+                    </span>
+                    <button
+                      onClick={saveCurrentOrder}
+                      className="rounded-full border-2 border-[#55C6C0] bg-white px-3 py-1 text-xs font-semibold text-[#1DB9B3] shadow-[3px_3px_0_0_#55C6C0]/50 transition-transform hover:-translate-y-0.5"
+                    >
+                      Save arrangement
+                    </button>
+                  </div>
                 )}
               </div>
+              {savedOrders.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3 rounded-[1.5rem] border-2 border-dashed border-[#A0E7E5] bg-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3]">
+                  <label htmlFor="photobook-preset" className="text-[0.65rem]">Saved orders</label>
+                  <select
+                    id="photobook-preset"
+                    value={selectedPresetId}
+                    onChange={handlePresetChange}
+                    className="rounded-full border-2 border-[#A0E7E5] bg-[#E0F7FA] px-3 py-1 text-[0.65rem] font-semibold text-[#1DB9B3] focus:outline-none focus:ring-2 focus:ring-[#1DB9B3]"
+                  >
+                    <option value="">Choose saved order</option>
+                    {savedOrders
+                      .slice()
+                      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                      .map(order => (
+                        <option key={order.id} value={order.id}>
+                          {order.name}
+                        </option>
+                      ))}
+                  </select>
+                  {selectedPresetId && (
+                    <button
+                      onClick={() => deletePreset(selectedPresetId)}
+                      className="rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] px-3 py-1 text-[0.65rem] font-semibold text-[#FF6F91] shadow-[3px_3px_0_0_#FF8A80]/40 transition-transform hover:-translate-y-0.5"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              )}
               {selectedImages.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border-4 border-dashed border-[#A0E7E5] bg-white/70 p-8 text-center text-sm font-semibold text-[#1DB9B3]">
                   <Book className="mb-3 h-10 w-10 text-[#55C6C0]" />
@@ -207,7 +419,22 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
               ) : (
                 <div className="space-y-3 overflow-y-auto pr-1">
                   {selectedImages.map((image, index) => (
-                    <div key={image.id} className="flex items-center gap-3 rounded-full border-2 border-[#A0E7E5] bg-white px-4 py-2 shadow-[4px_4px_0_0_#A0E7E5]/30">
+                    <div
+                      key={image.id}
+                      role="listitem"
+                      tabIndex={0}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragEnter={() => handleDragEnter(index)}
+                      onDragOver={handleDragOver}
+                      onDragEnd={handleDragEnd}
+                      onDrop={handleDragEnd}
+                      onKeyDown={(event) => handleKeyboardReorder(event, index)}
+                      aria-grabbed={draggingIndex === index}
+                      className={`flex items-center gap-3 rounded-full border-2 border-[#A0E7E5] bg-white px-4 py-2 shadow-[4px_4px_0_0_#A0E7E5]/30 transition ${
+                        draggingIndex === index ? 'scale-[1.02] border-dashed border-[#55C6C0]' : ''
+                      }`}
+                    >
                       <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#55C6C0] bg-[#E0F7FA] text-xs font-bold text-[#1DB9B3]">
                         {index + 1}
                       </span>
