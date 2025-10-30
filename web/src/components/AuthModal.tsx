@@ -3,7 +3,9 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Sparkles, Wand2 } from 'lucide-react'
+import { Apple, Chrome, Facebook, Loader2, Sparkles, Wand2 } from 'lucide-react'
+
+type OAuthProvider = 'google' | 'facebook' | 'apple'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -15,7 +17,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [oauthLoading, setOauthLoading] = useState<string | null>(null)
+  const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false)
   const { signIn, signUp, signInWithProvider } = useAuth()
@@ -39,9 +41,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     console.log('🔐 Authentication attempt:', { isLogin, email })
 
     try {
-      const { error } = isLogin
-        ? await signIn(email, password)
-        : await signUp(email, password)
+      const { error } = isLogin ? await signIn(email, password) : await signUp(email, password)
 
       if (error) {
         console.error('❌ Authentication error:', error)
@@ -67,18 +67,24 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
   }
 
-  const handleOAuthSignIn = async (provider: 'google' | 'facebook' | 'apple') => {
+  const handleOAuthSignIn = async (provider: OAuthProvider) => {
     setError(null)
     setOauthLoading(provider)
 
     try {
-      const { error } = await signInWithProvider(provider)
+      const { data, error } = await signInWithProvider(provider)
 
       if (error) {
         console.error('❌ OAuth authentication error:', provider, error)
         setError(error.message)
+      } else if (data?.url) {
+        console.log('🌐 Redirecting to OAuth provider:', provider)
+        if (typeof window !== 'undefined') {
+          window.location.assign(data.url)
+        }
       } else {
-        console.log('🌐 OAuth authentication initiated for provider:', provider)
+        console.warn('⚠️ OAuth provider did not return a redirect URL:', provider)
+        setError('Unable to redirect to the selected provider. Please try again.')
       }
     } catch (err) {
       console.error('💥 OAuth authentication exception:', err)
@@ -126,7 +132,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   Please check your email to confirm your account
                 </h3>
                 <p className="text-sm text-gray-600">
-                  We've sent a confirmation link to <strong>{email}</strong>. Click the link in the email to activate your account and start creating!
+                  We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click the link in the email to activate your account and start creating!
                 </p>
               </div>
               <button
@@ -143,6 +149,42 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
           ) : (
             <>
+              <div className="space-y-3">
+                {[{
+                  id: 'google' as const,
+                  label: 'Continue with Google',
+                  icon: Chrome,
+                }, {
+                  id: 'facebook' as const,
+                  label: 'Continue with Facebook',
+                  icon: Facebook,
+                }, {
+                  id: 'apple' as const,
+                  label: 'Continue with Apple',
+                  icon: Apple,
+                }].map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => handleOAuthSignIn(id)}
+                    disabled={oauthLoading !== null}
+                    className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-purple-200 hover:text-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {oauthLoading === id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    )}
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative my-6 text-center text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <span className="relative z-10 bg-white px-3">Or continue with email</span>
+                <div className="absolute inset-y-1/2 left-0 right-0 z-0 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+              </div>
+
               <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 p-4 text-sm text-purple-700">
                 <div className="flex items-start gap-3">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-purple-500 shadow-sm">
@@ -153,55 +195,53 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                required
-              />
-            </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  />
+                </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                required
-              />
-            </div>
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  />
+                </div>
 
-            {error && (
-              <div className="text-red-600 text-sm">{error}</div>
-            )}
+                {error && <div className="text-red-600 text-sm">{error}</div>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? 'Mixing colors...' : isLogin ? 'Sign In' : 'Sign Up'}
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? 'Mixing colors...' : isLogin ? 'Sign In' : 'Sign Up'}
+                </button>
+              </form>
 
-          <div className="mt-6 text-center text-sm">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="font-semibold text-purple-600 transition hover:text-purple-700"
-            >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </button>
-          </div>
+              <div className="mt-6 text-center text-sm">
+                <button
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="font-semibold text-purple-600 transition hover:text-purple-700"
+                >
+                  {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                </button>
+              </div>
             </>
           )}
         </div>

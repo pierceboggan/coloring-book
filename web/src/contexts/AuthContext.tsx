@@ -5,6 +5,9 @@ import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 type OAuthProvider = 'google' | 'facebook' | 'apple'
+type SignInWithOAuthResult = Awaited<
+  ReturnType<typeof supabase.auth.signInWithOAuth>
+>
 
 interface AuthContextType {
   user: User | null
@@ -20,7 +23,7 @@ interface AuthContextType {
   ) => Promise<{ error: AuthError | null }>
   signInWithProvider: (
     provider: OAuthProvider
-  ) => Promise<{ error: AuthError | null }>
+  ) => Promise<SignInWithOAuthResult>
   signOut: () => Promise<void>
 }
 
@@ -81,7 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error }
   }
 
-  const signInWithProvider = async (provider: OAuthProvider) => {
+  const signInWithProvider = async (
+    provider: OAuthProvider
+  ): Promise<SignInWithOAuthResult> => {
     console.log('🔑 Attempting OAuth sign in with provider:', provider)
 
     const redirectTo =
@@ -89,21 +94,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ? `${window.location.origin}/dashboard`
         : undefined
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const result = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo },
     })
 
-    if (error) {
-      console.error('❌ OAuth sign in failed:', provider, error)
-    } else if (data?.url) {
-      console.log('🌍 Redirecting to OAuth provider:', provider)
-      if (typeof window !== 'undefined') {
-        window.location.href = data.url
-      }
+    if (result.error) {
+      console.error('❌ OAuth sign in failed:', provider, result.error)
+    } else if (result.data?.url) {
+      console.log('🌍 OAuth provider returned redirect URL:', provider)
     }
 
-    return { error }
+    return result
   }
 
   const signOut = async () => {
