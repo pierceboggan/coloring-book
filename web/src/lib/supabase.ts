@@ -13,6 +13,8 @@ export type Database = {
           updated_at: string
           name: string
           status: 'uploading' | 'processing' | 'completed' | 'error'
+          variant_urls: string[] | null
+          variant_prompts: string[] | null
         }
         Insert: {
           id?: string
@@ -23,6 +25,8 @@ export type Database = {
           updated_at?: string
           name: string
           status?: 'uploading' | 'processing' | 'completed' | 'error'
+          variant_urls?: string[] | null
+          variant_prompts?: string[] | null
         }
         Update: {
           id?: string
@@ -33,6 +37,8 @@ export type Database = {
           updated_at?: string
           name?: string
           status?: 'uploading' | 'processing' | 'completed' | 'error'
+          variant_urls?: string[] | null
+          variant_prompts?: string[] | null
         }
       }
     }
