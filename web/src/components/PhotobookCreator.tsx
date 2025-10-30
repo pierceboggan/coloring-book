@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Book, Plus, X, Sparkles } from 'lucide-react'
+import type { PhotobookJobStatus } from '@/lib/photobook/types'
 
 interface UserImage {
   id: string
@@ -28,6 +29,16 @@ interface SavedOrder {
   updatedAt: string
 }
 
+interface PhotobookJobStatusResponse {
+  id: string
+  status: PhotobookJobStatus
+  title: string
+  processedCount?: number
+  totalCount?: number
+  downloadUrl?: string | null
+  error?: string | null
+}
+
 export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
   const [selectedImages, setSelectedImages] = useState<UserImage[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -35,6 +46,12 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
   const [savedOrders, setSavedOrders] = useState<SavedOrder[]>([])
   const [selectedPresetId, setSelectedPresetId] = useState('')
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
+  const [jobStatus, setJobStatus] = useState<'idle' | PhotobookJobStatus>('idle')
+  const [jobProgress, setJobProgress] = useState({ processed: 0, total: 0 })
+  const [jobError, setJobError] = useState<string | null>(null)
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const expectedTotalRef = useRef(0)
+  const POLL_INTERVAL_MS = 2000
   const { user } = useAuth()
 
   const availableImages = images.filter(
@@ -44,6 +61,11 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
       img.coloring_page_url &&
       img.coloring_page_url.trim() !== ''
   )
+
+  const progressPercent = jobProgress.total > 0
+    ? Math.min(100, Math.round((jobProgress.processed / jobProgress.total) * 100))
+    : 0
+  const showProgress = isGenerating && (jobStatus === 'queued' || jobStatus === 'processing')
 
   const toggleImageSelection = (image: UserImage) => {
     setSelectedImages(prev => {
@@ -73,6 +95,14 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
       }
     } catch (error) {
       console.error('❌ Failed to load saved photobook orders:', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+      }
     }
   }, [])
 
@@ -136,6 +166,88 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
       return crypto.randomUUID()
     }
     return `preset-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  }
+
+  const stopPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+  }
+
+  const pollJobStatus = async (jobId: string, url: string) => {
+    try {
+      const response = await fetch(url, { cache: 'no-store' })
+
+      if (response.status === 404) {
+        // The job might not be visible yet due to replication lag; keep polling
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error(`Status request failed with ${response.status}`)
+      }
+
+      const data = (await response.json()) as PhotobookJobStatusResponse
+
+      setJobStatus(data.status)
+      setJobProgress(prev => ({
+        processed: typeof data.processedCount === 'number' ? data.processedCount : prev.processed,
+        total:
+          typeof data.totalCount === 'number'
+            ? data.totalCount
+            : prev.total > 0
+            ? prev.total
+            : expectedTotalRef.current,
+      }))
+
+      if (data.status === 'completed') {
+        stopPolling()
+        expectedTotalRef.current = 0
+        setIsGenerating(false)
+        setJobError(null)
+
+        if (data.downloadUrl) {
+          const normalizedTitle = (data.title && data.title.trim().length > 0 ? data.title : photobookTitle).trim() || 'Photobook'
+          const link = document.createElement('a')
+          link.href = data.downloadUrl
+          link.download = `${normalizedTitle}.pdf`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          onClose()
+        } else {
+          setJobStatus('failed')
+          setJobError('Photobook finished but no download link was provided. Please try again.')
+        }
+      } else if (data.status === 'failed') {
+        stopPolling()
+        expectedTotalRef.current = 0
+        setIsGenerating(false)
+        setJobError(data.error ?? 'Photobook generation failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('❌ Failed to poll photobook job:', error)
+      stopPolling()
+      expectedTotalRef.current = 0
+      setIsGenerating(false)
+      setJobStatus('failed')
+      setJobError('We lost the connection while generating your photobook. Please try again.')
+    }
+  }
+
+  const beginPolling = (jobId: string, url: string, expectedTotal: number) => {
+    expectedTotalRef.current = expectedTotal
+    setJobStatus('queued')
+    setJobProgress({ processed: 0, total: expectedTotal })
+    stopPolling()
+
+    const run = () => {
+      void pollJobStatus(jobId, url)
+    }
+
+    run()
+    pollIntervalRef.current = setInterval(run, POLL_INTERVAL_MS)
   }
 
   const saveCurrentOrder = () => {
@@ -232,7 +344,12 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
       return
     }
 
+    stopPolling()
     setIsGenerating(true)
+    setJobError(null)
+    setJobStatus('queued')
+    const totalImages = selectedImages.length
+    setJobProgress({ processed: 0, total: totalImages })
 
     try {
       const response = await fetch('/api/generate-photobook', {
@@ -244,30 +361,39 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
           images: selectedImages.map(img => ({
             id: img.id,
             name: img.name,
-            coloring_page_url: img.coloring_page_url
+            coloring_page_url: img.coloring_page_url,
           })),
           title: photobookTitle,
-          userId: user?.id
+          userId: user?.id,
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to generate photobook')
+      const result = (await response.json()) as Partial<PhotobookJobStatusResponse> & {
+        jobId?: string
+        pollUrl?: string
+        success?: boolean
+        totalCount?: number
+        error?: string
       }
 
-      const result = await response.json()
-      const link = document.createElement('a')
-      link.href = result.downloadUrl
-      link.download = `${photobookTitle}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      onClose()
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error ?? 'Failed to queue photobook job')
+      }
+
+      const jobId = typeof result.jobId === 'string' ? result.jobId : null
+      if (!jobId) {
+        throw new Error('Photobook job did not return a job ID')
+      }
+
+      const pollUrl = typeof result.pollUrl === 'string' ? result.pollUrl : `/api/photobook-jobs/${jobId}`
+      const expectedTotal = typeof result.totalCount === 'number' ? result.totalCount : totalImages
+
+      beginPolling(jobId, pollUrl, expectedTotal)
     } catch (error) {
       console.error('❌ Error generating photobook:', error)
-      alert('Failed to generate photobook. Please try again.')
-    } finally {
       setIsGenerating(false)
+      setJobStatus('failed')
+      setJobError('Failed to start photobook generation. Please try again.')
     }
   }
 
@@ -454,8 +580,31 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
           </div>
 
           <div className="flex flex-col gap-4 border-t-4 border-dashed border-[#FFB3BA] bg-white/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm font-semibold text-[#594144]">
-              {selectedImages.length > 0 ? `${selectedImages.length} pages selected` : 'Pick at least one page to continue'}
+            <div className="flex flex-col gap-3 text-sm font-semibold text-[#594144]">
+              <div>
+                {selectedImages.length > 0
+                  ? `${selectedImages.length} pages selected`
+                  : 'Pick at least one page to continue'}
+              </div>
+              {showProgress && (
+                <div className="rounded-[1.5rem] border-2 border-dashed border-[#A0E7E5] bg-[#E0F7FA]/70 px-5 py-4 text-xs font-semibold text-[#1DB9B3]">
+                  <p>{jobStatus === 'queued' ? 'Photobook job queued. Preparing to build your PDF…' : 'Building your photobook…'}</p>
+                  <div className="mt-3 h-2 w-full rounded-full bg-white/60">
+                    <div
+                      className="h-2 rounded-full bg-[#55C6C0] transition-all duration-300"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 text-[0.65rem] uppercase tracking-widest">
+                    {`${jobProgress.processed} / ${jobProgress.total || selectedImages.length} pages processed`}
+                  </p>
+                </div>
+              )}
+              {jobError && (
+                <div className="rounded-[1.5rem] border-2 border-[#FFB3BA] bg-[#FFE6EB] px-5 py-3 text-xs font-semibold text-[#FF6F91]">
+                  {jobError}
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-3 md:flex-row">
               <button
