@@ -17,6 +17,7 @@ import {
   type VariantPack,
   type VariantTheme,
 } from '@/lib/variants'
+import type { PromptRemixJob } from '@/types/prompt-remix'
 
 const CATEGORY_FILTERS = Array.from(new Set(['All', ...VARIANT_PACKS.map(pack => pack.category)]))
 
@@ -46,20 +47,6 @@ interface VariantsModalProps {
 
 const MAX_VARIANT_PROMPTS = 10
 
-function formatVariantSummariesFromPersisted(value?: {
-  urls?: string[] | null
-  prompts?: string[] | null
-}): VariantSummary[] {
-  if (!value?.urls) {
-    return []
-  }
-
-  return value.urls.map((url, index) => ({
-    url,
-    prompt: value.prompts?.[index] || 'Custom variant scene',
-  }))
-}
-
 export function VariantsModal({
   isOpen,
   onClose,
@@ -76,6 +63,7 @@ export function VariantsModal({
   const [error, setError] = useState<string | null>(null)
   const [storedVariants, setStoredVariants] = useState<VariantSummary[]>(variants)
   const [generationAttempts, setGenerationAttempts] = useState<GenerationAttempt[]>([])
+  const [activeJob, setActiveJob] = useState<PromptRemixJob | null>(null)
   const [applyInProgress, setApplyInProgress] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState('All')
 
@@ -119,6 +107,86 @@ export function VariantsModal({
     community: 'border-[#93C5FD] bg-[#DBEAFE] text-[#1D4ED8]',
   }
 
+  const mapJobResultsToGenerationAttempts = (job: PromptRemixJob): GenerationAttempt[] =>
+    job.results.map((result, index) => {
+      const status: GenerationAttempt['status'] =
+        result.status === 'succeeded' ? 'success' : result.status === 'failed' ? 'error' : 'loading'
+
+      return {
+        id: `${job.id}-${index}`,
+        prompt: result.prompt,
+        status,
+        url: result.url ?? undefined,
+        error: result.error ?? undefined,
+      }
+    })
+
+  const mergeVariantsFromJob = (job: PromptRemixJob) => {
+    const successful = job.results?.filter(result => result.status === 'succeeded' && result.url)
+
+    if (!successful?.length) {
+      return
+    }
+
+    setStoredVariants(prev => {
+      const existingUrls = new Set(prev.map(variant => variant.url))
+
+      const newEntries = successful
+        .filter(result => result.url && !existingUrls.has(result.url))
+        .map(result => ({
+          url: result.url as string,
+          prompt: result.prompt,
+        }))
+
+      if (newEntries.length === 0) {
+        return prev
+      }
+
+      const updated = [...newEntries, ...prev]
+      onVariantsUpdated(updated)
+      return updated
+    })
+  }
+
+  const pollJobUntilFinished = async (jobId: string): Promise<PromptRemixJob> => {
+    const maxAttempts = 120
+    let latestJob: PromptRemixJob | null = null
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      if (attempt > 0) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+
+      const statusResponse = await fetch(`/api/prompt-remix/${jobId}`)
+
+      if (!statusResponse.ok) {
+        throw new Error('Failed to fetch prompt remix job status.')
+      }
+
+      const statusData = await statusResponse.json()
+      const job = statusData.job as PromptRemixJob
+
+      latestJob = job
+      setActiveJob(job)
+      setGenerationAttempts(mapJobResultsToGenerationAttempts(job))
+      mergeVariantsFromJob(job)
+
+      if (job.status === 'completed' || job.status === 'failed') {
+        break
+      }
+    }
+
+    if (!latestJob) {
+      throw new Error('Prompt remix job did not return any status updates.')
+    }
+
+    if (latestJob.status !== 'completed' && latestJob.status !== 'failed') {
+      throw new Error('Prompt remix job timed out before completion.')
+    }
+
+    return latestJob
+  }
+
   const themeSelectionLimitReached = selectedThemes.size >= MAX_VARIANT_PROMPTS
 
   const toggleTheme = (themeId: string) => {
@@ -156,12 +224,12 @@ export function VariantsModal({
     setIsGenerating(true)
     setError(null)
 
-    const attemptIds = promptInputs.map((prompt, index) => ({
+    const initialAttempts = promptInputs.map((prompt, index) => ({
       id: `${Date.now()}-${index}`,
       prompt,
       status: 'loading' as const,
     }))
-    setGenerationAttempts(attemptIds)
+    setGenerationAttempts(initialAttempts)
 
     try {
       const response = await fetch('/api/prompt-remix', {
@@ -182,22 +250,21 @@ export function VariantsModal({
       }
 
       const data = await response.json()
-      const results = (data.results || []) as { prompt: string; url: string | null; error?: string }[]
+      const job = data.job as PromptRemixJob | undefined
 
-      setGenerationAttempts(
-        results.map((result, index) => ({
-          id: attemptIds[index]?.id || `${Date.now()}-${index}`,
-          prompt: result.prompt,
-          status: result.error || !result.url ? 'error' : 'success',
-          url: result.url,
-          error: result.error,
-        }))
-      )
+      if (!job) {
+        throw new Error('Failed to enqueue prompt remix job.')
+      }
 
-      if (data.persistedVariants) {
-        const updatedSummaries = formatVariantSummariesFromPersisted(data.persistedVariants)
-        setStoredVariants(updatedSummaries)
-        onVariantsUpdated(updatedSummaries)
+      setActiveJob(job)
+      setGenerationAttempts(mapJobResultsToGenerationAttempts(job))
+
+      const finalJob = await pollJobUntilFinished(job.id)
+
+      if (finalJob.status === 'failed') {
+        setError(finalJob.error_message || 'Some prompts failed to generate. You can retry the failed prompts later.')
+      } else {
+        setError(null)
       }
     } catch (err) {
       console.error('Variant generation failed:', err)
@@ -205,6 +272,7 @@ export function VariantsModal({
       setGenerationAttempts([])
     } finally {
       setIsGenerating(false)
+      setActiveJob(null)
     }
   }
 
@@ -401,17 +469,21 @@ export function VariantsModal({
                   type="button"
                   onClick={handleGenerate}
                   disabled={isGenerating || selectedCount === 0}
-                  className="inline-flex items-center gap-2 rounded-full border-4 border-[#6C63FF] bg-[#6C63FF] px-6 py-3 text-sm font-bold text-white shadow-[8px_8px_0_0_#5650E0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300 disabled:shadow-none"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Brewing {selectedCount} variant{selectedCount === 1 ? '' : 's'}
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-5 w-5" />
-                      Generate variants
+                className="inline-flex items-center gap-2 rounded-full border-4 border-[#6C63FF] bg-[#6C63FF] px-6 py-3 text-sm font-bold text-white shadow-[8px_8px_0_0_#5650E0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300 disabled:shadow-none"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    {activeJob ? (
+                      <>Brewing {activeJob.results.filter(result => result.status === 'succeeded').length}/{activeJob.results.length} variants</>
+                    ) : (
+                      <>Brewing {selectedCount} variant{selectedCount === 1 ? '' : 's'}</>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5" />
+                    Generate variants
                     </>
                   )}
                 </button>
