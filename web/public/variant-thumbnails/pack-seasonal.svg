@@ -1,0 +1,13 @@
+<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="seasonalGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="28" fill="url(#seasonalGradient)" />
+  <path d="M80 36L92 60H68L80 36Z" fill="#FBBF24" stroke="#B45309" stroke-width="4" stroke-linejoin="round" />
+  <path d="M60 74C60 60 68 52 80 52C92 52 100 60 100 74" stroke="#B45309" stroke-width="6" stroke-linecap="round" />
+  <path d="M48 96C48 80 60 70 80 70C100 70 112 80 112 96" stroke="#B45309" stroke-width="6" stroke-linecap="round" />
+  <path d="M36 120C36 100 52 88 80 88C108 88 124 100 124 120" stroke="#B45309" stroke-width="6" stroke-linecap="round" />
+</svg>

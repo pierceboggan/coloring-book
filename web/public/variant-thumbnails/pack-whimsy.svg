@@ -1,0 +1,13 @@
+<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="whimsyGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#DDD6FE" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="28" fill="url(#whimsyGradient)" />
+  <path d="M40 108C40 88 56 76 80 76C104 76 120 88 120 108" fill="none" stroke="#4C1D95" stroke-width="6" stroke-linecap="round" />
+  <circle cx="56" cy="60" r="12" fill="#F472B6" stroke="#4C1D95" stroke-width="4" />
+  <circle cx="104" cy="60" r="18" fill="#FBCFE8" stroke="#4C1D95" stroke-width="4" />
+  <path d="M48 124H112" stroke="#6D28D9" stroke-width="8" stroke-linecap="round" />
+</svg>

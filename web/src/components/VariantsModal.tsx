@@ -10,7 +10,15 @@ import {
   Download,
   Wand2,
 } from 'lucide-react'
-import { VARIANT_THEMES, getThemePrompt } from '@/lib/variants'
+import {
+  VARIANT_PACKS,
+  VARIANT_THEMES,
+  getThemePrompt,
+  type VariantPack,
+  type VariantTheme,
+} from '@/lib/variants'
+
+const CATEGORY_FILTERS = Array.from(new Set(['All', ...VARIANT_PACKS.map(pack => pack.category)]))
 
 interface VariantSummary {
   url: string
@@ -69,6 +77,7 @@ export function VariantsModal({
   const [storedVariants, setStoredVariants] = useState<VariantSummary[]>(variants)
   const [generationAttempts, setGenerationAttempts] = useState<GenerationAttempt[]>([])
   const [applyInProgress, setApplyInProgress] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState('All')
 
   useEffect(() => {
     if (isOpen) {
@@ -79,15 +88,38 @@ export function VariantsModal({
       setGenerationAttempts([])
       setError(null)
       setApplyInProgress(null)
+      setActiveCategory('All')
     }
   }, [isOpen, variants])
 
   const selectedCount = selectedThemes.size + (customPrompt.trim() ? 1 : 0)
 
-  const selectedThemeObjects = useMemo(
+  const selectedThemeObjects = useMemo<VariantTheme[]>(
     () => VARIANT_THEMES.filter(theme => selectedThemes.has(theme.id)),
     [selectedThemes]
   )
+
+  const visiblePacks = useMemo(() => {
+    if (activeCategory === 'All') {
+      return VARIANT_PACKS
+    }
+
+    return VARIANT_PACKS.filter(pack => pack.category === activeCategory)
+  }, [activeCategory])
+
+  const packTypeLabels: Record<VariantPack['type'], string> = {
+    core: 'Curated pack',
+    seasonal: 'Seasonal drop',
+    community: 'Community pick',
+  }
+
+  const packTypeClasses: Record<VariantPack['type'], string> = {
+    core: 'border-[#C3B5FF] bg-[#E5E0FF] text-[#6C63FF]',
+    seasonal: 'border-[#FFD166] bg-[#FFF3BF] text-[#AA6A00]',
+    community: 'border-[#93C5FD] bg-[#DBEAFE] text-[#1D4ED8]',
+  }
+
+  const themeSelectionLimitReached = selectedThemes.size >= MAX_VARIANT_PROMPTS
 
   const toggleTheme = (themeId: string) => {
     const updated = new Set(selectedThemes)
@@ -236,29 +268,112 @@ export function VariantsModal({
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {VARIANT_THEMES.map(theme => {
-                  const isSelected = selectedThemes.has(theme.id)
+              <div className="mt-4 flex flex-wrap gap-2">
+                {CATEGORY_FILTERS.map(category => {
+                  const isActive = activeCategory === category
                   return (
                     <button
-                      key={theme.id}
+                      key={category}
                       type="button"
-                      onClick={() => toggleTheme(theme.id)}
+                      onClick={() => setActiveCategory(category)}
                       disabled={isGenerating}
-                      className={`rounded-xl border-2 px-3 py-2 text-left text-xs font-semibold transition-all ${
-                        isSelected
-                          ? 'border-[#6C63FF] bg-[#F3F0FF] text-[#6C63FF] shadow-[4px_4px_0_0_#C3B5FF]'
-                          : 'border-[#E5E0FF] bg-white text-[#594144] hover:border-[#C3B5FF]'
+                      className={`rounded-full border-2 px-4 py-1.5 text-xs font-semibold transition-all ${
+                        isActive
+                          ? 'border-[#6C63FF] bg-[#6C63FF] text-white shadow-[4px_4px_0_0_#4F46E5]'
+                          : 'border-[#E5E0FF] bg-white text-[#6C63FF] hover:border-[#C3B5FF]'
                       } disabled:cursor-not-allowed disabled:opacity-60`}
-                      title={theme.description}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="truncate">{theme.title}</span>
-                        {isSelected && <Check className="h-3 w-3 flex-shrink-0" />}
-                      </div>
+                      {category}
                     </button>
                   )
                 })}
+              </div>
+
+              <div className="mt-4 space-y-4">
+                {visiblePacks.map(pack => (
+                  <div
+                    key={pack.id}
+                    className="rounded-2xl border-2 border-[#E5E0FF] bg-white/95 p-4 shadow-[4px_4px_0_0_#D8CEF9]"
+                  >
+                    <div className="flex flex-wrap items-start gap-4">
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 border-white bg-[#F6F3FF] shadow-[4px_4px_0_0_#C3B5FF]">
+                        <img src={pack.thumbnail} alt={`${pack.title} badge`} className="h-full w-full object-cover" />
+                      </div>
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-sm font-bold text-[#3A2E39]">{pack.title}</h4>
+                          <span
+                            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${packTypeClasses[pack.type]}`}
+                          >
+                            {packTypeLabels[pack.type]}
+                          </span>
+                          <span className="rounded-full border border-[#E5E0FF] bg-[#F6F3FF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6C63FF]">
+                            {pack.category}
+                          </span>
+                          {pack.seasonal && (
+                            <span className="rounded-full border border-[#FFD166] bg-[#FFF3BF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#AA6A00]">
+                              Seasonal
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-medium text-[#594144]/80">{pack.description}</p>
+                        {pack.availabilityNote && (
+                          <p className="text-xs font-semibold text-[#AA6A00]">{pack.availabilityNote}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {pack.themes.map(theme => {
+                        const isSelected = selectedThemes.has(theme.id)
+                        const disableSelection = isGenerating || (!isSelected && themeSelectionLimitReached)
+
+                        return (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            onClick={() => toggleTheme(theme.id)}
+                            disabled={disableSelection}
+                            className={`group flex items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left transition-all ${
+                              isSelected
+                                ? 'border-[#6C63FF] bg-[#F3F0FF] text-[#3A2E39] shadow-[4px_4px_0_0_#C3B5FF]'
+                                : 'border-[#E5E0FF] bg-white text-[#594144] hover:border-[#C3B5FF] hover:shadow-[4px_4px_0_0_#E5E0FF]'
+                            } disabled:cursor-not-allowed disabled:opacity-60`}
+                            title={theme.description}
+                          >
+                            <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border-2 border-white bg-[#F6F3FF] shadow-[2px_2px_0_0_#C3B5FF]">
+                              <img src={theme.thumbnail} alt={`${theme.title} thumbnail`} className="h-full w-full object-cover" />
+                              {isSelected && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-[#6C63FF]/70 text-white">
+                                  <Check className="h-5 w-5" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-[#3A2E39]">{theme.title}</p>
+                              <p className="mt-0.5 text-xs font-medium text-[#594144]/70 line-clamp-2">{theme.description}</p>
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {theme.tags?.map(tag => (
+                                  <span
+                                    key={tag}
+                                    className="rounded-full border border-[#E5E0FF] bg-[#F6F3FF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6C63FF]"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {theme.submittedBy && (
+                                  <span className="rounded-full border border-[#93C5FD] bg-[#DBEAFE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#1D4ED8]">
+                                    From {theme.submittedBy}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="mt-4">

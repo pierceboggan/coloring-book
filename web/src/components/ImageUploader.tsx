@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { Upload, Image as ImageIcon, Loader2, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -48,7 +48,10 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   const [targetAge, setTargetAge] = useState<number>(4)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
-  const promptIdeas = VARIANT_THEMES.slice(0, 4)
+  const promptIdeas = useMemo(
+    () => VARIANT_THEMES.filter(theme => theme.packType !== 'community').slice(0, 4),
+    []
+  )
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     return Sentry.startSpan(
@@ -326,6 +329,31 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
                       >
                         <p className="text-sm font-semibold text-[#3A2E39]">{idea.title}</p>
                         <p className="mt-1 text-xs font-medium text-[#6C63FF]">{idea.description}</p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          <span className="rounded-full border border-[#E5E0FF] bg-[#F6F3FF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6C63FF]">
+                            {idea.packTitle}
+                          </span>
+                          {idea.packType === 'seasonal' && (
+                            <span className="rounded-full border border-[#FFD166] bg-[#FFF3BF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#AA6A00]">
+                              Seasonal drop
+                            </span>
+                          )}
+                          {idea.packType === 'community' && (
+                            <span className="rounded-full border border-[#93C5FD] bg-[#DBEAFE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#1D4ED8]">
+                              Community pick
+                            </span>
+                          )}
+                          {idea.tags?.[0] && (
+                            <span className="rounded-full border border-[#FFB3BA] bg-[#FFE5EC] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF6F91]">
+                              {idea.tags[0]}
+                            </span>
+                          )}
+                          {idea.submittedBy && (
+                            <span className="rounded-full border border-[#93C5FD] bg-[#DBEAFE] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#1D4ED8]">
+                              From {idea.submittedBy}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
