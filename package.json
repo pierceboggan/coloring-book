@@ -2,13 +2,13 @@
   "name": "coloringbook",
   "private": true,
   "workspaces": [
-    "apps/web"
+    "web"
   ],
   "scripts": {
-    "dev:web": "npm run dev --workspace @coloringbook/web",
-    "build:web": "npm run build --workspace @coloringbook/web",
-    "start:web": "npm run start --workspace @coloringbook/web",
-    "lint:web": "npm run lint --workspace @coloringbook/web",
+    "dev": "npm run dev --workspace @coloringbook/web",
+    "build": "npm run build --workspace @coloringbook/web",
+    "start": "npm run start --workspace @coloringbook/web",
+    "lint": "npm run lint --workspace @coloringbook/web",
     "test:e2e": "npm run test:e2e --workspace @coloringbook/web"
   }
 }
