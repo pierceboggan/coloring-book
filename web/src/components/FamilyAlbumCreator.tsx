@@ -11,6 +11,7 @@ interface UserImage {
   coloring_page_url?: string
   status: 'processing' | 'completed' | 'error'
   created_at: string
+  archived_at?: string | null
 }
 
 interface FamilyAlbumCreatorProps {
@@ -35,7 +36,12 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
   const [linkCopied, setLinkCopied] = useState(false)
   const { user } = useAuth()
 
-  const availableImages = images.filter(img => img.status === 'completed' && img.coloring_page_url)
+  const availableImages = images.filter(
+    img =>
+      !img.archived_at &&
+      img.status === 'completed' &&
+      img.coloring_page_url
+  )
 
   const toggleImageSelection = (image: UserImage) => {
     setSelectedImages(prev => {

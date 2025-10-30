@@ -87,8 +87,43 @@ export async function PATCH(
       )
     }
 
-    const body = await request.json()
-    const newName = typeof body?.name === 'string' ? body.name.trim() : ''
+    const body = (await request.json().catch(() => ({}))) as {
+      action?: string
+      name?: string
+    }
+    const action = typeof body.action === 'string' ? body.action : undefined
+
+    if (action === 'archive' || action === 'restore') {
+      const archivedAt = action === 'archive' ? new Date().toISOString() : null
+      console.log('🗂️ API: Updating archive status', { imageId, action })
+
+      const { data: updatedImage, error: archiveError } = await supabaseAdmin
+        .from('images')
+        .update({ archived_at: archivedAt })
+        .eq('id', imageId)
+        .select()
+        .single()
+
+      if (archiveError) {
+        console.error('❌ Archive operation failed:', archiveError)
+        return NextResponse.json(
+          { error: `Archive failed: ${archiveError.message}` },
+          { status: 500 }
+        )
+      }
+
+      console.log('✅ Archive status updated successfully:', {
+        id: updatedImage.id,
+        archived_at: updatedImage.archived_at,
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: updatedImage,
+      })
+    }
+
+    const newName = typeof body.name === 'string' ? body.name.trim() : ''
 
     if (!newName) {
       return NextResponse.json(
@@ -121,10 +156,10 @@ export async function PATCH(
       data: updatedImage
     })
   } catch (error) {
-    console.error('💥 Rename API Error:', error)
+    console.error('💥 PATCH API Error:', error)
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Failed to rename image',
+        error: error instanceof Error ? error.message : 'Failed to update image',
         success: false
       },
       { status: 500 }
