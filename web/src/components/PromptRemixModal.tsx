@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { X, Sparkles, Loader2, Download, Image as ImageIcon } from 'lucide-react'
+import type { PromptRemixJob } from '@/types/prompt-remix'
 
 interface PromptRemixModalProps {
   isOpen: boolean
@@ -22,19 +23,22 @@ const presetRemixes = [
     id: 'beach-day',
     title: 'Sunny Beach Day',
     description: 'Add palm trees, umbrellas, and a sparkling shoreline for a seaside adventure.',
-    prompt: 'Place the family on a bright tropical beach with soft sand, palm trees, seashells, and a gentle ocean behind them. Include playful beach accessories like buckets, umbrellas, and a beach ball.',
+    prompt:
+      'Place the family on a bright tropical beach with soft sand, palm trees, seashells, and a gentle ocean behind them. Include playful beach accessories like buckets, umbrellas, and a beach ball.',
   },
   {
     id: 'theme-park',
     title: 'Theme Park Magic',
     description: 'Create a whimsical amusement park backdrop with castles and rides.',
-    prompt: 'Reimagine the family visiting a whimsical theme park inspired by classic fantasy castles, roller coasters, and fireworks in the sky. Add cheerful banners and balloons.',
+    prompt:
+      'Reimagine the family visiting a whimsical theme park inspired by classic fantasy castles, roller coasters, and fireworks in the sky. Add cheerful banners and balloons.',
   },
   {
     id: 'campout',
     title: 'Cozy Campout',
     description: 'Surround the family with pine trees, tents, and twinkling stars.',
-    prompt: 'Move the family to a peaceful forest campsite with a tent, pine trees, a crackling campfire, and a sky full of stars. Add cozy camping details like mugs of cocoa and lanterns.',
+    prompt:
+      'Move the family to a peaceful forest campsite with a tent, pine trees, a crackling campfire, and a sky full of stars. Add cozy camping details like mugs of cocoa and lanterns.',
   },
 ]
 
@@ -44,13 +48,81 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
   const [activePromptId, setActivePromptId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<RemixResult[]>([])
+  const [activeJob, setActiveJob] = useState<PromptRemixJob | null>(null)
+  const promptTitleMapRef = useRef<Record<string, string>>({})
 
   if (!isOpen) return null
+
+  const mergeCompletedResults = (job: PromptRemixJob) => {
+    const completed = job.results?.filter(result => result.status === 'succeeded' && result.url)
+
+    if (!completed?.length) {
+      return
+    }
+
+    setResults(prev => {
+      const existingUrls = new Set(prev.map(item => item.coloringPageUrl))
+
+      const newEntries = completed
+        .filter(result => result.url && !existingUrls.has(result.url))
+        .map(result => ({
+          id: `${job.id}-${result.prompt}-${result.completed_at ?? Date.now()}`,
+          title: promptTitleMapRef.current[result.prompt] ?? 'Prompt Remix',
+          prompt: result.prompt,
+          coloringPageUrl: result.url as string,
+        }))
+
+      if (newEntries.length === 0) {
+        return prev
+      }
+
+      return [...newEntries, ...prev]
+    })
+  }
+
+  const pollJobUntilFinished = async (jobId: string): Promise<PromptRemixJob> => {
+    const maxAttempts = 120
+    let latestJob: PromptRemixJob | null = null
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      if (attempt > 0) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+
+      const statusResponse = await fetch(`/api/prompt-remix/${jobId}`)
+
+      if (!statusResponse.ok) {
+        throw new Error('Failed to fetch prompt remix job status.')
+      }
+
+      const statusData = await statusResponse.json()
+      const job = statusData.job as PromptRemixJob
+
+      latestJob = job
+      setActiveJob(job)
+      mergeCompletedResults(job)
+
+      if (job.status === 'completed' || job.status === 'failed') {
+        break
+      }
+    }
+
+    if (!latestJob) {
+      throw new Error('Prompt remix job did not return any status updates.')
+    }
+
+    if (latestJob.status !== 'completed' && latestJob.status !== 'failed') {
+      throw new Error('Prompt remix job timed out before completion.')
+    }
+
+    return latestJob
+  }
 
   const handleGenerate = async (prompt: string, title: string, id: string) => {
     setIsGenerating(true)
     setActivePromptId(id)
     setError(null)
+    promptTitleMapRef.current[prompt] = title
 
     try {
       const response = await fetch('/api/prompt-remix', {
@@ -65,25 +137,31 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to generate remix')
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || 'Failed to generate remix')
       }
 
       const data = await response.json()
-      const newResult: RemixResult = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        title,
-        prompt,
-        coloringPageUrl: data.coloringPageUrl,
+      const job = data.job as PromptRemixJob | undefined
+
+      if (!job) {
+        throw new Error('Failed to enqueue prompt remix job.')
       }
 
-      setResults((prev) => [newResult, ...prev])
+      const finalJob = await pollJobUntilFinished(job.id)
+
+      if (finalJob.status === 'failed') {
+        setError(finalJob.error_message || 'Prompt remix did not finish successfully.')
+      } else {
+        setError(null)
+      }
     } catch (err) {
       console.error('Prompt remix failed:', err)
       setError(err instanceof Error ? err.message : 'Something went wrong while remixing the prompt.')
     } finally {
       setIsGenerating(false)
       setActivePromptId(null)
+      setActiveJob(null)
     }
   }
 
@@ -139,7 +217,7 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-3">Quick Remix Ideas</h3>
               <div className="grid gap-4 sm:grid-cols-2">
-                {presetRemixes.map((option) => (
+                {presetRemixes.map(option => (
                   <button
                     key={option.id}
                     onClick={() => handleGenerate(option.prompt, option.title, option.id)}
@@ -171,7 +249,7 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
               </p>
               <textarea
                 value={customPrompt}
-                onChange={(event) => setCustomPrompt(event.target.value)}
+                onChange={event => setCustomPrompt(event.target.value)}
                 rows={3}
                 className="mt-3 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
                 placeholder="Example: Turn this into a winter wonderland with snowflakes, scarves, and sleds."
@@ -199,16 +277,23 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
 
             <div className="space-y-4">
               {isGenerating && (
-                <div className="flex items-center gap-3 rounded-2xl border border-purple-200 bg-purple-50 px-4 py-3 text-purple-700">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Brewing up fresh coloring page magic...</span>
+                <div className="flex flex-col gap-2 rounded-2xl border border-purple-200 bg-purple-50 px-4 py-3 text-purple-700">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Brewing up fresh coloring page magic...</span>
+                  </div>
+                  {activeJob && (
+                    <p className="text-xs text-purple-600">
+                      {activeJob.results.filter(result => result.status === 'succeeded').length} of {activeJob.results.length} scenes ready
+                    </p>
+                  )}
                 </div>
               )}
 
               {results.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold text-gray-800">Remix Gallery</h3>
-                  {results.map((result) => (
+                  {results.map(result => (
                     <div key={result.id} className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
                       <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
                         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
