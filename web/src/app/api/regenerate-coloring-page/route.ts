@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateColoringPage } from '@/lib/openai'
+import { isImageGenerationProvider } from '@/lib/openai'
+import type { ImageGenerationProvider } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
@@ -10,6 +11,10 @@ export async function POST(request: NextRequest) {
     console.log('📥 Request body parsed:', body)
     
     const { imageId, feedback, userId } = body
+
+    const provider = isImageGenerationProvider(body?.provider)
+      ? (body.provider as ImageGenerationProvider)
+      : undefined
 
     if (!imageId || !userId) {
       return NextResponse.json(
@@ -58,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     // Generate new coloring page with enhanced prompt based on feedback
     const enhancedPrompt = createEnhancedPrompt(feedback)
-    const regeneratedColoringPageUrl = await generateColoringPageWithFeedback(imageData.original_url, enhancedPrompt)
+    const regeneratedColoringPageUrl = await generateColoringPageWithFeedback(imageData.original_url, enhancedPrompt, provider)
 
     console.log('💾 Saving regeneration data...')
 
@@ -129,8 +134,12 @@ function createEnhancedPrompt(feedback: string): string {
   return basePrompt + enhancement
 }
 
-async function generateColoringPageWithFeedback(imageUrl: string, enhancedPrompt: string): Promise<string> {
+async function generateColoringPageWithFeedback(
+  imageUrl: string,
+  enhancedPrompt: string,
+  provider?: ImageGenerationProvider,
+): Promise<string> {
   // This is similar to the original generateColoringPage function but with custom prompt
   const { generateColoringPageWithCustomPrompt } = await import('@/lib/openai')
-  return await generateColoringPageWithCustomPrompt(imageUrl, enhancedPrompt)
+  return await generateColoringPageWithCustomPrompt(imageUrl, enhancedPrompt, { provider })
 }
