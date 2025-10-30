@@ -1,10 +1,5 @@
-import { test, expect, Page } from '@playwright/test'
-
-const unlockPreview = async (page: Page) => {
-  await page.addInitScript(() => {
-    window.sessionStorage.setItem('dev_authenticated', 'true')
-  })
-}
+import { test, expect } from '@playwright/test'
+import { unlockPreview } from './helpers/auth'
 
 const sharedAlbumResponse = {
   album: {
