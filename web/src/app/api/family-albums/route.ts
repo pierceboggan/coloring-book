@@ -8,7 +8,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('📥 Request body parsed:', body)
     
-    const { title, description, imageIds, userId } = body
+    const {
+      title,
+      description,
+      imageIds,
+      userId,
+      coverImageId,
+      expiresAt,
+      commentsEnabled,
+      downloadsEnabled,
+    } = body
 
     if (!title || !imageIds || !userId) {
       return NextResponse.json(
@@ -17,11 +26,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const parsedExpiresAt = expiresAt ? new Date(expiresAt) : null
+
+    if (parsedExpiresAt && Number.isNaN(parsedExpiresAt.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid expiration date' },
+        { status: 400 }
+      )
+    }
+
     // Generate unique share code
     const shareCode = generateShareCode()
-    
+
     console.log('💾 Creating family album in database...')
-    
+
     // Create the family album
     const { data: albumData, error: albumError } = await supabase
       .from('family_albums')
@@ -30,7 +48,11 @@ export async function POST(request: NextRequest) {
         description: description || '',
         user_id: userId,
         share_code: shareCode,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        cover_image_id: coverImageId || null,
+        expires_at: parsedExpiresAt ? parsedExpiresAt.toISOString() : null,
+        comments_enabled: commentsEnabled ?? true,
+        downloads_enabled: downloadsEnabled ?? true,
       })
       .select()
       .single()
@@ -67,7 +89,11 @@ export async function POST(request: NextRequest) {
         title: albumData.title,
         description: albumData.description,
         shareCode: albumData.share_code,
-        shareUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/album/${albumData.share_code}`
+        shareUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/album/${albumData.share_code}`,
+        coverImageId: albumData.cover_image_id,
+        expiresAt: albumData.expires_at,
+        commentsEnabled: albumData.comments_enabled,
+        downloadsEnabled: albumData.downloads_enabled,
       }
     })
 
