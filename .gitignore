@@ -25,6 +25,9 @@ coverage/
 # nyc test coverage
 .nyc_output
 
+# Playwright test results
+test-results/
+
 # ESLint cache
 .eslintcache
 
