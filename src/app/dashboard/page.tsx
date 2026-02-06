@@ -884,7 +884,7 @@ export default function Dashboard() {
                         : 'border-[#FFB3BA] shadow-[#FF8A80]'
                     }`}
                   >
-                    <div className="aspect-square overflow-hidden bg-gray-100">
+                    <div className="aspect-[4/3] max-h-80 overflow-hidden bg-gray-100">
                       <img src={item.coloringPageUrl} alt={item.name} className="h-full w-full object-cover" />
                     </div>
                     <div className="space-y-4 p-6">
@@ -998,7 +998,7 @@ export default function Dashboard() {
                     key={image.id}
                     className="relative overflow-hidden rounded-[2.5rem] border-4 border-[#A0E7E5] bg-white/90 shadow-[12px_12px_0_0_#55C6C0] transition-transform hover:-translate-y-1"
                   >
-                    <div className="relative aspect-square overflow-hidden bg-gray-100">
+                    <div className="relative aspect-[4/3] max-h-80 overflow-hidden bg-gray-100">
                       <img src={image.original_url} alt={image.name} className="h-full w-full object-cover" />
                       {image.status === 'processing' && (
                         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#3A2E39]/40 text-sm font-semibold text-white backdrop-blur-[1px]">
