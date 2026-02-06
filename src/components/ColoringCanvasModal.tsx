@@ -224,10 +224,10 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
 
           <div className="flex flex-1 flex-col gap-6 overflow-hidden px-8 py-6 lg:flex-row">
             <div className="flex flex-1 items-center justify-center overflow-auto rounded-[2rem] border-4 border-[#A0E7E5] bg-[#E0F7FA]/80 p-4">
-              <div className="relative w-full max-w-full">
+              <div className="relative">
                 <canvas
                   ref={canvasRef}
-                  className={`h-full w-full max-h-[70vh] rounded-[1.5rem] border-4 border-[#A0E7E5]/70 bg-white object-contain ${
+                  className={`rounded-[1.5rem] border-4 border-[#A0E7E5]/70 bg-white ${
                     isCanvasReady ? '' : 'pointer-events-none opacity-0'
                   }`}
                   onPointerDown={startDrawing}
@@ -269,6 +269,16 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
                       {color === '#f9fafb' && <Droplet className="h-4 w-4 text-[#BFA3B7]" />}
                     </button>
                   ))}
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <label className="text-xs font-semibold uppercase tracking-widest text-[#AA6A00]">Custom:</label>
+                  <input
+                    type="color"
+                    value={brushColor}
+                    onChange={(e) => setBrushColor(e.target.value)}
+                    className="h-10 w-10 cursor-pointer rounded-full border-2 border-white shadow-[3px_3px_0_0_rgba(0,0,0,0.08)]"
+                    aria-label="Pick custom brush color"
+                  />
                 </div>
               </div>
 
