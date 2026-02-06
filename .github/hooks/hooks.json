@@ -5,6 +5,10 @@
 			{
 				"type": "command",
 				"command": ".github/hooks/stop-hook.sh"
+			},
+			{
+				"type": "command",
+				"command": ""
 			}
 		]
 	}
