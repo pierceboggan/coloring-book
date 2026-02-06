@@ -874,7 +874,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
                 {coloringDisplayItems.map((item) => (
                   <div
                     key={item.displayId}
@@ -990,7 +990,7 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
               {sortedUploadsViewImages.map((image) => {
                 const variantSummaries = getVariantSummaries(image)
                 return (
