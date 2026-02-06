@@ -14,7 +14,6 @@ import {
   Archive,
   ArrowLeft,
   Loader2,
-  RefreshCw,
   Book,
   Users,
   RotateCcw,
@@ -227,7 +226,6 @@ export default function Dashboard() {
   const userId = user?.id ?? null
   const [images, setImages] = useState<UserImage[]>([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
   const [showPhotobookCreator, setShowPhotobookCreator] = useState(false)
   const [showFamilyAlbumCreator, setShowFamilyAlbumCreator] = useState(false)
   const [showUploader, setShowUploader] = useState(false)
@@ -243,9 +241,6 @@ export default function Dashboard() {
 
   const fetchUserImages = useCallback(async (isRefresh = false) => {
     try {
-      if (isRefresh) {
-        setRefreshing(true)
-      }
       if (!userId) {
         console.error('❌ No user ID available for fetching images')
         return
@@ -269,7 +264,6 @@ export default function Dashboard() {
       console.error('💥 Failed to fetch images:', error)
     } finally {
       setLoading(false)
-      setRefreshing(false)
     }
   }, [userId])
 
@@ -708,15 +702,7 @@ export default function Dashboard() {
                   {user.email}
                 </span>
               )}
-              <button
-                onClick={() => fetchUserImages(true)}
-                disabled={refreshing}
-                className="inline-flex items-center gap-2 rounded-full border-2 border-[#C3B5FF] bg-[#F3F0FF] px-4 py-2 text-sm font-semibold text-[#6C63FF] shadow-[0_6px_0_0_rgba(195,181,255,0.5)] transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(195,181,255,0.55)] disabled:translate-y-0 disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none"
-                title="Refresh"
-              >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
+
               <button
                 onClick={() => setShowFamilyAlbumCreator(true)}
                 disabled={images.filter(img => img.status === 'completed').length === 0}
@@ -787,14 +773,7 @@ export default function Dashboard() {
                 <Plus className="h-4 w-4" />
                 Upload new memories
               </button>
-              <button
-                onClick={() => fetchUserImages(true)}
-                disabled={refreshing}
-                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-4 py-3 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
-              >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                Refresh gallery
-              </button>
+
               <button
                 onClick={retryStuckImages}
                 disabled={!isProcessing || retryingProcessing}
