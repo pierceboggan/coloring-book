@@ -921,19 +921,17 @@ export default function Dashboard() {
                             >
                               <Download className="h-3.5 w-3.5" />
                             </a>
-                            {!item.isVariant && (
-                              <button
-                                onClick={() => toggleFavorite(item.id, item.isFavorite)}
-                                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 transition-transform hover:scale-110 ${
-                                  item.isFavorite
-                                    ? 'bg-[#FF6F91] text-white'
-                                    : 'bg-white/90 text-[#FF6F91]'
-                                }`}
-                                title={item.isFavorite ? 'Unfavorite' : 'Favorite'}
-                              >
-                                <Heart className={`h-3.5 w-3.5 ${item.isFavorite ? 'fill-current' : ''}`} />
-                              </button>
-                            )}
+                            <button
+                              onClick={() => toggleFavorite(item.id, item.isFavorite)}
+                              className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 transition-transform hover:scale-110 ${
+                                item.isFavorite
+                                  ? 'bg-[#FF6F91] text-white'
+                                  : 'bg-white/90 text-[#FF6F91]'
+                              }`}
+                              title={item.isFavorite ? 'Unfavorite' : 'Favorite'}
+                            >
+                              <Heart className={`h-3.5 w-3.5 ${item.isFavorite ? 'fill-current' : ''}`} />
+                            </button>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <button
@@ -975,11 +973,17 @@ export default function Dashboard() {
                             Variant
                           </span>
                         )}
-                        {item.isFavorite && !item.isVariant && (
-                          <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF6F91] text-white">
-                            <Heart className="h-3 w-3 fill-current" />
-                          </span>
-                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id, item.isFavorite) }}
+                          className={`absolute right-1.5 top-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 transition-transform hover:scale-110 ${
+                            item.isFavorite
+                              ? 'border-[#FF6F91] bg-[#FF6F91] text-white shadow-sm'
+                              : 'border-white/80 bg-white/70 text-[#FF6F91] opacity-0 shadow-sm backdrop-blur-sm group-hover:opacity-100'
+                          }`}
+                          title={item.isFavorite ? 'Unfavorite' : 'Favorite'}
+                        >
+                          <Heart className={`h-3.5 w-3.5 ${item.isFavorite ? 'fill-current' : ''}`} />
+                        </button>
                       </div>
                     </div>
                   ) : (
