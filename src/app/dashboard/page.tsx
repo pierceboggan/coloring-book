@@ -967,12 +967,6 @@ export default function Dashboard() {
                           <p className="truncate text-xs font-bold text-white drop-shadow-sm">{item.name}</p>
                         </div>
 
-                        {/* Badge */}
-                        {item.isVariant && (
-                          <span className="absolute left-1.5 top-1.5 rounded-full border border-[#C3B5FF] bg-[#F6F3FF]/90 px-1.5 py-0.5 text-[10px] font-semibold text-[#6C63FF]">
-                            Variant
-                          </span>
-                        )}
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id, item.isFavorite) }}
                           className={`absolute right-1.5 top-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 transition-transform hover:scale-110 ${
