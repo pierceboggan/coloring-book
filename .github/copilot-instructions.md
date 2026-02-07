@@ -111,3 +111,10 @@ npm run dev
 - Use proper error handling and Sentry tracking
 - Include detailed console logging
 - Use `supabaseAdmin` for privileged operations
+
+## Validation with Playwright
+
+- For ANY UI-related task, ALWAYS validate changes using Playwright MCP browser tools before considering the task complete.
+- Take screenshots to prove the implementation works as expected. If authentication is required, inject the saved auth state from `auth.json` by setting the Supabase cookie and localStorage token before navigating.
+- If the validation reveals issues, iterate on the fix until the screenshots confirm the user's requirements are fully met.
+- Do not mark a task as done until visual confirmation via Playwright demonstrates correct behavior.
