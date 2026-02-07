@@ -675,12 +675,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Header */}
-      <nav className="container mx-auto px-4 pt-10">
-        <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#FFB3BA] bg-white/90 px-6 py-8 shadow-[18px_18px_0_0_#FF8A80]">
+      <nav className="container mx-auto px-4 pt-4">
+        <div className="relative overflow-hidden rounded-2xl border-2 border-[#FFB3BA] bg-white/90 px-5 py-4 shadow-[6px_6px_0_0_#FF8A80]">
           <div className="pointer-events-none absolute -top-16 left-6 h-28 w-28 rounded-full bg-[#FFD6E0]/70 blur-sm" aria-hidden="true" />
           <div className="pointer-events-none absolute -bottom-10 right-8 h-24 w-24 rounded-full bg-[#B4F8C8]/80 blur-[2px]" aria-hidden="true" />
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col gap-4 text-center lg:flex-row lg:items-center lg:gap-5 lg:text-left">
+          <div className="relative flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 text-center lg:flex-row lg:items-center lg:gap-4 lg:text-left">
               <button
                 onClick={() => router.push('/')}
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#FF8BA7] bg-white/80 px-4 py-2 text-sm font-semibold text-[#FF6F91] shadow-[0_6px_0_0_rgba(255,143,188,0.5)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(255,143,188,0.55)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF8BA7]"
@@ -689,12 +689,12 @@ export default function Dashboard() {
                 Back to playground
               </button>
               <div className="flex items-center justify-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#C3B5FF] to-[#FF8BA7] text-white shadow-[0_8px_0_0_rgba(255,139,167,0.35)]">
-                  <Palette className="h-6 w-6" />
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#C3B5FF] to-[#FF8BA7] text-white shadow-[0_4px_0_0_rgba(255,139,167,0.35)]">
+                  <Palette className="h-5 w-5" />
                 </span>
                 <div className="text-gray-800">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FF8BA7]">Studio HQ</p>
-                  <span className="text-3xl font-extrabold text-[#3A2E39]">Dashboard</span>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#FF8BA7]">Studio HQ</p>
+                  <span className="text-xl font-extrabold text-[#3A2E39]">Dashboard</span>
                 </div>
               </div>
             </div>
@@ -734,44 +734,44 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 pb-24 pt-12">
-        <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 px-8 py-10 shadow-[18px_18px_0_0_#55C6C0]">
+      <main className="container mx-auto px-4 pb-12 pt-5">
+        <div className="relative overflow-hidden rounded-2xl border-2 border-[#A0E7E5] bg-white/90 px-6 py-5 shadow-[6px_6px_0_0_#55C6C0]">
           <div className="pointer-events-none absolute -top-10 right-10 h-24 w-24 rounded-full bg-[#FF8A80]/70" aria-hidden="true" />
           <div className="pointer-events-none absolute -bottom-8 left-6 h-20 w-20 rounded-full bg-[#B4F8C8]/70" aria-hidden="true" />
-          <div className="flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-2xl space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#E97777]">
-                <Sparkles className="h-4 w-4" />
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#E97777]">
+                <Sparkles className="h-3.5 w-3.5" />
                 Studio status
               </div>
-              <h1 className="text-4xl font-extrabold text-[#3A2E39] md:text-5xl">
+              <h1 className="text-2xl font-extrabold text-[#3A2E39] md:text-3xl">
                 Your Coloring Pages Playground
               </h1>
-              <p className="text-lg font-medium text-[#594144]">
+              <p className="text-sm font-medium text-[#594144]">
                 Keep track of every doodle-ready download, peek at works-in-progress, and build magical books for your crew.
               </p>
-              <div className="flex flex-wrap gap-3">
-                <div className="flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB] px-4 py-2 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80]">
-                  <Star className="h-4 w-4" />
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1.5 rounded-full border-2 border-dashed border-[#FFB3BA] bg-[#FFE6EB] px-3 py-1 text-xs font-semibold text-[#FF6F91] shadow-[3px_3px_0_0_#FF8A80]">
+                  <Star className="h-3.5 w-3.5" />
                   {totalImages} creations
                 </div>
-                <div className="flex items-center gap-2 rounded-full border-4 border-dashed border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0]">
-                  <Paintbrush className="h-4 w-4" />
+                <div className="flex items-center gap-1.5 rounded-full border-2 border-dashed border-[#A0E7E5] bg-[#E0F7FA] px-3 py-1 text-xs font-semibold text-[#1DB9B3] shadow-[3px_3px_0_0_#55C6C0]">
+                  <Paintbrush className="h-3.5 w-3.5" />
                   {completedCount} ready to color
                 </div>
                 {isProcessing && (
-                  <div className="flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C]">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                  <div className="flex items-center gap-1.5 rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-3 py-1 text-xs font-semibold text-[#AA6A00] shadow-[3px_3px_0_0_#FFB84C]">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     {processingCount} brewing
                   </div>
                 )}
               </div>
             </div>
-            <div className="flex w-full flex-col gap-3 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-6 shadow-[12px_12px_0_0_#FF8A80] md:max-w-xs">
-              <p className="text-center text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Quick actions</p>
+            <div className="flex w-full flex-col gap-2 rounded-xl border-2 border-[#FFB3BA] bg-[#FFE6EB]/80 p-4 shadow-[6px_6px_0_0_#FF8A80] md:max-w-xs">
+              <p className="text-center text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Quick actions</p>
               <button
                 onClick={() => setShowUploader(true)}
-                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-4 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-4 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
               >
                 <Plus className="h-4 w-4" />
                 Upload new memories
@@ -780,7 +780,7 @@ export default function Dashboard() {
               <button
                 onClick={retryStuckImages}
                 disabled={!isProcessing || retryingProcessing}
-                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-3 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                className="flex items-center justify-center gap-2 rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[3px_3px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
                 <Loader2 className={`h-4 w-4 ${retryingProcessing ? 'animate-spin' : ''}`} />
                 Fix stuck pages
@@ -788,7 +788,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setShowFamilyAlbumCreator(true)}
                 disabled={!hasCompletedImages}
-                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-white px-4 py-3 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                className="flex items-center justify-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-white px-4 py-2 text-sm font-semibold text-[#FF6F91] shadow-[3px_3px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
                 <Users className="h-4 w-4" />
                 Build family album
@@ -796,7 +796,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setShowPhotobookCreator(true)}
                 disabled={!hasCompletedImages}
-                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-4 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                className="flex items-center justify-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-[#55C6C0] px-4 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
                 <Book className="h-4 w-4" />
                 Create photobook
@@ -805,15 +805,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <section className="mt-16 space-y-10">
+        <section className="mt-6 space-y-5">
           <div className="flex items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-1 rounded-full border-4 border-[#FFB3BA] bg-white/95 p-1 shadow-[10px_10px_0_0_#FF8A80]">
+            <div className="inline-flex items-center gap-1 rounded-full border-2 border-[#FFB3BA] bg-white/95 p-1 shadow-[4px_4px_0_0_#FF8A80]">
               <button
                 type="button"
                 onClick={() => setViewMode('coloring')}
-                className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${
                   viewMode === 'coloring'
-                    ? 'bg-[#FF6F91] text-white shadow-[6px_6px_0_0_#f2557b]'
+                    ? 'bg-[#FF6F91] text-white shadow-[3px_3px_0_0_#f2557b]'
                     : 'text-[#FF6F91] hover:bg-[#FFE6EB]'
                 }`}
               >
@@ -823,9 +823,9 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setViewMode('uploads')}
-                className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${
                   viewMode === 'uploads'
-                    ? 'bg-[#55C6C0] text-white shadow-[6px_6px_0_0_#1DB9B3]'
+                    ? 'bg-[#55C6C0] text-white shadow-[3px_3px_0_0_#1DB9B3]'
                     : 'text-[#1DB9B3] hover:bg-[#E0F7FA]'
                 }`}
               >
@@ -867,17 +867,17 @@ export default function Dashboard() {
           {viewMode === 'coloring' ? (
             coloringDisplayItems.length === 0 ? (
               <div className="mx-auto max-w-2xl">
-                <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#FFB3BA] bg-white/90 p-12 text-center shadow-[18px_18px_0_0_#FF8A80]">
-                  <div className="pointer-events-none absolute -top-10 right-10 h-24 w-24 rounded-full bg-[#FF8A80]/40" aria-hidden="true" />
-                  <div className="pointer-events-none absolute -bottom-8 left-8 h-24 w-24 rounded-full bg-[#A0E7E5]/40" aria-hidden="true" />
-                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
-                    <Palette className="h-10 w-10" />
+                <div className="relative overflow-hidden rounded-2xl border-2 border-[#FFB3BA] bg-white/90 p-8 text-center shadow-[6px_6px_0_0_#FF8A80]">
+                  <div className="pointer-events-none absolute -top-10 right-10 h-20 w-20 rounded-full bg-[#FF8A80]/40" aria-hidden="true" />
+                  <div className="pointer-events-none absolute -bottom-8 left-8 h-20 w-20 rounded-full bg-[#A0E7E5]/40" aria-hidden="true" />
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#FF6F91] text-white shadow-inner">
+                    <Palette className="h-7 w-7" />
                   </div>
-                  <h3 className="mb-3 text-2xl font-bold text-gray-800">No coloring pages yet</h3>
-                  <p className="mb-6 text-gray-600">Upload photos or explore uploads to start creating pages.</p>
+                  <h3 className="mb-2 text-xl font-bold text-gray-800">No coloring pages yet</h3>
+                  <p className="mb-4 text-sm text-gray-600">Upload photos or explore uploads to start creating pages.</p>
                   <button
                     onClick={() => setShowUploader(true)}
-                    className="inline-flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-6 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
                   >
                     <Plus className="h-4 w-4" />
                     Upload photos
@@ -984,48 +984,48 @@ export default function Dashboard() {
                     /* ── Expanded card (original) ── */
                     <div
                       key={item.displayId}
-                      className={`relative overflow-hidden rounded-[2.5rem] border-4 bg-white/90 shadow-[12px_12px_0_0] transition-transform hover:-translate-y-1 ${
+                      className={`relative overflow-hidden rounded-2xl border-2 bg-white/90 shadow-[6px_6px_0_0] transition-transform hover:-translate-y-1 ${
                         item.isVariant
                           ? 'border-[#C3B5FF] shadow-[#A599E9]'
                           : 'border-[#FFB3BA] shadow-[#FF8A80]'
                       }`}
                     >
-                      <div className="aspect-[4/3] max-h-80 overflow-hidden bg-gray-100">
+                      <div className="aspect-[4/3] max-h-64 overflow-hidden bg-gray-100">
                         <img src={item.coloringPageUrl} alt={item.name} className="h-full w-full object-cover" />
                       </div>
-                      <div className="space-y-4 p-6">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 space-y-2">
-                            <h3 className="max-w-[14rem] truncate text-lg font-extrabold text-[#3A2E39]">{item.name}</h3>
+                      <div className="space-y-3 p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 space-y-1">
+                            <h3 className="max-w-[14rem] truncate text-base font-extrabold text-[#3A2E39]">{item.name}</h3>
                             {item.isVariant && item.variantPrompt && (
                               <p className="text-sm font-medium text-[#6C63FF] line-clamp-2">{item.variantPrompt}</p>
                             )}
                             <p className="text-sm font-medium text-[#594144]/70">{formatImageDate(item.createdAt)}</p>
                           </div>
                           {item.isVariant ? (
-                            <span className="rounded-full border-4 border-[#C3B5FF] bg-[#F6F3FF] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#6C63FF]">
+                            <span className="rounded-full border-2 border-[#C3B5FF] bg-[#F6F3FF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6C63FF]">
                               Variant
                             </span>
                           ) : (
-                            <span className="rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#1DB9B3]">
+                            <span className="rounded-full border-2 border-[#A0E7E5] bg-[#E0F7FA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#1DB9B3]">
                               Ready!
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <button
                               onClick={() => setActiveDrawingImage({ ...item.parentImage, coloring_page_url: item.coloringPageUrl })}
-                              className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
+                              className="flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-white px-3 py-1.5 text-xs font-semibold text-[#1DB9B3] shadow-[3px_3px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
                             >
-                              <Paintbrush className="h-4 w-4" />
+                              <Paintbrush className="h-3.5 w-3.5" />
                               Color
                             </button>
                             <a
                               href={item.coloringPageUrl}
                               download={`coloring-page-${item.name}${item.isVariant ? '-variant' : ''}.png`}
-                              className="flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-4 py-2 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                              className="flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-3 py-1.5 text-xs font-semibold text-white shadow-[3px_3px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
                             >
                               <Download className="h-4 w-4" />
                               Download
@@ -1035,7 +1035,7 @@ export default function Dashboard() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => setVariantsImage(item.parentImage)}
-                              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#C3B5FF] bg-[#F6F3FF] text-[#6C63FF] shadow-[4px_4px_0_0_#A599E9] transition-transform hover:-translate-y-0.5"
+                              className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#C3B5FF] bg-[#F6F3FF] text-[#6C63FF] shadow-[3px_3px_0_0_#A599E9] transition-transform hover:-translate-y-0.5"
                               title="Variants studio"
                             >
                               <Images className="h-4 w-4" />
@@ -1044,7 +1044,7 @@ export default function Dashboard() {
                               <>
                                 <button
                                   onClick={() => toggleFavorite(item.id, item.isFavorite)}
-                                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[4px_4px_0_0] transition-transform hover:-translate-y-0.5 ${
+                                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-[3px_3px_0_0] transition-transform hover:-translate-y-0.5 ${
                                     item.isFavorite
                                       ? 'border-[#FF6F91] bg-[#FF6F91] text-white shadow-[#f2557b]'
                                       : 'border-[#FFB3BA] bg-white text-[#FF6F91] shadow-[#FF8A80]'
@@ -1055,14 +1055,14 @@ export default function Dashboard() {
                                 </button>
                                 <button
                                   onClick={() => setRegenerateImage(item.parentImage)}
-                                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] text-[#AA6A00] shadow-[4px_4px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
+                                  className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] text-[#AA6A00] shadow-[3px_3px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
                                   title="Regenerate"
                                 >
-                                  <RotateCcw className="h-4 w-4" />
+                                  <RotateCcw className="h-3.5 w-3.5" />
                                 </button>
                                 <button
                                   onClick={() => archiveImage(item.id)}
-                                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                                  className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[3px_3px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
                                   title="Archive"
                                 >
                                   <Archive className="h-4 w-4" />
@@ -1079,17 +1079,17 @@ export default function Dashboard() {
             )
           ) : sortedUploadsViewImages.length === 0 ? (
             <div className="mx-auto max-w-2xl">
-              <div className="relative overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 p-12 text-center shadow-[18px_18px_0_0_#55C6C0]">
-                <div className="pointer-events-none absolute -top-10 right-10 h-24 w-24 rounded-full bg-[#55C6C0]/40" aria-hidden="true" />
-                <div className="pointer-events-none absolute -bottom-8 left-8 h-24 w-24 rounded-full bg-[#FFB3BA]/40" aria-hidden="true" />
-                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#55C6C0] text-white shadow-inner">
-                  <Images className="h-10 w-10" />
+              <div className="relative overflow-hidden rounded-2xl border-2 border-[#A0E7E5] bg-white/90 p-8 text-center shadow-[6px_6px_0_0_#55C6C0]">
+                <div className="pointer-events-none absolute -top-10 right-10 h-20 w-20 rounded-full bg-[#55C6C0]/40" aria-hidden="true" />
+                <div className="pointer-events-none absolute -bottom-8 left-8 h-20 w-20 rounded-full bg-[#FFB3BA]/40" aria-hidden="true" />
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#55C6C0] text-white shadow-inner">
+                  <Images className="h-7 w-7" />
                 </div>
-                <h3 className="mb-3 text-2xl font-bold text-gray-800">No uploads yet</h3>
-                <p className="mb-6 text-gray-600">Drop in photos to start building your variant library.</p>
+                <h3 className="mb-2 text-xl font-bold text-gray-800">No uploads yet</h3>
+                <p className="mb-4 text-sm text-gray-600">Drop in photos to start building your variant library.</p>
                 <button
                   onClick={() => setShowUploader(true)}
-                  className="inline-flex items-center gap-2 rounded-full border-4 border-[#55C6C0] bg-[#55C6C0] px-6 py-3 text-sm font-semibold text-white shadow-[6px_6px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#55C6C0] bg-[#55C6C0] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
                 >
                   <Plus className="h-4 w-4" />
                   Upload photos
@@ -1097,15 +1097,15 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
               {sortedUploadsViewImages.map((image) => {
                 const variantSummaries = getVariantSummaries(image)
                 return (
                   <div
                     key={image.id}
-                    className="relative overflow-hidden rounded-[2.5rem] border-4 border-[#A0E7E5] bg-white/90 shadow-[12px_12px_0_0_#55C6C0] transition-transform hover:-translate-y-1"
+                    className="relative overflow-hidden rounded-2xl border-2 border-[#A0E7E5] bg-white/90 shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-1"
                   >
-                    <div className="relative aspect-[4/3] max-h-80 overflow-hidden bg-gray-100">
+                    <div className="relative aspect-[4/3] max-h-64 overflow-hidden bg-gray-100">
                       <img src={image.original_url} alt={image.name} className="h-full w-full object-cover" />
                       {image.status === 'processing' && (
                         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-[#3A2E39]/40 text-sm font-semibold text-white backdrop-blur-[1px]">
@@ -1114,18 +1114,18 @@ export default function Dashboard() {
                         </div>
                       )}
                     </div>
-                    <div className="space-y-5 p-6">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 space-y-2">
+                    <div className="space-y-3 p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 space-y-1">
                           {renderImageTitleSection(image)}
                           <p className="text-sm font-medium text-[#594144]/70">{formatImageDate(image.created_at)}</p>
                         </div>
                         {image.status === 'completed' && image.coloring_page_url ? (
-                          <span className="rounded-full border-4 border-[#A0E7E5] bg-[#E0F7FA] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#1DB9B3]">
+                          <span className="rounded-full border-2 border-[#A0E7E5] bg-[#E0F7FA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#1DB9B3]">
                             Coloring ready
                           </span>
                         ) : (
-                          <span className="rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#AA6A00]">
+                          <span className="rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#AA6A00]">
                             {image.status}
                           </span>
                         )}
@@ -1138,17 +1138,17 @@ export default function Dashboard() {
                         </div>
                       )}
 
-                      <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
                         <button
                           onClick={() => setVariantsImage(image)}
-                          className="flex flex-1 items-center justify-center gap-2 rounded-full border-4 border-[#6C63FF] bg-[#6C63FF] px-4 py-2 text-sm font-semibold text-white shadow-[6px_6px_0_0_#5650E0] transition-transform hover:-translate-y-0.5"
+                          className="flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#6C63FF] bg-[#6C63FF] px-3 py-1.5 text-xs font-semibold text-white shadow-[3px_3px_0_0_#5650E0] transition-transform hover:-translate-y-0.5"
                         >
-                          <Images className="h-4 w-4" />
+                          <Images className="h-3.5 w-3.5" />
                           Variants studio
                         </button>
                         <button
                           onClick={() => setPromptRemixImage(image)}
-                          className="flex flex-1 items-center justify-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-2 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
+                          className="flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] px-3 py-1.5 text-xs font-semibold text-[#AA6A00] shadow-[3px_3px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
                         >
                           <Sparkles className="h-4 w-4" />
                           Scene prompts
@@ -1156,17 +1156,17 @@ export default function Dashboard() {
                       </div>
 
                       {image.coloring_page_url && (
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                           <button
                             onClick={() => setActiveDrawingImage(image)}
-                            className="flex items-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
+                            className="flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-white px-3 py-1.5 text-xs font-semibold text-[#1DB9B3] shadow-[3px_3px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
                           >
-                            <Paintbrush className="h-4 w-4" />
+                            <Paintbrush className="h-3.5 w-3.5" />
                             Open coloring page
                           </button>
                           <button
                             onClick={() => downloadColoringPage(image.id, image.name)}
-                            className="flex items-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-4 py-2 text-sm font-semibold text-white shadow-[6px_6px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                            className="flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-3 py-1.5 text-xs font-semibold text-white shadow-[3px_3px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
                           >
                             <Download className="h-4 w-4" />
                             Download page
@@ -1200,12 +1200,12 @@ export default function Dashboard() {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-semibold text-[#594144]/60">Last updated {formatImageDate(image.created_at)}</p>
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[10px] font-semibold text-[#594144]/60">Last updated {formatImageDate(image.created_at)}</p>
+                        <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => toggleFavorite(image.id, image.is_favorite ?? false)}
-                            className={`flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-[4px_4px_0_0] transition-transform hover:-translate-y-0.5 ${
+                            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-[3px_3px_0_0] transition-transform hover:-translate-y-0.5 ${
                               image.is_favorite
                                 ? 'border-[#FF6F91] bg-[#FF6F91] text-white shadow-[#f2557b]'
                                 : 'border-[#FFB3BA] bg-white text-[#FF6F91] shadow-[#FF8A80]'
@@ -1217,15 +1217,15 @@ export default function Dashboard() {
                           {image.status === 'completed' && image.coloring_page_url && (
                             <button
                               onClick={() => setRegenerateImage(image)}
-                              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] text-[#AA6A00] shadow-[4px_4px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
+                              className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] text-[#AA6A00] shadow-[3px_3px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
                               title="Regenerate coloring page"
                             >
-                              <RotateCcw className="h-4 w-4" />
+                              <RotateCcw className="h-3.5 w-3.5" />
                             </button>
                           )}
                           <button
                             onClick={() => archiveImage(image.id)}
-                            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] shadow-[3px_3px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
                             title="Archive upload"
                           >
                             <Archive className="h-4 w-4" />
@@ -1246,7 +1246,7 @@ export default function Dashboard() {
           <div className="flex min-h-full items-center justify-center p-4">
             <div className="relative w-full max-w-4xl">
               <div className="pointer-events-none absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#9BF6FF]/40 blur-2xl" aria-hidden="true" />
-              <div className="relative overflow-hidden rounded-[2.5rem] border-4 border-[#FFB3BA] bg-[#FFF5D6]/95 p-8 shadow-[18px_18px_0_0_#FF8A80]">
+              <div className="relative overflow-hidden rounded-2xl border-2 border-[#FFB3BA] bg-[#FFF5D6]/95 p-6 shadow-[8px_8px_0_0_#FF8A80]">
                 <div className="max-h-[90vh] overflow-y-auto pr-2 sm:pr-4">
                   <div className="flex items-start justify-between">
                     <div>
@@ -1254,7 +1254,7 @@ export default function Dashboard() {
                         <Sparkles className="h-3 w-3" />
                         Upload station
                       </p>
-                      <h2 className="mt-4 text-3xl font-extrabold text-[#3A2E39]">Upload Photos</h2>
+                      <h2 className="mt-3 text-2xl font-extrabold text-[#3A2E39]">Upload Photos</h2>
                       <p className="text-sm font-medium text-[#594144]">Drop in your favorite snapshots and we will turn them into coloring adventures.</p>
                     </div>
                     <button
@@ -1265,7 +1265,7 @@ export default function Dashboard() {
                       ✕
                     </button>
                   </div>
-                  <div className="mt-8">
+                  <div className="mt-5">
                     <ImageUploader
                       onUploadComplete={() => {
                         setShowUploader(false)
