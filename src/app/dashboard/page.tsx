@@ -240,7 +240,7 @@ export default function Dashboard() {
   const [imageNameInput, setImageNameInput] = useState('')
   const [renamingImageId, setRenamingImageId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
-  const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('expanded')
+  const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('compact')
 
   const fetchUserImages = useCallback(async (isRefresh = false) => {
     try {
