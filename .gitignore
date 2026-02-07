@@ -28,6 +28,7 @@ coverage/
 # Playwright test results
 test-results/
 tests/e2e/
+.playwright-mcp/
 
 # ESLint cache
 .eslintcache
