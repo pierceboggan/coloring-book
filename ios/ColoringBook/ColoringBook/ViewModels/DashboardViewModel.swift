@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseFirestore
 
 @MainActor
 class DashboardViewModel: ObservableObject {
@@ -14,23 +13,22 @@ class DashboardViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
 
-    private var listener: ListenerRegistration?
-
     func loadImages() async {
         isLoading = true
         error = nil
 
-        guard let userId = FirebaseService.shared.currentUser?.uid else {
+        guard let userId = SupabaseService.shared.currentUser?.id.uuidString else {
             isLoading = false
             return
         }
 
         do {
-            // Start listening to real-time updates
-            listener = FirebaseService.shared.listenToImages(userId: userId) { [weak self] images in
-                self?.images = images
-                self?.isLoading = false
-            }
+            images = try await SupabaseService.shared.fetchImages(userId: userId)
+            isLoading = false
+        } catch {
+            self.error = error.localizedDescription
+            isLoading = false
+            print("❌ Failed to load images: \(error.localizedDescription)")
         }
     }
 
@@ -38,15 +36,11 @@ class DashboardViewModel: ObservableObject {
         guard let imageId = image.id else { return }
 
         do {
-            try await FirebaseService.shared.deleteImage(imageId: imageId)
+            try await SupabaseService.shared.deleteImage(imageId: imageId)
             images.removeAll { $0.id == imageId }
         } catch {
             self.error = error.localizedDescription
             print("❌ Failed to delete image: \(error.localizedDescription)")
         }
-    }
-
-    deinit {
-        listener?.remove()
     }
 }

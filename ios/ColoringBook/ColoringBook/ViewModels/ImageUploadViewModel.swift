@@ -30,13 +30,13 @@ class ImageUploadViewModel: ObservableObject {
                 throw UploadError.compressionFailed
             }
 
-            let userId = FirebaseService.shared.currentUser?.uid ?? "anonymous"
+            let userId = SupabaseService.shared.currentUser?.id.uuidString ?? "anonymous"
             let fileName = "photo-\(Date().timeIntervalSince1970).jpg"
 
-            // Upload to Firebase Storage
+            // Upload to Supabase Storage
             processingStatus = "Uploading..."
             uploadProgress = 0.3
-            let originalUrl = try await FirebaseService.shared.uploadImage(imageData, fileName: fileName)
+            let originalUrl = try await SupabaseService.shared.uploadImage(imageData, fileName: fileName)
 
             // Create image record
             processingStatus = "Creating record..."
@@ -48,7 +48,7 @@ class ImageUploadViewModel: ObservableObject {
                 status: .processing
             )
 
-            let imageId = try await FirebaseService.shared.createImageRecord(coloringImage)
+            let imageId = try await SupabaseService.shared.createImageRecord(coloringImage)
 
             // Generate coloring page
             processingStatus = "AI is creating your coloring page..."
@@ -58,14 +58,14 @@ class ImageUploadViewModel: ObservableObject {
             // Upload coloring page
             processingStatus = "Finalizing..."
             uploadProgress = 0.9
-            let coloringPageUrl = try await FirebaseService.shared.uploadImage(
+            let coloringPageUrl = try await SupabaseService.shared.uploadImage(
                 coloringPageData,
                 fileName: "coloring-\(fileName)"
             )
             _ = coloringPageUrl
 
             // Update image record
-            try await FirebaseService.shared.updateImageStatus(imageId: imageId, status: .completed)
+            try await SupabaseService.shared.updateImageStatus(imageId: imageId, status: .completed)
 
             processingStatus = "Complete!"
             uploadProgress = 1.0

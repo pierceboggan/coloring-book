@@ -13,9 +13,9 @@ settings:
   SUPPORTS_MACCATALYST: "NO"
 
 packages:
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    majorVersion: 10.0.0
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    majorVersion: 2.0.0
 
 targets:
   ColoringBook:
@@ -25,14 +25,8 @@ targets:
     sources:
       - path: ColoringBook
     dependencies:
-      - package: Firebase
-        product: FirebaseAuth
-      - package: Firebase
-        product: FirebaseFirestore
-      - package: Firebase
-        product: FirebaseStorage
-      - package: Firebase
-        product: FirebaseAnalytics
+      - package: Supabase
+        product: Supabase
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.coloringbook.app
       INFOPLIST_FILE: ColoringBook/Info.plist

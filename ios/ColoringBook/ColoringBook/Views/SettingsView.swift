@@ -25,7 +25,7 @@ struct SettingsView: View {
                 List {
                     // Account section
                     Section {
-                        if let email = FirebaseService.shared.currentUser?.email {
+                        if let email = SupabaseService.shared.currentUser?.email {
                             HStack {
                                 Text("Email")
                                     .foregroundColor(Color(hex: "594144"))
@@ -98,7 +98,7 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
                 Button("Sign Out", role: .destructive) {
                     do {
-                        try FirebaseService.shared.signOut()
+                        try SupabaseService.shared.signOut()
                         appState.isAuthenticated = false
                     } catch {
                         print("❌ Failed to sign out: \(error.localizedDescription)")

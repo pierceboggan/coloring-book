@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Supabase
 
 @main
 struct ColoringBookApp: App {
@@ -23,7 +24,7 @@ struct ColoringBookApp: App {
 @MainActor
 class AppState: ObservableObject {
     @Published var isAuthenticated = false
-    @Published var currentUser: User?
+    @Published var currentUser: Supabase.User?
     @Published var isKidModeActive = false
     @Published var isOffline = false
 
@@ -34,7 +35,7 @@ class AppState: ObservableObject {
 
     private func checkAuthStatus() {
         // Check if user is already authenticated
-        // This will be implemented with Firebase Auth
+        // This will be implemented with Supabase Auth
     }
 
     private func setupNetworkMonitoring() {

@@ -39,7 +39,7 @@ ColoringBook/
 │   │   ├── KidModeViewModel.swift
 │   │   └── AlbumsViewModel.swift
 │   ├── Services/               # Service layer
-│   │   ├── FirebaseService.swift     # TODO: Migrate to SupabaseService
+│   │   ├── SupabaseService.swift
 │   │   ├── OpenAIService.swift
 │   │   ├── NetworkMonitor.swift
 │   │   └── OfflinePersistence.swift
@@ -93,7 +93,7 @@ ColoringBook/
 - Direct access to coloring canvas
 
 ### 5. Authentication
-- **Location**: `Views/AuthView.swift`, `Services/FirebaseService.swift`
+- **Location**: `Views/AuthView.swift`, `Services/SupabaseService.swift`
 - Email/password authentication via Supabase Auth
 - Sign in and sign up flows
 - Session management
@@ -216,7 +216,6 @@ xcodegen generate
 - Ensure compliance with App Store Review Guidelines
 
 ## Future Enhancements
-- [ ] Migrate FirebaseService to SupabaseService (currently uses Firebase SDK but should use Supabase)
 - [ ] iCloud sync across devices
 - [ ] Widgets for quick access to recent pages
 - [ ] Siri Shortcuts integration

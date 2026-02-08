@@ -9,25 +9,22 @@
 /* Begin PBXBuildFile section */
 		0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5365555A24E4602D81955F /* SettingsView.swift */; };
 		12495C46E5578B84584298AB /* ColoringBookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A366D4D711DC3C105658123 /* ColoringBookApp.swift */; };
-		1F82B70C1E3E9D1D96608950 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 2134B875633878CB21CB33C5 /* FirebaseStorage */; };
 		28D1DB469C6A9A90D95F9AB4 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F0010079CD6B472B6B5CEC /* Models.swift */; };
 		2A1D5BEBB8425422DC16B878 /* ImageUploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */; };
 		2AF310B132BE958FFE58B939 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B9529DDD64E29EFE76F803 /* AuthView.swift */; };
 		2E899558A49C154065C76410 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */; };
-		379E4BC59A796AAC44A3074B /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A24FFC056C678FF45620125 /* FirebaseService.swift */; };
 		4966800B8387ED163273AB7E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893D38EE01009E98924FFD33 /* ContentView.swift */; };
 		4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935A1C40FA4E384D1A8042C8 /* KidModeView.swift */; };
 		4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */; };
 		54EE2AF4F3B96717F4850500 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B300F36E7A7E10794783C5 /* WelcomeView.swift */; };
 		5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */; };
-		5F1118D3DCBFDCA0508E187E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 002E9ADFF822FC8CD99C9C44 /* FirebaseAuth */; };
+		5F1118D3DCBFDCA0508E187E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7DE3E4FD617A1FC92C021E61 /* Supabase */; };
 		5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */; };
 		661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */; };
-		7F124AC96F310DC59BB02770 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A39755EA5C396CFE133D8FBC /* FirebaseFirestore */; };
+		6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */; };
 		AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */; };
 		B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */; };
 		B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */; };
-		BA2DCE670B8D5B72CBF88A3A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 957961801C90CAC4B2732500 /* FirebaseAnalytics */; };
 		C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */; };
 		C506A915D402719C92648DFD /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */; };
 		C915D872328D45B2AB9DE303 /* KidModeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBD586FA14CD5F35C3056F /* KidModeViewModel.swift */; };
@@ -56,10 +53,10 @@
 
 /* Begin PBXFileReference section */
 		1123FCD37029120F80EE9234 /* ColoringBook.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ColoringBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		2385F3E3C455654AA892AD23 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
 		26B9529DDD64E29EFE76F803 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflinePersistence.swift; sourceTree = "<group>"; };
-		3A24FFC056C678FF45620125 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
 		4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadViewModel.swift; sourceTree = "<group>"; };
 		5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsView.swift; sourceTree = "<group>"; };
 		5D5365555A24E4602D81955F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -90,10 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F1118D3DCBFDCA0508E187E /* FirebaseAuth in Frameworks */,
-				7F124AC96F310DC59BB02770 /* FirebaseFirestore in Frameworks */,
-				1F82B70C1E3E9D1D96608950 /* FirebaseStorage in Frameworks */,
-				BA2DCE670B8D5B72CBF88A3A /* FirebaseAnalytics in Frameworks */,
+				5F1118D3DCBFDCA0508E187E /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,10 +129,10 @@
 		9649B224FDCABB59105A5F11 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				3A24FFC056C678FF45620125 /* FirebaseService.swift */,
 				AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */,
 				2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */,
 				2385F3E3C455654AA892AD23 /* OpenAIService.swift */,
+				212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -240,10 +234,7 @@
 			);
 			name = ColoringBook;
 			packageProductDependencies = (
-				002E9ADFF822FC8CD99C9C44 /* FirebaseAuth */,
-				A39755EA5C396CFE133D8FBC /* FirebaseFirestore */,
-				2134B875633878CB21CB33C5 /* FirebaseStorage */,
-				957961801C90CAC4B2732500 /* FirebaseAnalytics */,
+				7DE3E4FD617A1FC92C021E61 /* Supabase */,
 			);
 			productName = ColoringBook;
 			productReference = 1123FCD37029120F80EE9234 /* ColoringBook.app */;
@@ -296,7 +287,7 @@
 			mainGroup = C969AF8ED99F9F05FDF904B6;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				4E3790DCF76B3D3A82E2705E /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
@@ -332,7 +323,6 @@
 				4966800B8387ED163273AB7E /* ContentView.swift in Sources */,
 				2E899558A49C154065C76410 /* DashboardView.swift in Sources */,
 				5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */,
-				379E4BC59A796AAC44A3074B /* FirebaseService.swift in Sources */,
 				5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */,
 				2A1D5BEBB8425422DC16B878 /* ImageUploadViewModel.swift in Sources */,
 				4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */,
@@ -343,6 +333,7 @@
 				C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */,
 				D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */,
 				0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */,
+				6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */,
 				54EE2AF4F3B96717F4850500 /* WelcomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -644,36 +635,21 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		4E3790DCF76B3D3A82E2705E /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			repositoryURL = "https://github.com/supabase/supabase-swift";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
+				minimumVersion = 2.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		002E9ADFF822FC8CD99C9C44 /* FirebaseAuth */ = {
+		7DE3E4FD617A1FC92C021E61 /* Supabase */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		2134B875633878CB21CB33C5 /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
-		};
-		957961801C90CAC4B2732500 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		A39755EA5C396CFE133D8FBC /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestore;
+			package = 4E3790DCF76B3D3A82E2705E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

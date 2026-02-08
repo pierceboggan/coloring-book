@@ -2,11 +2,10 @@
 //  Models.swift
 //  ColoringBook
 //
-//  Core data models matching the web app schema
+//  Core data models matching the web app Supabase schema
 //
 
 import Foundation
-import FirebaseFirestore
 
 // MARK: - Image Status
 enum ImageStatus: String, Codable {
@@ -18,7 +17,7 @@ enum ImageStatus: String, Codable {
 
 // MARK: - ColoringImage
 struct ColoringImage: Identifiable, Codable, Equatable {
-    @DocumentID var id: String?
+    var id: String?
     var userId: String
     var originalUrl: String
     var coloringPageUrl: String?
@@ -63,8 +62,8 @@ struct ColoringImage: Identifiable, Codable, Equatable {
     }
 }
 
-// MARK: - User
-struct User: Identifiable, Codable {
+// MARK: - User (Supabase Auth user is used directly; this is for profile data)
+struct UserProfile: Identifiable, Codable {
     var id: String
     var email: String
     var displayName: String?
@@ -84,61 +83,56 @@ struct User: Identifiable, Codable {
 
 // MARK: - FamilyAlbum
 struct FamilyAlbum: Identifiable, Codable {
-    @DocumentID var id: String?
-    var name: String
+    var id: String?
+    var userId: String?
+    var title: String
+    var description: String?
     var shareCode: String
-    var imageIds: [String]
-    var createdBy: String
-    var createdAt: Date
+    var createdAt: Date?
+    var commentsEnabled: Bool?
+    var downloadsEnabled: Bool?
 
     enum CodingKeys: String, CodingKey {
         case id
-        case name
+        case userId = "user_id"
+        case title
+        case description
         case shareCode = "share_code"
-        case imageIds = "image_ids"
-        case createdBy = "created_by"
         case createdAt = "created_at"
+        case commentsEnabled = "comments_enabled"
+        case downloadsEnabled = "downloads_enabled"
     }
 }
 
 // MARK: - Photobook
 struct Photobook: Identifiable, Codable {
-    @DocumentID var id: String?
-    var name: String
-    var imageIds: [String]
-    var pdfUrl: String?
-    var status: PhotobookStatus
-    var createdBy: String
-    var createdAt: Date
+    var id: String?
+    var title: String
+    var imageCount: Int
+    var pdfUrl: String
+    var userId: String
+    var createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case id
-        case name
-        case imageIds = "image_ids"
+        case title
+        case imageCount = "image_count"
         case pdfUrl = "pdf_url"
-        case status
-        case createdBy = "created_by"
+        case userId = "user_id"
         case createdAt = "created_at"
     }
-}
-
-enum PhotobookStatus: String, Codable {
-    case pending
-    case processing
-    case completed
-    case failed
 }
 
 // MARK: - ColoredArtwork
 /// Represents a user's colored version of a coloring page
 struct ColoredArtwork: Identifiable, Codable {
-    @DocumentID var id: String?
+    var id: String?
     var imageId: String
     var userId: String
     var artworkUrl: String
     var thumbnailUrl: String?
-    var createdAt: Date
-    var updatedAt: Date
+    var createdAt: Date?
+    var updatedAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case id

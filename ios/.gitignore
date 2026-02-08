@@ -28,8 +28,8 @@ Pods/
 # Carthage (if used)
 Carthage/Build/
 
-# Firebase
-GoogleService-Info.plist
+# Supabase
+# Keep secrets out of version control
 
 # Mac
 .DS_Store

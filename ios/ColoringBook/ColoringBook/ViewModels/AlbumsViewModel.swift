@@ -13,10 +13,10 @@ class AlbumsViewModel: ObservableObject {
     @Published var isLoading = false
 
     func createAlbum(name: String, imageIds: [String]) async {
-        guard let userId = FirebaseService.shared.currentUser?.uid else { return }
+        guard let userId = SupabaseService.shared.currentUser?.id.uuidString else { return }
 
         do {
-            _ = try await FirebaseService.shared.createFamilyAlbum(
+            _ = try await SupabaseService.shared.createFamilyAlbum(
                 name: name,
                 imageIds: imageIds,
                 userId: userId
@@ -29,7 +29,7 @@ class AlbumsViewModel: ObservableObject {
 
     func fetchAlbum(shareCode: String) async -> FamilyAlbum? {
         do {
-            return try await FirebaseService.shared.fetchFamilyAlbum(shareCode: shareCode)
+            return try await SupabaseService.shared.fetchFamilyAlbum(shareCode: shareCode)
         } catch {
             print("❌ Failed to fetch album: \(error.localizedDescription)")
             return nil

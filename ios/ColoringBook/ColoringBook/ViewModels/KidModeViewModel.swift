@@ -16,13 +16,13 @@ class KidModeViewModel: ObservableObject {
     func loadImages() async {
         isLoading = true
 
-        guard let userId = FirebaseService.shared.currentUser?.uid else {
+        guard let userId = SupabaseService.shared.currentUser?.id.uuidString else {
             isLoading = false
             return
         }
 
         do {
-            let allImages = try await FirebaseService.shared.fetchImages(userId: userId)
+            let allImages = try await SupabaseService.shared.fetchImages(userId: userId)
             // Only show completed coloring pages
             availableImages = allImages.filter { $0.status == .completed && $0.coloringPageUrl != nil }
             isLoading = false
