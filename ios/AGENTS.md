@@ -260,6 +260,7 @@ xcodegen generate
 - Ensure compliance with App Store Review Guidelines
 
 ## Future Enhancements
+- [x] AR Gallery for viewing coloring pages in augmented reality
 - [ ] iCloud sync across devices
 - [ ] Widgets for quick access to recent pages
 - [ ] Siri Shortcuts integration
@@ -270,3 +271,50 @@ xcodegen generate
 - [ ] Advanced drawing tools (layers, blend modes)
 - [ ] Social sharing features
 - [ ] In-app purchases for premium features
+
+## AR Gallery Feature
+
+### Overview
+The AR Gallery feature allows users to view their completed coloring pages in augmented reality. Users can place their artwork on walls, floors, or any surface in the real world, creating an immersive gallery experience.
+
+### Components
+- **ARGalleryView.swift**: Main AR interface with camera view and controls
+- **ARGalleryViewModel.swift**: Business logic for AR session management and gesture handling
+
+### Features
+- **Surface Detection**: Automatically detects horizontal and vertical planes (walls, floors, tables)
+- **Tap to Place**: Tap any detected surface to place your coloring page artwork
+- **Pinch to Resize**: Use pinch gesture to scale the image up or down
+- **Drag to Reposition**: Move placed artwork to different surfaces
+- **Size Controls**: +/- buttons for precise size adjustments
+- **Screenshot Capture**: Save your AR scene to Photos
+- **Reset Scene**: Clear all placed artwork and start fresh
+- **Instructions Overlay**: Helpful guide for first-time users
+
+### Usage
+1. Open any completed coloring page from the Dashboard
+2. Tap "View in AR" button in the management panel
+3. Point camera at surfaces and wait for detection
+4. Tap to place your artwork on detected surfaces
+5. Use gestures or controls to adjust size and position
+6. Take screenshots to save your AR gallery scenes
+
+### Technical Details
+- Uses ARKit's ARWorldTrackingConfiguration
+- Supports both horizontal and vertical plane detection
+- SceneKit for 3D rendering of image planes
+- Automatic lighting and shadow support
+- Gesture recognizers for intuitive interaction
+- Photo library integration for screenshot saving
+
+### Requirements
+- iOS 16.0+
+- ARKit-compatible device (iPhone 6s or newer, iPad Pro or newer)
+- Camera permission (automatically requested)
+- Photo library permission (for screenshots)
+
+### Known Limitations
+- AR features require a physical iOS device with ARKit support
+- Does not work on iOS Simulator (limited AR simulation only)
+- Requires good lighting conditions for best surface detection
+- Large images may impact performance on older devices
