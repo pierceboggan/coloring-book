@@ -101,10 +101,16 @@ class ARGalleryViewModel: NSObject, ObservableObject {
         
         let location = gesture.location(in: arView)
         
-        // Perform hit test to find a surface
-        let hitTestResults = arView.hitTest(location, types: [.existingPlaneUsingExtent, .estimatedHorizontalPlane, .estimatedVerticalPlane])
+        // Use modern raycast API to find a surface
+        let query = arView.raycastQuery(from: location, allowing: .existingPlaneGeometry, alignment: .any)
+        guard let raycastQuery = query else {
+            showMessage("No surface detected. Try moving your device.")
+            return
+        }
         
-        guard let hitResult = hitTestResults.first else {
+        let raycastResults = arView.session.raycast(raycastQuery)
+        
+        guard let raycastResult = raycastResults.first else {
             showMessage("No surface detected. Try moving your device.")
             return
         }
@@ -129,13 +135,13 @@ class ARGalleryViewModel: NSObject, ObservableObject {
         // Create node
         let imageNode = SCNNode(geometry: plane)
         
-        // Position the node at the hit test location
-        let transform = hitResult.worldTransform
+        // Position the node at the raycast location
+        let transform = raycastResult.worldTransform
         let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
         imageNode.position = position
         
-        // Orient the plane based on the surface normal
-        if hitResult.type == .estimatedVerticalPlane {
+        // Orient the plane based on the surface alignment
+        if raycastResult.target.alignment == .vertical {
             // For vertical surfaces (walls), rotate to face the camera
             imageNode.eulerAngles.y = .pi
         }
@@ -177,13 +183,15 @@ class ARGalleryViewModel: NSObject, ObservableObject {
         
         let location = gesture.location(in: arView)
         
-        // Perform hit test to find a new surface
-        let hitTestResults = arView.hitTest(location, types: [.existingPlaneUsingExtent, .estimatedHorizontalPlane, .estimatedVerticalPlane])
+        // Use modern raycast API to find a new surface
+        let query = arView.raycastQuery(from: location, allowing: .existingPlaneGeometry, alignment: .any)
+        guard let raycastQuery = query else { return }
         
-        guard let hitResult = hitTestResults.first else { return }
+        let raycastResults = arView.session.raycast(raycastQuery)
+        guard let raycastResult = raycastResults.first else { return }
         
         // Update node position
-        let transform = hitResult.worldTransform
+        let transform = raycastResult.worldTransform
         let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
         
         if gesture.state == .changed {
