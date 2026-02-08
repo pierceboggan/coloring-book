@@ -278,7 +278,12 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
     const coverSummary = coverImagePreview || selectedImages.find(image => image.id === createdAlbum.coverImageId) || null
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="family-album-created-title"
+      >
         <div className="relative w-full max-w-3xl">
           <div className="pointer-events-none absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-[#A0E7E5]/40 via-[#FFB3BA]/40 to-[#FFD166]/40 blur-2xl" aria-hidden="true" />
           <div className="relative overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 p-8 shadow-[18px_18px_0_0_#55C6C0]">
@@ -289,7 +294,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FF6F91]">Family album ready</p>
-                  <h2 className="text-3xl font-extrabold text-[#3A2E39]">Album created!</h2>
+                  <h2 id="family-album-created-title" className="text-3xl font-extrabold text-[#3A2E39]">Album created!</h2>
                 </div>
               </div>
               <button
@@ -405,7 +410,12 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="family-album-builder-title"
+    >
       <div className="relative w-full max-w-5xl">
         <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#A0E7E5]/40 blur-2xl" aria-hidden="true" />
         <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
@@ -416,7 +426,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FF6F91]">Family album builder</p>
-                <h2 className="text-3xl font-extrabold text-[#3A2E39]">Bundle pages to share</h2>
+                <h2 id="family-album-builder-title" className="text-3xl font-extrabold text-[#3A2E39]">Bundle pages to share</h2>
                 <p className="text-sm font-medium text-[#594144]">Select your favorite coloring pages, give them a title, and we’ll package a shareable album.</p>
               </div>
             </div>

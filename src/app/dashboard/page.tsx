@@ -242,8 +242,18 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
   const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('compact')
 
-  const fetchUserImages = useCallback(async (isRefresh = false) => {
+  const fetchUserImages = useCallback(async () => {
     try {
+      const devBypassActive =
+        process.env.NODE_ENV !== 'production' &&
+        process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
+
+      if (devBypassActive) {
+        setImages([])
+        setLoading(false)
+        return
+      }
+
       if (!userId) {
         console.error('❌ No user ID available for fetching images')
         return
@@ -486,7 +496,7 @@ export default function Dashboard() {
       const result = await response.json()
       
       // Refresh the images after retry
-      await fetchUserImages(true)
+      await fetchUserImages()
       
       if (result.processedCount > 0) {
         alert(`Successfully processed ${result.processedCount} images!`)
@@ -1269,7 +1279,7 @@ export default function Dashboard() {
                     <ImageUploader
                       onUploadComplete={() => {
                         setShowUploader(false)
-                        fetchUserImages(true)
+                        fetchUserImages()
                       }}
                     />
                   </div>
@@ -1377,4 +1387,3 @@ export default function Dashboard() {
     </div>
   )
 }
-

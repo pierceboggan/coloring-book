@@ -293,7 +293,12 @@ export function VariantsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/60 backdrop-blur-sm p-4 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="variants-modal-title"
+    >
       <div className="relative w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden rounded-[2.5rem] border-4 border-[#C3B5FF] bg-white shadow-[20px_20px_0_0_#A599E9]">
         <div className="flex-shrink-0 flex items-center justify-between border-b-4 border-[#C3B5FF] bg-[#F6F3FF] px-6 py-4">
           <div className="flex items-center gap-3">
@@ -302,7 +307,7 @@ export function VariantsModal({
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-[#6C63FF]">Variant studio</p>
-              <h2 className="text-xl font-bold text-[#3A2E39]">{imageName}</h2>
+              <h2 id="variants-modal-title" className="text-xl font-bold text-[#3A2E39]">{imageName}</h2>
             </div>
           </div>
           <button
@@ -632,4 +637,3 @@ export function VariantsModal({
     </div>
   )
 }
-

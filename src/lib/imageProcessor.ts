@@ -55,7 +55,6 @@ function createSVGWatermark(text: string, imageWidth: number, imageHeight: numbe
   
   // Calculate text width approximation
   const textWidth = text.length * fontSize * 0.6
-  const textHeight = fontSize + 10
   
   let x: number
   let y: number

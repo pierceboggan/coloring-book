@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -18,6 +18,16 @@ export async function middleware(req: NextRequest) {
       headers: req.headers,
     },
   })
+
+  const devBypassEnabled =
+    process.env.NODE_ENV !== 'production' &&
+    (process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true' ||
+      req.cookies.get('dev-auth-bypass')?.value === 'true')
+
+  if (devBypassEnabled) {
+    console.log('🛠️ Dev auth bypass active, skipping Supabase session enforcement')
+    return responses
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
