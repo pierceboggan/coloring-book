@@ -12,10 +12,16 @@ struct DashboardView: View {
     @State private var selectedImage: ColoringImage?
     @State private var showColoringCanvas = false
 
+    /// Total count including variants
+    private var totalPageCount: Int {
+        viewModel.images.reduce(0) { count, image in
+            count + 1 + (image.variantUrls?.count ?? 0)
+        }
+    }
+
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
                 LinearGradient(
                     colors: [Color(hex: "FFF5D6"), Color(hex: "E0F7FA")],
                     startPoint: .topLeading,
@@ -31,7 +37,7 @@ struct DashboardView: View {
                                 .font(.largeTitle.bold())
                                 .foregroundColor(Color(hex: "3A2E39"))
 
-                            Text("\(viewModel.images.count) coloring pages")
+                            Text("\(totalPageCount) coloring pages")
                                 .font(.subheadline)
                                 .foregroundColor(Color(hex: "594144"))
                         }
@@ -39,7 +45,6 @@ struct DashboardView: View {
                         .padding(.horizontal)
                         .padding(.top)
 
-                        // Images grid
                         if viewModel.isLoading {
                             ProgressView()
                                 .padding(40)
@@ -54,18 +59,19 @@ struct DashboardView: View {
                                 spacing: 16
                             ) {
                                 ForEach(viewModel.images) { image in
-                                    ImageCard(image: image) {
+                                    GalleryCard(
+                                        imageUrl: image.coloringPageUrl ?? image.originalUrl,
+                                        name: image.name
+                                    ) {
                                         selectedImage = image
                                         showColoringCanvas = true
                                     }
 
-                                    // Show variant cards inline
                                     if let variants = image.variantUrls, !variants.isEmpty {
-                                        ForEach(Array(variants.enumerated()), id: \.offset) { index, variantUrl in
-                                            VariantCard(
-                                                variantUrl: variantUrl,
-                                                parentName: image.name,
-                                                variantIndex: index + 1
+                                        ForEach(Array(variants.enumerated()), id: \.offset) { _, variantUrl in
+                                            GalleryCard(
+                                                imageUrl: variantUrl,
+                                                name: image.name
                                             ) {
                                                 selectedImage = image
                                                 showColoringCanvas = true
@@ -97,15 +103,17 @@ struct DashboardView: View {
     }
 }
 
-struct ImageCard: View {
-    let image: ColoringImage
+// MARK: - Unified Gallery Card
+
+struct GalleryCard: View {
+    let imageUrl: String
+    let name: String
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 0) {
-                // Image
-                AsyncImage(url: URL(string: image.coloringPageUrl ?? image.originalUrl)) { phase in
+                AsyncImage(url: URL(string: imageUrl)) { phase in
                     switch phase {
                     case .success(let img):
                         img
@@ -121,153 +129,29 @@ struct ImageCard: View {
                         EmptyView()
                     }
                 }
-                .frame(height: 180)
+                .frame(height: 200)
                 .clipped()
 
-                // Info
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(image.name)
-                        .font(.subheadline.bold())
-                        .foregroundColor(Color(hex: "3A2E39"))
-                        .lineLimit(1)
-
-                    HStack {
-                        StatusBadge(status: image.status)
-
-                        if image.variantCount > 0 {
-                            Text("+\(image.variantCount)")
-                                .font(.caption2.bold())
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color(hex: "A0E7E5"))
-                                .clipShape(Capsule())
-                        }
-
-                        Spacer()
-                        Image(systemName: "paintbrush.fill")
-                            .font(.caption)
-                            .foregroundColor(Color(hex: "FF6F91"))
-                    }
-                }
-                .padding(12)
-                .background(Color.white.opacity(0.95))
+                Text(name)
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(Color(hex: "3A2E39"))
+                    .lineLimit(1)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.95))
             }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color(hex: "A0E7E5"), lineWidth: 3)
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color(hex: "E0E0E0"), lineWidth: 1)
             )
-            .shadow(color: Color(hex: "55C6C0").opacity(0.3), radius: 5, x: 3, y: 3)
+            .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
         }
     }
 }
 
-struct StatusBadge: View {
-    let status: ImageStatus
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(statusColor)
-                .frame(width: 6, height: 6)
-
-            Text(statusText)
-                .font(.caption2)
-                .foregroundColor(Color(hex: "594144"))
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color(hex: "FFF3BF").opacity(0.8))
-        .clipShape(Capsule())
-    }
-
-    private var statusColor: Color {
-        switch status {
-        case .uploading, .processing:
-            return Color.orange
-        case .completed:
-            return Color.green
-        case .error:
-            return Color.red
-        }
-    }
-
-    private var statusText: String {
-        switch status {
-        case .uploading:
-            return "Uploading"
-        case .processing:
-            return "Processing"
-        case .completed:
-            return "Ready"
-        case .error:
-            return "Error"
-        }
-    }
-}
-
-struct VariantCard: View {
-    let variantUrl: String
-    let parentName: String
-    let variantIndex: Int
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: 0) {
-                AsyncImage(url: URL(string: variantUrl)) { phase in
-                    switch phase {
-                    case .success(let img):
-                        img
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        Image(systemName: "photo")
-                            .font(.largeTitle)
-                            .foregroundColor(Color(hex: "A0E7E5"))
-                    case .empty:
-                        ProgressView()
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                .frame(height: 180)
-                .clipped()
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\(parentName)")
-                        .font(.subheadline.bold())
-                        .foregroundColor(Color(hex: "3A2E39"))
-                        .lineLimit(1)
-
-                    HStack {
-                        Text("Variant \(variantIndex)")
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color(hex: "B4A0E5"))
-                            .clipShape(Capsule())
-
-                        Spacer()
-                        Image(systemName: "paintbrush.fill")
-                            .font(.caption)
-                            .foregroundColor(Color(hex: "FF6F91"))
-                    }
-                }
-                .padding(12)
-                .background(Color.white.opacity(0.95))
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color(hex: "B4A0E5"), lineWidth: 3)
-            )
-            .shadow(color: Color(hex: "B4A0E5").opacity(0.3), radius: 5, x: 3, y: 3)
-        }
-    }
-}
+// MARK: - Empty State
 
 struct EmptyGalleryView: View {
     var body: some View {
