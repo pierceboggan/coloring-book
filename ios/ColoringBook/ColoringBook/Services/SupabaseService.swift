@@ -82,23 +82,39 @@ class SupabaseService: ObservableObject {
     }
 
     func signIn(email: String, password: String) async throws {
-        let session = try await client.auth.signIn(email: email, password: password)
-        currentUser = session.user
-        currentAccessToken = session.accessToken
-        isAuthenticated = true
-        isInitialSessionResolved = true
-        print("✅ Signed in: \(email)")
-    }
-
-    func signUp(email: String, password: String) async throws {
-        let result = try await client.auth.signUp(email: email, password: password)
-        if let session = result.session {
+        do {
+            let session = try await client.auth.signIn(email: email, password: password)
             currentUser = session.user
             currentAccessToken = session.accessToken
             isAuthenticated = true
             isInitialSessionResolved = true
+            print("✅ Signed in: \(email)")
+            
+            // Set user context in Sentry
+            SentryService.shared.setUser(id: session.user.id.uuidString.lowercased(), email: email)
+        } catch {
+            SentryService.shared.captureError(error, context: ["operation": "signIn", "email": email])
+            throw error
         }
-        print("✅ Signed up: \(email)")
+    }
+
+    func signUp(email: String, password: String) async throws {
+        do {
+            let result = try await client.auth.signUp(email: email, password: password)
+            if let session = result.session {
+                currentUser = session.user
+                currentAccessToken = session.accessToken
+                isAuthenticated = true
+                isInitialSessionResolved = true
+                
+                // Set user context in Sentry
+                SentryService.shared.setUser(id: session.user.id.uuidString.lowercased(), email: email)
+            }
+            print("✅ Signed up: \(email)")
+        } catch {
+            SentryService.shared.captureError(error, context: ["operation": "signUp", "email": email])
+            throw error
+        }
     }
 
     func signOut() async throws {
@@ -107,6 +123,10 @@ class SupabaseService: ObservableObject {
         currentAccessToken = nil
         isAuthenticated = false
         isInitialSessionResolved = true
+        
+        // Clear user context in Sentry
+        SentryService.shared.clearUser()
+        
         print("✅ Signed out")
     }
 
@@ -118,37 +138,69 @@ class SupabaseService: ObservableObject {
     // MARK: - Images
 
     func uploadImage(_ imageData: Data, fileName: String) async throws -> String {
-        let path = "images/\(UUID().uuidString)-\(fileName)"
+        do {
+            let path = "images/\(UUID().uuidString)-\(fileName)"
 
-        try await client.storage.from("images").upload(
-            path,
-            data: imageData,
-            options: .init(contentType: "image/jpeg")
-        )
+            try await client.storage.from("images").upload(
+                path,
+                data: imageData,
+                options: .init(contentType: "image/jpeg")
+            )
 
-        let publicURL = try client.storage.from("images").getPublicURL(path: path)
-        return publicURL.absoluteString
+            let publicURL = try client.storage.from("images").getPublicURL(path: path)
+            
+            SentryService.shared.addBreadcrumb(
+                message: "Image uploaded successfully",
+                category: "storage",
+                level: .info
+            )
+            
+            return publicURL.absoluteString
+        } catch {
+            SentryService.shared.captureError(error, context: [
+                "operation": "uploadImage",
+                "fileName": fileName,
+                "dataSize": imageData.count
+            ])
+            throw error
+        }
     }
 
     func createImageRecord(_ image: ColoringImage) async throws -> String {
-        let insertData: [String: AnyJSON] = [
-            "user_id": .string(image.userId),
-            "original_url": .string(image.originalUrl),
-            "name": .string(image.name),
-            "status": .string(image.status.rawValue)
-        ]
+        do {
+            let insertData: [String: AnyJSON] = [
+                "user_id": .string(image.userId),
+                "original_url": .string(image.originalUrl),
+                "name": .string(image.name),
+                "status": .string(image.status.rawValue)
+            ]
 
-        let response: [ColoringImage] = try await client.from("images")
-            .insert(insertData)
-            .select()
-            .execute()
-            .value
+            let response: [ColoringImage] = try await client.from("images")
+                .insert(insertData)
+                .select()
+                .execute()
+                .value
 
-        guard let id = response.first?.id else {
-            throw SupabaseServiceError.insertFailed
+            guard let id = response.first?.id else {
+                throw SupabaseServiceError.insertFailed
+            }
+            print("✅ Image record created: \(id)")
+            
+            SentryService.shared.addBreadcrumb(
+                message: "Image record created",
+                category: "database",
+                level: .info
+            )
+            
+            return id
+        } catch {
+            SentryService.shared.captureError(error, context: [
+                "operation": "createImageRecord",
+                "imageName": image.name,
+                "userId": image.userId
+            ])
+            throw error
         }
-        print("✅ Image record created: \(id)")
-        return id
     }
 
     func fetchImages(userId: String) async throws -> [ColoringImage] {

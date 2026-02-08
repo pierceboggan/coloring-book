@@ -32,6 +32,8 @@
 	<string>https://tzigphpwhwogecpxvuop.supabase.co</string>
 	<key>WEB_API_BASE_URL</key>
 	<string>https://coloringbook.ai</string>
+	<key>SENTRY_DSN</key>
+	<string>$(SENTRY_DSN)</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UISupportedInterfaceOrientations</key>

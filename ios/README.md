@@ -35,13 +35,8 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
 ### Requirements
 - iOS 16.0 or later
 - Xcode 15.0 or later
-<<<<<<< HEAD
 - Swift 5
 - Supabase project
-=======
-- Swift 6.0
-- Supabase account
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - OpenAI API key
 
 ### Installation
@@ -59,7 +54,6 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
    xcodegen generate
    ```
 
-<<<<<<< HEAD
 3. **Install dependencies**
    Dependencies are managed via Swift Package Manager and will be resolved automatically when you open the project in Xcode.
 
@@ -72,23 +66,6 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
    The iOS app uses the same database schema as the web app:
    - `images` — user photos and generated coloring pages
    - `family_albums` — shared albums with share codes
-=======
-3. **Configure Supabase**
-   - Create a Supabase project at [Supabase Console](https://console.supabase.google.com/)
-   - Download `GoogleService-Info.plist`
-   - Add it to the Xcode project (drag into ColoringBook folder)
-
-4. **Set up Supabase Collections**
-   Create these Firestore collections:
-   - `users`
-   - `images`
-   - `colored_artworks`
-   - `family_albums`
-
-5. **Configure Storage**
-   - Create Supabase Storage bucket
-   - Set up storage rules for image uploads
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 6. **Configure Storage**
    - Uses the same Supabase Storage buckets as the web app
@@ -121,20 +98,16 @@ xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=i
 ### Tech Stack
 - **UI Framework**: SwiftUI
 - **Architecture**: MVVM (Model-View-ViewModel)
-<<<<<<< HEAD
 - **Backend**: Supabase (Auth, Database, Storage)
-=======
-- **Backend**: Supabase (Auth, Firestore, Storage, Analytics)
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - **AI Processing**: OpenAI API
 - **Drawing**: PencilKit
+- **Monitoring**: Sentry for error tracking and performance monitoring
 - **Dependency Management**: Swift Package Manager
 - **Project Generation**: XcodeGen (`project.yml`)
 
 ### Project Structure
 ```
 ColoringBook/
-<<<<<<< HEAD
 ├── project.yml                # XcodeGen project definition
 ├── ColoringBook/              # Main app
 │   ├── Models/               # Data models
@@ -145,41 +118,25 @@ ColoringBook/
 │   └── Resources/            # Assets
 ├── ColoringBookTests/        # Unit tests
 └── ColoringBookUITests/      # UI tests
-=======
-├── ColoringBook/           # Main app
-│   ├── Models/            # Data models
-│   ├── Views/             # SwiftUI views
-│   ├── ViewModels/        # Business logic
-│   ├── Services/          # Supabase & OpenAI services
-│   ├── Utils/             # Helpers & extensions
-│   └── Resources/         # Assets
-├── ColoringBookTests/     # Unit tests
-└── ColoringBookUITests/   # UI tests
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 ```
 
 ### Key Components
 
 **ColoringCanvasView**: The primary feature - digital coloring pad with PencilKit integration
 
-<<<<<<< HEAD
 **SupabaseService**: Centralized Supabase operations (Auth, Database, Storage) — shares the same backend as the web app
-=======
-**SupabaseService**: Centralized Supabase operations (Auth, Firestore, Storage)
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 **OpenAIService**: AI image processing and watermarking
+
+**SentryService**: Error tracking and performance monitoring
 
 **KidModeView**: Parental control locked mode
 
 ## 🔧 Configuration
 
 ### Supabase Setup
-<<<<<<< HEAD
 
 The iOS app connects to the same Supabase project as the web app. Ensure these are configured:
-=======
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 1. **Authentication**
    - Enable Email/Password authentication
@@ -200,28 +157,32 @@ The iOS app connects to the same Supabase project as the web app. Ensure these a
    ```
 
 3. **Storage**
-<<<<<<< HEAD
    - Uses the same Supabase Storage buckets as the web app
    - RLS policies should allow authenticated users to upload/read
-=======
-   ```javascript
-   // Storage rules example
-   rules_version = '2';
-   service supabase.storage {
-     match /b/{bucket}/o {
-       match /images/{allPaths=**} {
-         allow read: if true;
-         allow write: if request.auth != null;
-       }
-     }
-   }
-   ```
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 ### OpenAI Configuration
 - Requires OpenAI API key with access to image generation
 - Uses the Responses API for coloring page generation
 - Configurable prompt templates
+
+### Sentry Configuration
+1. **Create Sentry Project**
+   - Sign up at [sentry.io](https://sentry.io/)
+   - Create a new iOS project
+   - Copy your DSN from the project settings
+
+2. **Configure the App**
+   - Set the `SENTRY_DSN` environment variable in Xcode:
+     - Edit Scheme → Run → Arguments → Environment Variables
+     - Add `SENTRY_DSN` with your Sentry DSN
+   - Alternatively, update `project.yml` with your DSN (not recommended for public repos)
+
+3. **Features Enabled**
+   - Automatic error tracking for crashes and exceptions
+   - Performance monitoring for AI operations
+   - Breadcrumb tracking for debugging context
+   - User identification linked to Supabase auth
+   - Screenshots attached to error reports
 
 ## 🐛 Troubleshooting
 
@@ -233,15 +194,9 @@ The iOS app connects to the same Supabase project as the web app. Ensure these a
 - Regenerate project: `xcodegen generate`
 
 **Supabase Connection Issues:**
-<<<<<<< HEAD
 - Verify Supabase URL and anon key are set correctly
 - Check that RLS policies allow the operation
 - Ensure the Supabase project is active
-=======
-- Verify `GoogleService-Info.plist` is added to target
-- Check Supabase project configuration
-- Ensure bundle ID matches Supabase app
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 **OpenAI API Errors:**
 - Verify API key is correctly set
