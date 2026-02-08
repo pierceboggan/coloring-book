@@ -1,0 +1,681 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5365555A24E4602D81955F /* SettingsView.swift */; };
+		12495C46E5578B84584298AB /* ColoringBookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A366D4D711DC3C105658123 /* ColoringBookApp.swift */; };
+		1F82B70C1E3E9D1D96608950 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 2134B875633878CB21CB33C5 /* FirebaseStorage */; };
+		28D1DB469C6A9A90D95F9AB4 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F0010079CD6B472B6B5CEC /* Models.swift */; };
+		2A1D5BEBB8425422DC16B878 /* ImageUploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */; };
+		2AF310B132BE958FFE58B939 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B9529DDD64E29EFE76F803 /* AuthView.swift */; };
+		2E899558A49C154065C76410 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */; };
+		379E4BC59A796AAC44A3074B /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A24FFC056C678FF45620125 /* FirebaseService.swift */; };
+		4966800B8387ED163273AB7E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893D38EE01009E98924FFD33 /* ContentView.swift */; };
+		4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935A1C40FA4E384D1A8042C8 /* KidModeView.swift */; };
+		4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */; };
+		54EE2AF4F3B96717F4850500 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B300F36E7A7E10794783C5 /* WelcomeView.swift */; };
+		5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */; };
+		5F1118D3DCBFDCA0508E187E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 002E9ADFF822FC8CD99C9C44 /* FirebaseAuth */; };
+		5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */; };
+		661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */; };
+		7F124AC96F310DC59BB02770 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A39755EA5C396CFE133D8FBC /* FirebaseFirestore */; };
+		AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */; };
+		B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */; };
+		B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */; };
+		BA2DCE670B8D5B72CBF88A3A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 957961801C90CAC4B2732500 /* FirebaseAnalytics */; };
+		C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */; };
+		C506A915D402719C92648DFD /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */; };
+		C915D872328D45B2AB9DE303 /* KidModeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBD586FA14CD5F35C3056F /* KidModeViewModel.swift */; };
+		D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2385F3E3C455654AA892AD23 /* OpenAIService.swift */; };
+		D7A0F4FB36CE303048A7C332 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */; };
+		E01D5E30B3EBA0419797248E /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33CA13ED3683D17B125FA22 /* MainTabView.swift */; };
+		ED022BECE03C7917723AA2C1 /* AlbumsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42943147BAA93DE15489B74 /* AlbumsViewModel.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		57921C5DF63422E3CF5C9A5B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0E774E9AC52FD4D92963AD11 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 57074FB90CCBD75AC0DC6DEF;
+			remoteInfo = ColoringBook;
+		};
+		9291D8F56684E8E5029ED221 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0E774E9AC52FD4D92963AD11 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 57074FB90CCBD75AC0DC6DEF;
+			remoteInfo = ColoringBook;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1123FCD37029120F80EE9234 /* ColoringBook.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ColoringBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2385F3E3C455654AA892AD23 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
+		26B9529DDD64E29EFE76F803 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflinePersistence.swift; sourceTree = "<group>"; };
+		3A24FFC056C678FF45620125 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
+		4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadViewModel.swift; sourceTree = "<group>"; };
+		5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsView.swift; sourceTree = "<group>"; };
+		5D5365555A24E4602D81955F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringCanvasViewModel.swift; sourceTree = "<group>"; };
+		64FBD586FA14CD5F35C3056F /* KidModeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeViewModel.swift; sourceTree = "<group>"; };
+		7F5A78BC1C43BD0FCCB643BD /* ColoringBookUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		893D38EE01009E98924FFD33 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookUITests.swift; sourceTree = "<group>"; };
+		935A1C40FA4E384D1A8042C8 /* KidModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeView.swift; sourceTree = "<group>"; };
+		973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		98F0010079CD6B472B6B5CEC /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		9A366D4D711DC3C105658123 /* ColoringBookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookApp.swift; sourceTree = "<group>"; };
+		9CB1B4B17B3B4CA1A918B119 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookTests.swift; sourceTree = "<group>"; };
+		AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
+		CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadView.swift; sourceTree = "<group>"; };
+		E9B300F36E7A7E10794783C5 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringCanvasView.swift; sourceTree = "<group>"; };
+		F33CA13ED3683D17B125FA22 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		F42943147BAA93DE15489B74 /* AlbumsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsViewModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4F1BE6720DDBAF4707016B91 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F1118D3DCBFDCA0508E187E /* FirebaseAuth in Frameworks */,
+				7F124AC96F310DC59BB02770 /* FirebaseFirestore in Frameworks */,
+				1F82B70C1E3E9D1D96608950 /* FirebaseStorage in Frameworks */,
+				BA2DCE670B8D5B72CBF88A3A /* FirebaseAnalytics in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		371405CB47A65B86C559B66C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */,
+				26B9529DDD64E29EFE76F803 /* AuthView.swift */,
+				F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */,
+				EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */,
+				CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */,
+				935A1C40FA4E384D1A8042C8 /* KidModeView.swift */,
+				F33CA13ED3683D17B125FA22 /* MainTabView.swift */,
+				5D5365555A24E4602D81955F /* SettingsView.swift */,
+				E9B300F36E7A7E10794783C5 /* WelcomeView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		428818AA816BE06045B83CCF /* ColoringBookUITests */ = {
+			isa = PBXGroup;
+			children = (
+				896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */,
+			);
+			path = ColoringBookUITests;
+			sourceTree = "<group>";
+		};
+		901366828E3A2653EB661A8B /* ColoringBookTests */ = {
+			isa = PBXGroup;
+			children = (
+				A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */,
+			);
+			path = ColoringBookTests;
+			sourceTree = "<group>";
+		};
+		9649B224FDCABB59105A5F11 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3A24FFC056C678FF45620125 /* FirebaseService.swift */,
+				AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */,
+				2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */,
+				2385F3E3C455654AA892AD23 /* OpenAIService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		9F633968E7A02C11C8CBA7C6 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		A19D7440117B54A62705AA8A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1123FCD37029120F80EE9234 /* ColoringBook.app */,
+				B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */,
+				7F5A78BC1C43BD0FCCB643BD /* ColoringBookUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B4ADED5A6918871B4B9D000A /* ColoringBook */ = {
+			isa = PBXGroup;
+			children = (
+				9A366D4D711DC3C105658123 /* ColoringBookApp.swift */,
+				893D38EE01009E98924FFD33 /* ContentView.swift */,
+				9CB1B4B17B3B4CA1A918B119 /* Info.plist */,
+				DE2C01B30E7052B22DEE619C /* Models */,
+				9649B224FDCABB59105A5F11 /* Services */,
+				9F633968E7A02C11C8CBA7C6 /* Utils */,
+				CE6203FD43F7027B9A10C96A /* ViewModels */,
+				371405CB47A65B86C559B66C /* Views */,
+			);
+			path = ColoringBook;
+			sourceTree = "<group>";
+		};
+		C969AF8ED99F9F05FDF904B6 = {
+			isa = PBXGroup;
+			children = (
+				B4ADED5A6918871B4B9D000A /* ColoringBook */,
+				901366828E3A2653EB661A8B /* ColoringBookTests */,
+				428818AA816BE06045B83CCF /* ColoringBookUITests */,
+				A19D7440117B54A62705AA8A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CE6203FD43F7027B9A10C96A /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F42943147BAA93DE15489B74 /* AlbumsViewModel.swift */,
+				5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */,
+				973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */,
+				4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */,
+				64FBD586FA14CD5F35C3056F /* KidModeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DE2C01B30E7052B22DEE619C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				98F0010079CD6B472B6B5CEC /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		44585A629CEF897E57BE1EF7 /* ColoringBookUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7D63694CA571B9AFA11626A8 /* Build configuration list for PBXNativeTarget "ColoringBookUITests" */;
+			buildPhases = (
+				FCE5FCEEB657827C79C4FA7D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				34ED6C146CA4BE7E446B507C /* PBXTargetDependency */,
+			);
+			name = ColoringBookUITests;
+			packageProductDependencies = (
+			);
+			productName = ColoringBookUITests;
+			productReference = 7F5A78BC1C43BD0FCCB643BD /* ColoringBookUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		57074FB90CCBD75AC0DC6DEF /* ColoringBook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B42E3673E66254D097410A /* Build configuration list for PBXNativeTarget "ColoringBook" */;
+			buildPhases = (
+				957DF7F8450368FFD2E176A1 /* Sources */,
+				4F1BE6720DDBAF4707016B91 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ColoringBook;
+			packageProductDependencies = (
+				002E9ADFF822FC8CD99C9C44 /* FirebaseAuth */,
+				A39755EA5C396CFE133D8FBC /* FirebaseFirestore */,
+				2134B875633878CB21CB33C5 /* FirebaseStorage */,
+				957961801C90CAC4B2732500 /* FirebaseAnalytics */,
+			);
+			productName = ColoringBook;
+			productReference = 1123FCD37029120F80EE9234 /* ColoringBook.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CA8A111D4807EF28BEB40865 /* ColoringBookTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D0BDBF7CBD37062C97E2DD4 /* Build configuration list for PBXNativeTarget "ColoringBookTests" */;
+			buildPhases = (
+				366C87E76FFCAE6601682929 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D22B9527E372F779FFB7BC8 /* PBXTargetDependency */,
+			);
+			name = ColoringBookTests;
+			packageProductDependencies = (
+			);
+			productName = ColoringBookTests;
+			productReference = B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0E774E9AC52FD4D92963AD11 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					44585A629CEF897E57BE1EF7 = {
+						TestTargetID = 57074FB90CCBD75AC0DC6DEF;
+					};
+					57074FB90CCBD75AC0DC6DEF = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = BE041CF8F15A8CF56755BB2A /* Build configuration list for PBXProject "ColoringBook" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = Swift;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				Swift,
+			);
+			mainGroup = C969AF8ED99F9F05FDF904B6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				57074FB90CCBD75AC0DC6DEF /* ColoringBook */,
+				CA8A111D4807EF28BEB40865 /* ColoringBookTests */,
+				44585A629CEF897E57BE1EF7 /* ColoringBookUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		366C87E76FFCAE6601682929 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		957DF7F8450368FFD2E176A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */,
+				ED022BECE03C7917723AA2C1 /* AlbumsViewModel.swift in Sources */,
+				2AF310B132BE958FFE58B939 /* AuthView.swift in Sources */,
+				C506A915D402719C92648DFD /* Color+Hex.swift in Sources */,
+				12495C46E5578B84584298AB /* ColoringBookApp.swift in Sources */,
+				4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */,
+				B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */,
+				4966800B8387ED163273AB7E /* ContentView.swift in Sources */,
+				2E899558A49C154065C76410 /* DashboardView.swift in Sources */,
+				5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */,
+				379E4BC59A796AAC44A3074B /* FirebaseService.swift in Sources */,
+				5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */,
+				2A1D5BEBB8425422DC16B878 /* ImageUploadViewModel.swift in Sources */,
+				4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */,
+				C915D872328D45B2AB9DE303 /* KidModeViewModel.swift in Sources */,
+				E01D5E30B3EBA0419797248E /* MainTabView.swift in Sources */,
+				28D1DB469C6A9A90D95F9AB4 /* Models.swift in Sources */,
+				D7A0F4FB36CE303048A7C332 /* NetworkMonitor.swift in Sources */,
+				C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */,
+				D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */,
+				0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */,
+				54EE2AF4F3B96717F4850500 /* WelcomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FCE5FCEEB657827C79C4FA7D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		34ED6C146CA4BE7E446B507C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 57074FB90CCBD75AC0DC6DEF /* ColoringBook */;
+			targetProxy = 57921C5DF63422E3CF5C9A5B /* PBXContainerItemProxy */;
+		};
+		3D22B9527E372F779FFB7BC8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 57074FB90CCBD75AC0DC6DEF /* ColoringBook */;
+			targetProxy = 9291D8F56684E8E5029ED221 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		18572705C0B128312E96AB4F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.coloringbook.ColoringBookUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ColoringBook;
+			};
+			name = Release;
+		};
+		238FE52F4C937E1035B09FD3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.coloringbook.ColoringBookTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ColoringBook.app/ColoringBook";
+			};
+			name = Release;
+		};
+		26D23B783A32AAD6DC62826C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.coloringbook.ColoringBookTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ColoringBook.app/ColoringBook";
+			};
+			name = Debug;
+		};
+		32664840F694DEEE32B8897E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5;
+			};
+			name = Debug;
+		};
+		6131930AFE41B93F53136098 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ColoringBook/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.coloringbook.app;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7252A914A336ABF63C8563AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ColoringBook/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.coloringbook.app;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8EDD08DA032A4471C80CC962 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5;
+			};
+			name = Release;
+		};
+		8F3B32B11D1513DC1D655AB9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.coloringbook.ColoringBookUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ColoringBook;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3D0BDBF7CBD37062C97E2DD4 /* Build configuration list for PBXNativeTarget "ColoringBookTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26D23B783A32AAD6DC62826C /* Debug */,
+				238FE52F4C937E1035B09FD3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7D63694CA571B9AFA11626A8 /* Build configuration list for PBXNativeTarget "ColoringBookUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F3B32B11D1513DC1D655AB9 /* Debug */,
+				18572705C0B128312E96AB4F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A1B42E3673E66254D097410A /* Build configuration list for PBXNativeTarget "ColoringBook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7252A914A336ABF63C8563AF /* Debug */,
+				6131930AFE41B93F53136098 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BE041CF8F15A8CF56755BB2A /* Build configuration list for PBXProject "ColoringBook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32664840F694DEEE32B8897E /* Debug */,
+				8EDD08DA032A4471C80CC962 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		002E9ADFF822FC8CD99C9C44 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		2134B875633878CB21CB33C5 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		957961801C90CAC4B2732500 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		A39755EA5C396CFE133D8FBC /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B7A870E3FF1EA83BA879C217 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 0E774E9AC52FD4D92963AD11 /* Project object */;
+}

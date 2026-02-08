@@ -97,7 +97,7 @@ struct ImageUploadView: View {
             .sheet(isPresented: $showCamera) {
                 ImagePicker(image: $viewModel.selectedImage, sourceType: .camera)
             }
-            .onChange(of: viewModel.selectedImage) { _, newImage in
+            .onChange(of: viewModel.selectedImage) { newImage in
                 if newImage != nil {
                     Task {
                         await viewModel.uploadAndProcess()

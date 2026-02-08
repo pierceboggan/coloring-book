@@ -26,8 +26,8 @@ class OpenAIService {
         targetAge: Int = 6,
         detailLevel: String = "moderate"
     ) async throws -> Data {
-        // Convert image to base64
-        let base64Image = imageData.base64EncodedString()
+        // Convert image to base64 (for future use with vision API)
+        _ = imageData.base64EncodedString()
 
         // Build the prompt
         let prompt = customPrompt ?? buildDefaultPrompt(targetAge: targetAge, detailLevel: detailLevel)

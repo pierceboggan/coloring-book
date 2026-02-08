@@ -36,7 +36,7 @@ class OfflinePersistenceService {
     private func setupCoreData() {
         // Configure for offline support
         context.automaticallyMergesChangesFromParent = true
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
     }
 
     // MARK: - Save Context

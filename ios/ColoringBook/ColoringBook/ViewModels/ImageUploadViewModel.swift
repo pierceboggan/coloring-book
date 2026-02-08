@@ -62,6 +62,7 @@ class ImageUploadViewModel: ObservableObject {
                 coloringPageData,
                 fileName: "coloring-\(fileName)"
             )
+            _ = coloringPageUrl
 
             // Update image record
             try await FirebaseService.shared.updateImageStatus(imageId: imageId, status: .completed)
