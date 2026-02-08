@@ -19,6 +19,12 @@ class ImageUploadViewModel: ObservableObject {
     @discardableResult
     func uploadAndProcess() async -> Bool {
         guard let image = selectedImage else { return false }
+        guard let userId = SupabaseService.shared.currentUserId,
+              let accessToken = SupabaseService.shared.currentAccessToken,
+              !accessToken.isEmpty else {
+            errorMessage = UploadError.authenticationRequired.localizedDescription
+            return false
+        }
 
         isProcessing = true
         errorMessage = nil
@@ -31,7 +37,6 @@ class ImageUploadViewModel: ObservableObject {
                 throw UploadError.compressionFailed
             }
 
-            let userId = SupabaseService.shared.currentUserId ?? "anonymous"
             let fileName = "photo-\(Date().timeIntervalSince1970).jpg"
 
             // Upload to Supabase Storage
@@ -56,7 +61,8 @@ class ImageUploadViewModel: ObservableObject {
             uploadProgress = 0.75
             _ = try await WebAPIService.shared.generateColoringPage(
                 imageId: imageId,
-                imageUrl: originalUrl
+                imageUrl: originalUrl,
+                accessToken: accessToken
             )
 
             processingStatus = "Complete!"
@@ -83,6 +89,7 @@ enum UploadError: LocalizedError {
     case compressionFailed
     case uploadFailed
     case processingFailed
+    case authenticationRequired
 
     var errorDescription: String? {
         switch self {
@@ -92,6 +99,8 @@ enum UploadError: LocalizedError {
             return "Failed to upload image"
         case .processingFailed:
             return "Failed to process image"
+        case .authenticationRequired:
+            return "Please sign in before creating coloring pages"
         }
     }
 }

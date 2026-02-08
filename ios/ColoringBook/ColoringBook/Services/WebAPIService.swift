@@ -29,6 +29,7 @@ class WebAPIService {
     func generateColoringPage(
         imageId: String,
         imageUrl: String,
+        accessToken: String,
         age: Int? = nil,
         provider: String? = nil
     ) async throws -> String {
@@ -45,6 +46,7 @@ class WebAPIService {
         request.httpMethod = "POST"
         request.timeoutInterval = 180
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.httpBody = try JSONEncoder().encode(payload)
 
         let (data, response) = try await session.data(for: request)

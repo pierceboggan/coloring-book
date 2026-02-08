@@ -19,6 +19,7 @@ final class ColoringBookUITests: XCTestCase {
 
     func testWelcomeScreenAppears() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["--uitest-unauthenticated"]
         app.launch()
 
         // Verify welcome screen elements
@@ -27,8 +28,38 @@ final class ColoringBookUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Sign In"].exists)
     }
 
+    func testAuthBootstrapLoadingScreenAppears() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-auth-loading"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Loading your coloring studio..."].exists)
+    }
+
+    func testAuthenticatedLaunchShowsMainTabs() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-authenticated"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.buttons["Gallery"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["Create"].exists)
+        XCTAssertTrue(app.tabBars.buttons["Albums"].exists)
+        XCTAssertTrue(app.tabBars.buttons["Settings"].exists)
+    }
+
+    func testCreateTabNavigationWhenAuthenticated() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-authenticated"]
+        app.launch()
+
+        app.tabBars.buttons["Create"].tap()
+
+        XCTAssertTrue(app.staticTexts["Upload Your Photo"].waitForExistence(timeout: 5))
+    }
+
     func testNavigationToSignIn() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["--uitest-unauthenticated"]
         app.launch()
 
         // Tap sign in button

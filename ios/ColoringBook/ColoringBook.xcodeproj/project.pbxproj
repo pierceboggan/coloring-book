@@ -21,6 +21,7 @@
 		5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */; };
 		5F1118D3DCBFDCA0508E187E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7DE3E4FD617A1FC92C021E61 /* Supabase */; };
 		5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */; };
+		61E603888004BC54EB989E70 /* ColoringImageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */; };
 		661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */; };
 		6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */; };
 		AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */; };
@@ -76,6 +77,7 @@
 		AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAPIService.swift; sourceTree = "<group>"; };
+		BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringImageDetailView.swift; sourceTree = "<group>"; };
 		C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotifications.swift; sourceTree = "<group>"; };
 		CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadView.swift; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 				5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */,
 				26B9529DDD64E29EFE76F803 /* AuthView.swift */,
 				F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */,
+				BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */,
 				EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */,
 				CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */,
 				935A1C40FA4E384D1A8042C8 /* KidModeView.swift */,
@@ -327,6 +330,7 @@
 				12495C46E5578B84584298AB /* ColoringBookApp.swift in Sources */,
 				4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */,
 				B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */,
+				61E603888004BC54EB989E70 /* ColoringImageDetailView.swift in Sources */,
 				4966800B8387ED163273AB7E /* ContentView.swift in Sources */,
 				2E899558A49C154065C76410 /* DashboardView.swift in Sources */,
 				5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */,
@@ -374,6 +378,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -390,6 +395,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -406,6 +412,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -589,6 +596,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

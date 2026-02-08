@@ -15,6 +15,8 @@ class SupabaseService: ObservableObject {
 
     @Published var currentUser: User?
     @Published var isAuthenticated = false
+    @Published var isInitialSessionResolved = false
+    @Published private(set) var currentAccessToken: String?
 
     /// The current user's ID as a lowercase string, matching Supabase's format
     var currentUserId: String? {
@@ -51,21 +53,28 @@ class SupabaseService: ObservableObject {
             case .signedIn, .tokenRefreshed:
                 if let session = session {
                     self.currentUser = session.user
+                    self.currentAccessToken = session.accessToken
                     self.isAuthenticated = true
                     print("✅ Auth state: signed in (\(session.user.email ?? "no email"))")
                 }
             case .signedOut:
                 self.currentUser = nil
+                self.currentAccessToken = nil
                 self.isAuthenticated = false
                 print("✅ Auth state: signed out")
             case .initialSession:
                 if let session = session {
                     self.currentUser = session.user
+                    self.currentAccessToken = session.accessToken
                     self.isAuthenticated = true
                     print("✅ Auth state: initial session (\(session.user.email ?? "no email"))")
                 } else {
+                    self.currentUser = nil
+                    self.currentAccessToken = nil
+                    self.isAuthenticated = false
                     print("ℹ️ No existing session")
                 }
+                self.isInitialSessionResolved = true
             default:
                 break
             }
@@ -75,7 +84,9 @@ class SupabaseService: ObservableObject {
     func signIn(email: String, password: String) async throws {
         let session = try await client.auth.signIn(email: email, password: password)
         currentUser = session.user
+        currentAccessToken = session.accessToken
         isAuthenticated = true
+        isInitialSessionResolved = true
         print("✅ Signed in: \(email)")
     }
 
@@ -83,7 +94,9 @@ class SupabaseService: ObservableObject {
         let result = try await client.auth.signUp(email: email, password: password)
         if let session = result.session {
             currentUser = session.user
+            currentAccessToken = session.accessToken
             isAuthenticated = true
+            isInitialSessionResolved = true
         }
         print("✅ Signed up: \(email)")
     }
@@ -91,7 +104,9 @@ class SupabaseService: ObservableObject {
     func signOut() async throws {
         try await client.auth.signOut()
         currentUser = nil
+        currentAccessToken = nil
         isAuthenticated = false
+        isInitialSessionResolved = true
         print("✅ Signed out")
     }
 
@@ -164,12 +179,52 @@ class SupabaseService: ObservableObject {
         print("✅ Image status updated to \(status.rawValue)")
     }
 
+    func deleteImage(_ image: ColoringImage) async throws {
+        guard let imageId = image.id else {
+            throw SupabaseServiceError.invalidImageRecord
+        }
+
+        let storagePaths = Set(
+            [image.originalUrl, image.coloringPageUrl]
+                .compactMap { extractStoragePath(fromPublicURL: $0) }
+                + (image.variantUrls ?? []).compactMap { extractStoragePath(fromPublicURL: $0) }
+        )
+
+        if !storagePaths.isEmpty {
+            _ = try await client.storage
+                .from("images")
+                .remove(paths: Array(storagePaths))
+        }
+
+        try await deleteImage(imageId: imageId)
+    }
+
     func deleteImage(imageId: String) async throws {
         try await client.from("images")
             .delete()
             .eq("id", value: imageId)
             .execute()
         print("✅ Image deleted: \(imageId)")
+    }
+
+    private func extractStoragePath(fromPublicURL urlString: String?) -> String? {
+        guard let urlString,
+              let url = URL(string: urlString) else {
+            return nil
+        }
+
+        let pathSegments = url.path.split(separator: "/").map(String.init)
+        guard let publicIndex = pathSegments.firstIndex(of: "public") else {
+            return nil
+        }
+
+        let objectStartIndex = publicIndex + 2
+        guard objectStartIndex < pathSegments.count else {
+            return nil
+        }
+
+        let objectPath = pathSegments[objectStartIndex...].joined(separator: "/")
+        return objectPath.isEmpty ? nil : objectPath
     }
 
     // MARK: - Family Albums
@@ -269,6 +324,7 @@ class SupabaseService: ObservableObject {
 enum SupabaseServiceError: LocalizedError {
     case insertFailed
     case notAuthenticated
+    case invalidImageRecord
 
     var errorDescription: String? {
         switch self {
@@ -276,6 +332,8 @@ enum SupabaseServiceError: LocalizedError {
             return "Failed to insert record"
         case .notAuthenticated:
             return "User is not authenticated"
+        case .invalidImageRecord:
+            return "Image record is missing an ID"
         }
     }
 }

@@ -53,8 +53,30 @@ final class ColoringBookTests: XCTestCase {
     // MARK: - AppState Tests
 
     @MainActor
+    func testAppStateStartsUnresolvedWhenObserversDisabled() throws {
+        let appState = AppState(enableServiceObservers: false, enableNetworkMonitoring: false)
+
+        XCTAssertFalse(appState.isAuthResolved)
+        XCTAssertFalse(appState.isAuthenticated)
+    }
+
+    @MainActor
+    func testAppStateAuthBootstrapTransition() throws {
+        let appState = AppState(enableServiceObservers: false, enableNetworkMonitoring: false)
+
+        XCTAssertFalse(appState.isAuthResolved)
+        XCTAssertFalse(appState.isAuthenticated)
+
+        appState.isAuthenticated = true
+        appState.isAuthResolved = true
+
+        XCTAssertTrue(appState.isAuthResolved)
+        XCTAssertTrue(appState.isAuthenticated)
+    }
+
+    @MainActor
     func testAppStateKidModeToggle() throws {
-        let appState = AppState()
+        let appState = AppState(enableServiceObservers: false, enableNetworkMonitoring: false)
 
         XCTAssertFalse(appState.isKidModeActive)
 
@@ -68,7 +90,7 @@ final class ColoringBookTests: XCTestCase {
 
     @MainActor
     func testAppStateInvalidKidModeCode() throws {
-        let appState = AppState()
+        let appState = AppState(enableServiceObservers: false, enableNetworkMonitoring: false)
         appState.enableKidMode()
 
         let success = appState.disableKidMode(withCode: "wrong")
