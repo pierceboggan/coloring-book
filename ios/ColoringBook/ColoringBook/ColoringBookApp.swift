@@ -28,6 +28,19 @@ class AppState: ObservableObject {
     @Published var isKidModeActive = false
     @Published var isOffline = false
 
+    private static let parentCodeKey = "kidmode_parent_code"
+    private static let defaultParentCode = "1234"
+
+    /// The current parent code, stored in UserDefaults
+    var parentCode: String {
+        get {
+            UserDefaults.standard.string(forKey: Self.parentCodeKey) ?? Self.defaultParentCode
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Self.parentCodeKey)
+        }
+    }
+
     init() {
         checkAuthStatus()
         setupNetworkMonitoring()
@@ -52,9 +65,7 @@ class AppState: ObservableObject {
     }
 
     func disableKidMode(withCode code: String) -> Bool {
-        // Verify parent code
-        // For now, use a simple check
-        if code == "1234" {
+        if code == parentCode {
             isKidModeActive = false
             return true
         }

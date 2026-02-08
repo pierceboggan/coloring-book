@@ -58,6 +58,20 @@ struct DashboardView: View {
                                         selectedImage = image
                                         showColoringCanvas = true
                                     }
+
+                                    // Show variant cards inline
+                                    if let variants = image.variantUrls, !variants.isEmpty {
+                                        ForEach(Array(variants.enumerated()), id: \.offset) { index, variantUrl in
+                                            VariantCard(
+                                                variantUrl: variantUrl,
+                                                parentName: image.name,
+                                                variantIndex: index + 1
+                                            ) {
+                                                selectedImage = image
+                                                showColoringCanvas = true
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -119,6 +133,17 @@ struct ImageCard: View {
 
                     HStack {
                         StatusBadge(status: image.status)
+
+                        if image.variantCount > 0 {
+                            Text("+\(image.variantCount)")
+                                .font(.caption2.bold())
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color(hex: "A0E7E5"))
+                                .clipShape(Capsule())
+                        }
+
                         Spacer()
                         Image(systemName: "paintbrush.fill")
                             .font(.caption)
@@ -178,6 +203,68 @@ struct StatusBadge: View {
             return "Ready"
         case .error:
             return "Error"
+        }
+    }
+}
+
+struct VariantCard: View {
+    let variantUrl: String
+    let parentName: String
+    let variantIndex: Int
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 0) {
+                AsyncImage(url: URL(string: variantUrl)) { phase in
+                    switch phase {
+                    case .success(let img):
+                        img
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        Image(systemName: "photo")
+                            .font(.largeTitle)
+                            .foregroundColor(Color(hex: "A0E7E5"))
+                    case .empty:
+                        ProgressView()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(height: 180)
+                .clipped()
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("\(parentName)")
+                        .font(.subheadline.bold())
+                        .foregroundColor(Color(hex: "3A2E39"))
+                        .lineLimit(1)
+
+                    HStack {
+                        Text("Variant \(variantIndex)")
+                            .font(.caption2)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color(hex: "B4A0E5"))
+                            .clipShape(Capsule())
+
+                        Spacer()
+                        Image(systemName: "paintbrush.fill")
+                            .font(.caption)
+                            .foregroundColor(Color(hex: "FF6F91"))
+                    }
+                }
+                .padding(12)
+                .background(Color.white.opacity(0.95))
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(hex: "B4A0E5"), lineWidth: 3)
+            )
+            .shadow(color: Color(hex: "B4A0E5").opacity(0.3), radius: 5, x: 3, y: 3)
         }
     }
 }

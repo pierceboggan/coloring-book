@@ -111,46 +111,100 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showKidModeSettings) {
                 KidModeSettingsView()
+                    .environmentObject(appState)
             }
         }
     }
 }
 
 struct KidModeSettingsView: View {
+    @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
-    @State private var parentCode = ""
+    @State private var newCode = ""
+    @State private var confirmCode = ""
+    @State private var errorMessage: String?
+    @State private var showSuccess = false
 
     var body: some View {
         NavigationView {
             Form {
                 Section {
-                    SecureField("Enter new code", text: $parentCode)
-                        .keyboardType(.numberPad)
-
-                    Text("This code will be required to exit Kid Mode")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("Current Code")
+                        Spacer()
+                        Text(appState.parentCode)
+                            .foregroundColor(.secondary)
+                            .font(.system(.body, design: .monospaced))
+                    }
                 } header: {
-                    Text("Parent Code")
+                    Text("Current Parent Code")
+                } footer: {
+                    Text("This is the code needed to exit Kid Mode.")
                 }
 
                 Section {
-                    Button("Save Settings") {
-                        // Save parent code
-                        dismiss()
+                    SecureField("New code (4+ digits)", text: $newCode)
+                        .keyboardType(.numberPad)
+
+                    SecureField("Confirm new code", text: $confirmCode)
+                        .keyboardType(.numberPad)
+
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+
+                    if showSuccess {
+                        Label("Code updated!", systemImage: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                    }
+                } header: {
+                    Text("Change Parent Code")
+                }
+
+                Section {
+                    Button("Save New Code") {
+                        saveCode()
                     }
                     .frame(maxWidth: .infinity)
+                    .disabled(newCode.isEmpty || confirmCode.isEmpty)
                 }
             }
             .navigationTitle("Kid Mode Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button("Done") {
                         dismiss()
                     }
                 }
             }
+        }
+    }
+
+    private func saveCode() {
+        errorMessage = nil
+        showSuccess = false
+
+        guard newCode.count >= 4 else {
+            errorMessage = "Code must be at least 4 characters"
+            return
+        }
+        guard newCode == confirmCode else {
+            errorMessage = "Codes don't match"
+            return
+        }
+
+        appState.parentCode = newCode
+        showSuccess = true
+        newCode = ""
+        confirmCode = ""
+
+        // Auto-dismiss after brief delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            dismiss()
         }
     }
 }

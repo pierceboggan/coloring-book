@@ -26,6 +26,10 @@ struct ColoringImage: Identifiable, Codable, Equatable {
     var createdAt: String?
     var updatedAt: String?
     var errorMessage: String?
+    var variantUrls: [String]?
+    var variantPrompts: [String]?
+    var isFavorite: Bool?
+    var archivedAt: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -37,6 +41,27 @@ struct ColoringImage: Identifiable, Codable, Equatable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case errorMessage = "error_message"
+        case variantUrls = "variant_urls"
+        case variantPrompts = "variant_prompts"
+        case isFavorite = "is_favorite"
+        case archivedAt = "archived_at"
+    }
+
+    /// All displayable image URLs: main coloring page + variants
+    var allImageUrls: [String] {
+        var urls: [String] = []
+        if let main = coloringPageUrl {
+            urls.append(main)
+        }
+        if let variants = variantUrls {
+            urls.append(contentsOf: variants)
+        }
+        return urls
+    }
+
+    /// Number of variants (not counting the main coloring page)
+    var variantCount: Int {
+        variantUrls?.count ?? 0
     }
 
     init(
@@ -48,7 +73,11 @@ struct ColoringImage: Identifiable, Codable, Equatable {
         status: ImageStatus = .uploading,
         createdAt: String? = nil,
         updatedAt: String? = nil,
-        errorMessage: String? = nil
+        errorMessage: String? = nil,
+        variantUrls: [String]? = nil,
+        variantPrompts: [String]? = nil,
+        isFavorite: Bool? = nil,
+        archivedAt: String? = nil
     ) {
         self.id = id
         self.userId = userId
@@ -59,6 +88,10 @@ struct ColoringImage: Identifiable, Codable, Equatable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.errorMessage = errorMessage
+        self.variantUrls = variantUrls
+        self.variantPrompts = variantPrompts
+        self.isFavorite = isFavorite
+        self.archivedAt = archivedAt
     }
 }
 
