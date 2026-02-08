@@ -20,8 +20,10 @@ class ARGalleryViewModel: NSObject, ObservableObject {
     private let image: ColoringImage
     private var arView: ARSCNView?
     private var currentImageNode: SCNNode?
-    private var currentScale: Float = 0.3 // Default size (30cm)
+    private var currentScale: Float = 0.3 // Default size (0.3 meters = 30cm)
     private var imageTexture: UIImage?
+    private let sizeIncreaseFactor: Float = 1.2
+    private let sizeDecreaseFactor: Float = 0.8
     
     // MARK: - Initialization
     init(image: ColoringImage) {
@@ -212,7 +214,7 @@ class ARGalleryViewModel: NSObject, ObservableObject {
             showMessage("Place an image first")
             return
         }
-        currentScale *= 1.2
+        currentScale *= sizeIncreaseFactor
         updateImageSize()
         showMessage("Size increased")
     }
@@ -222,7 +224,7 @@ class ARGalleryViewModel: NSObject, ObservableObject {
             showMessage("Place an image first")
             return
         }
-        currentScale *= 0.8
+        currentScale *= sizeDecreaseFactor
         updateImageSize()
         showMessage("Size decreased")
     }
@@ -244,16 +246,32 @@ class ARGalleryViewModel: NSObject, ObservableObject {
         
         let image = arView.snapshot()
         
-        // Save to photo library
-        PHPhotoLibrary.requestAuthorization { status in
-            if status == .authorized {
-                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                Task { @MainActor in
-                    self.showMessage("Screenshot saved to Photos!", duration: 2.0)
+        // Save to photo library with modern API (iOS 14+)
+        if #available(iOS 14, *) {
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                if status == .authorized {
+                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                    Task { @MainActor in
+                        self.showMessage("Screenshot saved to Photos!", duration: 2.0)
+                    }
+                } else {
+                    Task { @MainActor in
+                        self.showMessage("Photo library access denied")
+                    }
                 }
-            } else {
-                Task { @MainActor in
-                    self.showMessage("Photo library access denied")
+            }
+        } else {
+            // Fallback for iOS 13
+            PHPhotoLibrary.requestAuthorization { status in
+                if status == .authorized {
+                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                    Task { @MainActor in
+                        self.showMessage("Screenshot saved to Photos!", duration: 2.0)
+                    }
+                } else {
+                    Task { @MainActor in
+                        self.showMessage("Photo library access denied")
+                    }
                 }
             }
         }
