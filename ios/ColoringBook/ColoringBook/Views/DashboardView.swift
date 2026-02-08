@@ -8,10 +8,19 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = DashboardViewModel()
     @State private var selectedDetailItem: GalleryDisplayItem?
     @State private var canvasSelection: CanvasSelection?
     @State private var pendingDeleteImage: ColoringImage?
+    @State private var galleryMode: GalleryMode = .color
+
+    enum GalleryMode: String, CaseIterable, Identifiable {
+        case color
+        case manage
+
+        var id: String { rawValue }
+    }
 
     /// Total count including variants
     private var totalPageCount: Int {
@@ -88,17 +97,39 @@ struct DashboardView: View {
                     VStack(spacing: 20) {
                         // Header
                         VStack(alignment: .leading, spacing: 10) {
-                            HStack(spacing: 8) {
-                                Text("Your Gallery")
-                                    .font(.largeTitle.bold())
-                                    .foregroundColor(Color(hex: "3A2E39"))
-                                Text("🎨")
-                                    .font(.title)
+                            HStack {
+                                HStack(spacing: 8) {
+                                    Text("Your Gallery")
+                                        .font(.largeTitle.bold())
+                                        .foregroundColor(Color(hex: "3A2E39"))
+                                    Text("🎨")
+                                        .font(.title)
+                                }
+
+                                Spacer()
+
+                                Button {
+                                    appState.enableKidMode()
+                                } label: {
+                                    Label("Kid Mode", systemImage: "sparkles")
+                                        .font(.caption.bold())
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(Color(hex: "FF6F91"))
+                                        .foregroundColor(.white)
+                                        .clipShape(Capsule())
+                                }
                             }
 
                             Text("\(totalPageCount) pages ready for fun!")
                                 .font(.subheadline.bold())
                                 .foregroundColor(Color(hex: "594144"))
+
+                            Picker("Gallery Mode", selection: $galleryMode) {
+                                Text("Color").tag(GalleryMode.color)
+                                Text("Manage").tag(GalleryMode.manage)
+                            }
+                            .pickerStyle(.segmented)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
@@ -112,16 +143,22 @@ struct DashboardView: View {
                         } else {
                             LazyVGrid(
                                 columns: [
-                                    GridItem(.flexible(), spacing: 16),
-                                    GridItem(.flexible(), spacing: 16)
+                                    GridItem(.flexible(), spacing: 20),
+                                    GridItem(.flexible(), spacing: 20)
                                 ],
-                                spacing: 16
+                                spacing: 22
                             ) {
                                 ForEach(galleryItems) { item in
                                     SwipeableGalleryCard(
                                         imageUrl: item.displayURL,
-                                        variantBadge: item.isVariant,
-                                        onTap: { openDetail(item) },
+                                        isDeleteEnabled: galleryMode == .manage,
+                                        onTap: {
+                                            if galleryMode == .color {
+                                                startColoring(with: item.canvasImage)
+                                            } else {
+                                                openDetail(item)
+                                            }
+                                        },
                                         onDelete: { requestDelete(item.parentImage) }
                                     )
                                 }
@@ -129,7 +166,7 @@ struct DashboardView: View {
                             .padding(.horizontal)
                         }
 
-                        Spacer(minLength: 40)
+                        Spacer(minLength: 120)
                     }
                 }
             }
@@ -151,9 +188,6 @@ struct DashboardView: View {
             ColoringImageDetailView(
                 image: item.parentImage,
                 displayURL: item.displayURL,
-                onColor: { image in
-                    startColoring(with: image)
-                },
                 onDelete: { image in
                     requestDelete(image)
                 }
@@ -187,6 +221,12 @@ private struct GalleryDisplayItem: Identifiable {
     let parentImage: ColoringImage
     let displayURL: String
     let isVariant: Bool
+
+    var canvasImage: ColoringImage {
+        var copy = parentImage
+        copy.coloringPageUrl = displayURL
+        return copy
+    }
 }
 
 private struct CanvasSelection: Identifiable {
@@ -198,66 +238,100 @@ private struct CanvasSelection: Identifiable {
 
 private struct SwipeableGalleryCard: View {
     let imageUrl: String
-    let variantBadge: Bool
+    let isDeleteEnabled: Bool
     let onTap: () -> Void
     let onDelete: () -> Void
 
     @State private var horizontalOffset: CGFloat = 0
+    @State private var hasResolvedDirection = false
+    @State private var isHorizontalDrag = false
     private let revealWidth: CGFloat = 92
 
     var body: some View {
         ZStack(alignment: .trailing) {
-            Button(role: .destructive) {
-                horizontalOffset = 0
-                onDelete()
-            } label: {
-                VStack(spacing: 6) {
-                    Image(systemName: "trash")
-                        .font(.title3.weight(.semibold))
-                    Text("Delete")
-                        .font(.caption2.bold())
-                }
-                .foregroundColor(.white)
-                .frame(width: revealWidth)
-                .frame(maxHeight: .infinity)
-                .background(
-                    LinearGradient(
-                        colors: [Color(hex: "FF6B6B"), Color(hex: "FF3D71")],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-
-            GalleryCard(
-                imageUrl: imageUrl,
-                variantBadge: variantBadge
-            )
-            .offset(x: horizontalOffset)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                if horizontalOffset != 0 {
+            if isDeleteEnabled {
+                Button(role: .destructive) {
                     horizontalOffset = 0
-                } else {
-                    onTap()
+                    onDelete()
+                } label: {
+                    VStack(spacing: 6) {
+                        Image(systemName: "trash")
+                            .font(.title3.weight(.semibold))
+                        Text("Delete")
+                            .font(.caption2.bold())
+                    }
+                    .foregroundColor(.white)
+                    .frame(width: revealWidth)
+                    .frame(maxHeight: .infinity)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(hex: "FF6B6B"), Color(hex: "FF3D71")],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 20))
             }
-            .gesture(
-                DragGesture(minimumDistance: 15)
-                    .onChanged { value in
-                        if value.translation.width < 0 {
-                            horizontalOffset = max(-revealWidth, value.translation.width)
-                        } else if value.translation.width > 0 {
-                            horizontalOffset = min(0, -revealWidth + value.translation.width)
+
+            GalleryCard(imageUrl: imageUrl)
+                .offset(x: horizontalOffset)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if horizontalOffset != 0 {
+                        horizontalOffset = 0
+                    } else {
+                        onTap()
+                    }
+                }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 12)
+                        .onChanged { value in
+                            guard isDeleteEnabled else { return }
+
+                            let dx = value.translation.width
+                            let dy = value.translation.height
+
+                            if !hasResolvedDirection {
+                                if abs(dx) < 8, abs(dy) < 8 {
+                                    return
+                                }
+
+                                hasResolvedDirection = true
+                                isHorizontalDrag = abs(dx) > abs(dy) * 1.15
+                            }
+
+                            guard isHorizontalDrag else {
+                                return
+                            }
+
+                            if dx < 0 {
+                                horizontalOffset = max(-revealWidth, dx)
+                            } else if dx > 0 {
+                                horizontalOffset = min(0, -revealWidth + dx)
+                            }
                         }
+                        .onEnded { value in
+                            defer {
+                                hasResolvedDirection = false
+                                isHorizontalDrag = false
+                            }
+
+                            guard isDeleteEnabled, isHorizontalDrag else {
+                                return
+                            }
+
+                            let projectedWidth = value.predictedEndTranslation.width
+                            let shouldOpen = projectedWidth < -(revealWidth * 0.45)
+                            horizontalOffset = shouldOpen ? -revealWidth : 0
+                        }
+                )
+                .onChange(of: isDeleteEnabled) { enabled in
+                    if !enabled {
+                        horizontalOffset = 0
                     }
-                    .onEnded { value in
-                        let shouldOpen = value.translation.width < -(revealWidth / 2)
-                        horizontalOffset = shouldOpen ? -revealWidth : 0
-                    }
-            )
-            .animation(.spring(response: 0.25, dampingFraction: 0.85), value: horizontalOffset)
+                }
+                .animation(.spring(response: 0.25, dampingFraction: 0.85), value: horizontalOffset)
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -267,7 +341,6 @@ private struct SwipeableGalleryCard: View {
 
 struct GalleryCard: View {
     let imageUrl: String
-    let variantBadge: Bool
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -294,23 +367,9 @@ struct GalleryCard: View {
                     EmptyView()
                 }
             }
-            .frame(height: 220)
+            .frame(height: 204)
             .frame(maxWidth: .infinity)
             .clipped()
-
-            HStack(spacing: 6) {
-                Text("✨")
-                Text(variantBadge ? "Remix" : "Color Me")
-                    .font(.caption2.bold())
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(
-                Capsule()
-                    .fill(variantBadge ? Color(hex: "6C63FF") : Color(hex: "FF6F91"))
-            )
-            .foregroundColor(.white)
-            .padding(10)
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(

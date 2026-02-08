@@ -11,7 +11,6 @@ import UIKit
 struct ColoringImageDetailView: View {
     let image: ColoringImage
     let displayURL: String
-    let onColor: (ColoringImage) -> Void
     let onDelete: (ColoringImage) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -34,29 +33,7 @@ struct ColoringImageDetailView: View {
                     VStack(spacing: 20) {
                         imagePreview
 
-                        VStack(spacing: 12) {
-                            Button {
-                                dismiss()
-                                onColor(canvasImage)
-                            } label: {
-                                Label("Start Coloring!", systemImage: "paintpalette.fill")
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(PrimaryActionButtonStyle())
-
-                            actionGrid
-
-                            Button(role: .destructive) {
-                                showDeleteConfirmation = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                                    .font(.subheadline.weight(.semibold))
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(SecondaryActionButtonStyle(background: Color.red.opacity(0.14), foreground: .red, border: Color(hex: "FFB3BA")))
-                        }
-                        .padding(.horizontal)
+                        managementPanel
 
                         if let saveMessage {
                             Text(saveMessage)
@@ -76,7 +53,7 @@ struct ColoringImageDetailView: View {
                     .padding(.vertical)
                 }
             }
-            .navigationTitle("Art Playground ✨")
+            .navigationTitle("Manage Page")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -146,15 +123,17 @@ struct ColoringImageDetailView: View {
         .padding(.horizontal)
     }
 
-    private var actionGrid: some View {
-        HStack(spacing: 12) {
+    private var managementPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Management")
+                .font(.headline)
+                .foregroundColor(Color(hex: "3A2E39"))
+
             if let shareURL = URL(string: displayURL) {
                 ShareLink(item: shareURL) {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
+                    ManagementRow(icon: "square.and.arrow.up", title: "Share page", subtitle: "Send this page to family and friends")
                 }
-                .buttonStyle(SecondaryActionButtonStyle(background: Color.white.opacity(0.95), foreground: Color(hex: "3A2E39"), border: Color(hex: "FFD166")))
+                .buttonStyle(.plain)
             }
 
             Button {
@@ -163,23 +142,37 @@ struct ColoringImageDetailView: View {
                 }
             } label: {
                 if isSavingToPhotos {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
+                    HStack {
+                        ProgressView()
+                        Text("Saving to Photos...")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(Color(hex: "3A2E39"))
+                        Spacer()
+                    }
+                    .padding(14)
+                    .background(Color.white.opacity(0.95))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 } else {
-                    Label("Save", systemImage: "arrow.down.to.line")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
+                    ManagementRow(icon: "arrow.down.to.line", title: "Save to Photos", subtitle: "Download this coloring page to your library")
                 }
             }
-            .buttonStyle(SecondaryActionButtonStyle(background: Color.white.opacity(0.95), foreground: Color(hex: "3A2E39"), border: Color(hex: "A0E7E5")))
-            .disabled(isSavingToPhotos)
-        }
-    }
+            .buttonStyle(.plain)
 
-    private var canvasImage: ColoringImage {
-        var copy = image
-        copy.coloringPageUrl = displayURL
-        return copy
+            Button(role: .destructive) {
+                showDeleteConfirmation = true
+            } label: {
+                ManagementRow(icon: "trash", title: "Delete page", subtitle: "Remove this page and related variants", foreground: .red, border: Color(hex: "FFB3BA"))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(14)
+        .background(Color.white.opacity(0.75))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Color(hex: "FFD166"), lineWidth: 2)
+        )
+        .padding(.horizontal)
     }
 
     private func saveToPhotos() async {
@@ -206,38 +199,41 @@ struct ColoringImageDetailView: View {
     }
 }
 
-private struct PrimaryActionButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(.vertical, 14)
-            .background(Color(hex: "FF6F91"))
-            .foregroundColor(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color(hex: "FFB3BA"), lineWidth: 3)
-            )
-            .shadow(color: Color(hex: "FFB3BA").opacity(0.4), radius: 5, x: 3, y: 3)
-            .opacity(configuration.isPressed ? 0.9 : 1)
-    }
-}
-
-private struct SecondaryActionButtonStyle: ButtonStyle {
-    var background: Color = Color.white.opacity(0.95)
+private struct ManagementRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String
     var foreground: Color = Color(hex: "3A2E39")
-    var border: Color = Color(hex: "E0E0E0")
+    var border: Color = Color(hex: "A0E7E5")
 
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(.vertical, 12)
-            .padding(.horizontal, 10)
-            .background(background)
-            .foregroundColor(foreground)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(border, lineWidth: 2)
-            )
-            .opacity(configuration.isPressed ? 0.9 : 1)
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.headline)
+                .foregroundColor(foreground)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline.bold())
+                    .foregroundColor(foreground)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(foreground.opacity(0.75))
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption.bold())
+                .foregroundColor(foreground.opacity(0.65))
+        }
+        .padding(14)
+        .background(Color.white.opacity(0.95))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(border, lineWidth: 2)
+        )
     }
 }
