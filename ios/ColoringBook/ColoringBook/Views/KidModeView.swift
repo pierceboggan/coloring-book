@@ -14,6 +14,14 @@ struct KidModeView: View {
     @State private var unlockCode = ""
     @State private var unlockError = false
 
+    private func selectedIndex(for image: ColoringImage) -> Int {
+        guard let selectedId = image.id,
+              let index = viewModel.availableImages.firstIndex(where: { $0.id == selectedId }) else {
+            return 0
+        }
+        return index
+    }
+
     var body: some View {
         ZStack {
             // Soft pastel background
@@ -105,7 +113,11 @@ struct KidModeView: View {
             }
         }
         .fullScreenCover(item: $viewModel.selectedImage) { image in
-            ColoringCanvasView(image: image)
+            ColoringCanvasView(
+                image: image,
+                galleryImages: viewModel.availableImages,
+                initialIndex: selectedIndex(for: image)
+            )
         }
         .task {
             await viewModel.loadImages()
