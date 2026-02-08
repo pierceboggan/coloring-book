@@ -20,14 +20,14 @@ class DashboardViewModel: ObservableObject {
         isLoading = true
         error = nil
 
-        guard let userId = FirebaseService.shared.currentUser?.uid else {
+        guard let userId = SupabaseService.shared.currentUser?.uid else {
             isLoading = false
             return
         }
 
         do {
             // Start listening to real-time updates
-            listener = FirebaseService.shared.listenToImages(userId: userId) { [weak self] images in
+            listener = SupabaseService.shared.listenToImages(userId: userId) { [weak self] images in
                 self?.images = images
                 self?.isLoading = false
             }
@@ -38,7 +38,7 @@ class DashboardViewModel: ObservableObject {
         guard let imageId = image.id else { return }
 
         do {
-            try await FirebaseService.shared.deleteImage(imageId: imageId)
+            try await SupabaseService.shared.deleteImage(imageId: imageId)
             images.removeAll { $0.id == imageId }
         } catch {
             self.error = error.localizedDescription

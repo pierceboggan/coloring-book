@@ -88,7 +88,7 @@ class ColoringCanvasViewModel: ObservableObject {
 
         do {
             // Save to Firebase
-            _ = try await FirebaseService.shared.saveColoredArtwork(
+            _ = try await SupabaseService.shared.saveColoredArtwork(
                 imageId: imageId,
                 artworkData: imageData
             )

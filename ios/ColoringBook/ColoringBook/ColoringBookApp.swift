@@ -6,16 +6,10 @@
 //
 
 import SwiftUI
-import FirebaseCore
 
 @main
 struct ColoringBookApp: App {
     @StateObject private var appState = AppState()
-
-    init() {
-        // Configure Firebase
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
         WindowGroup {
@@ -39,12 +33,17 @@ class AppState: ObservableObject {
     }
 
     private func checkAuthStatus() {
-        // Check if user is already authenticated
-        // This will be implemented with Firebase Auth
+        // Check if user is already authenticated with Supabase
+        isAuthenticated = SupabaseService.shared.isAuthenticated
     }
 
     private func setupNetworkMonitoring() {
-        // Setup network reachability monitoring
+        // Monitor network status
+        Task {
+            for await isConnected in NetworkMonitor.shared.$isConnected.values {
+                self.isOffline = !isConnected
+            }
+        }
     }
 
     func enableKidMode() {

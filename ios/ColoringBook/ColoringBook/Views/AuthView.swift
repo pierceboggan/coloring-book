@@ -149,9 +149,9 @@ struct AuthView: View {
 
         do {
             if isSignUp {
-                try await FirebaseService.shared.signUp(email: email, password: password)
+                try await SupabaseService.shared.signUp(email: email, password: password)
             } else {
-                try await FirebaseService.shared.signIn(email: email, password: password)
+                try await SupabaseService.shared.signIn(email: email, password: password)
             }
 
             // Update app state
