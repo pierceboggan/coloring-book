@@ -79,8 +79,12 @@ struct DashboardView: View {
         selectedDetailItem = item
     }
 
-    private func startColoring(with image: ColoringImage) {
-        canvasSelection = CanvasSelection(image: image)
+    private func startColoring(from tappedItem: GalleryDisplayItem) {
+        let pages = galleryItems.map { $0.canvasImage }
+        guard !pages.isEmpty else { return }
+
+        let selectedIndex = galleryItems.firstIndex(where: { $0.id == tappedItem.id }) ?? 0
+        canvasSelection = CanvasSelection(images: pages, startIndex: selectedIndex)
     }
 
     var body: some View {
@@ -143,10 +147,10 @@ struct DashboardView: View {
                         } else {
                             LazyVGrid(
                                 columns: [
-                                    GridItem(.flexible(), spacing: 20),
-                                    GridItem(.flexible(), spacing: 20)
+                                    GridItem(.flexible(), spacing: 24),
+                                    GridItem(.flexible(), spacing: 24)
                                 ],
-                                spacing: 22
+                                spacing: 28
                             ) {
                                 ForEach(galleryItems) { item in
                                     SwipeableGalleryCard(
@@ -154,7 +158,7 @@ struct DashboardView: View {
                                         isDeleteEnabled: galleryMode == .manage,
                                         onTap: {
                                             if galleryMode == .color {
-                                                startColoring(with: item.canvasImage)
+                                                startColoring(from: item)
                                             } else {
                                                 openDetail(item)
                                             }
@@ -163,10 +167,10 @@ struct DashboardView: View {
                                     )
                                 }
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, 6)
                         }
 
-                        Spacer(minLength: 120)
+                        Spacer(minLength: 132)
                     }
                 }
             }
@@ -194,7 +198,11 @@ struct DashboardView: View {
             )
         }
         .fullScreenCover(item: $canvasSelection) { selection in
-            ColoringCanvasView(image: selection.image)
+            ColoringCanvasView(
+                image: selection.images[selection.startIndex],
+                galleryImages: selection.images,
+                initialIndex: selection.startIndex
+            )
         }
         .alert("Delete this image?", isPresented: Binding(
             get: { pendingDeleteImage != nil },
@@ -231,7 +239,8 @@ private struct GalleryDisplayItem: Identifiable {
 
 private struct CanvasSelection: Identifiable {
     let id = UUID()
-    let image: ColoringImage
+    let images: [ColoringImage]
+    let startIndex: Int
 }
 
 // MARK: - Swipeable Card
@@ -367,7 +376,7 @@ struct GalleryCard: View {
                     EmptyView()
                 }
             }
-            .frame(height: 204)
+            .frame(height: 196)
             .frame(maxWidth: .infinity)
             .clipped()
         }
@@ -383,7 +392,7 @@ struct GalleryCard: View {
                     lineWidth: 4
                 )
         )
-        .shadow(color: Color(hex: "FFB3BA").opacity(0.35), radius: 8, x: 4, y: 4)
+        .shadow(color: Color(hex: "FFB3BA").opacity(0.28), radius: 6, x: 3, y: 3)
     }
 }
 
