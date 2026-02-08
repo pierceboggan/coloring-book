@@ -31,13 +31,6 @@
 - Keep imports organized (React/Next core modules first, third-party packages next, followed by internal modules).
 - Document non-obvious behavior with inline comments or README updates when you introduce new flows.
 
-## Validation with Playwright
-
-- For ANY UI-related task, ALWAYS validate changes using Playwright MCP browser tools before considering the task complete.
-- Take screenshots to prove the implementation works as expected. If authentication is required, inject the saved auth state from `auth.json` by setting the Supabase cookie and localStorage token before navigating.
-- If the validation reveals issues, iterate on the fix until the screenshots confirm the user's requirements are fully met.
-- Do not mark a task as done until visual confirmation via Playwright demonstrates correct behavior.
-
 ## Workflow Expectations
 - Before opening a PR, verify linting and relevant tests locally. Include the exact commands you ran in the PR description.
 - Reference this file when reviewing contributions to ensure consistency with established practices.
