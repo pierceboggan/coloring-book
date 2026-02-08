@@ -68,7 +68,12 @@ export function RegenerateModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/50 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/50 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="regenerate-modal-title"
+    >
       <div className="relative w-full max-w-5xl">
         <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#A0E7E5]/40 blur-2xl" aria-hidden="true" />
         <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#FFB3BA] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#FF8A80]">
@@ -79,7 +84,7 @@ export function RegenerateModal({
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#FF6F91]">One-time makeover</p>
-                <h2 className="text-3xl font-extrabold text-[#3A2E39]">Regenerate coloring page</h2>
+                <h2 id="regenerate-modal-title" className="text-3xl font-extrabold text-[#3A2E39]">Regenerate coloring page</h2>
                 <p className="text-sm font-medium text-[#594144]">Tweak the vibe of <span className="font-semibold text-[#FF6F91]">&quot;{imageName}&quot;</span> and choose the version you love most.</p>
               </div>
             </div>
