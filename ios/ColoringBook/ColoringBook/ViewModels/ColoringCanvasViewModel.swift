@@ -106,4 +106,10 @@ class ColoringCanvasViewModel: ObservableObject {
             print("❌ Failed to save artwork: \(error.localizedDescription)")
         }
     }
+
+    func resetCanvasForNewPage() {
+        canvasView.drawing = PKDrawing()
+        drawingHistory = [PKDrawing()]
+        redoStack.removeAll()
+    }
 }

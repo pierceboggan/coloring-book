@@ -56,6 +56,7 @@ targets:
         NSPhotoLibraryAddUsageDescription: "We need permission to save your colored artwork to your photo library"
         SUPABASE_URL: "https://tzigphpwhwogecpxvuop.supabase.co"
         SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6aWdwaHB3aHdvZ2VjcHh2dW9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDkzNTAsImV4cCI6MjA2NzA4NTM1MH0.5WyUJGuo1FU0sCfLQJ-YS_B2gm3aGLVOVC1xyh86dOY"
+        WEB_API_BASE_URL: "https://coloringbook.ai"
 
   ColoringBookTests:
     type: bundle.unit-test
@@ -64,6 +65,8 @@ targets:
       - path: ColoringBookTests
     dependencies:
       - target: ColoringBook
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
 
   ColoringBookUITests:
     type: bundle.ui-testing
@@ -72,6 +75,8 @@ targets:
       - path: ColoringBookUITests
     dependencies:
       - target: ColoringBook
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
 
 schemes:
   ColoringBook:

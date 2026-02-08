@@ -13,6 +13,7 @@
 		2A1D5BEBB8425422DC16B878 /* ImageUploadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */; };
 		2AF310B132BE958FFE58B939 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B9529DDD64E29EFE76F803 /* AuthView.swift */; };
 		2E899558A49C154065C76410 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */; };
+		3D67D7C9B9C68F6DE6DABEED /* AppNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */; };
 		4966800B8387ED163273AB7E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893D38EE01009E98924FFD33 /* ContentView.swift */; };
 		4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935A1C40FA4E384D1A8042C8 /* KidModeView.swift */; };
 		4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */; };
@@ -20,6 +21,7 @@
 		5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */; };
 		5F1118D3DCBFDCA0508E187E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7DE3E4FD617A1FC92C021E61 /* Supabase */; };
 		5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */; };
+		61E603888004BC54EB989E70 /* ColoringImageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */; };
 		661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */; };
 		6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */; };
 		AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */; };
@@ -28,6 +30,7 @@
 		C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */; };
 		C506A915D402719C92648DFD /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */; };
 		C915D872328D45B2AB9DE303 /* KidModeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBD586FA14CD5F35C3056F /* KidModeViewModel.swift */; };
+		CB2F675C992D875D9A04F0D4 /* WebAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */; };
 		D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2385F3E3C455654AA892AD23 /* OpenAIService.swift */; };
 		D7A0F4FB36CE303048A7C332 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */; };
 		E01D5E30B3EBA0419797248E /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33CA13ED3683D17B125FA22 /* MainTabView.swift */; };
@@ -73,6 +76,9 @@
 		A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookTests.swift; sourceTree = "<group>"; };
 		AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAPIService.swift; sourceTree = "<group>"; };
+		BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringImageDetailView.swift; sourceTree = "<group>"; };
+		C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotifications.swift; sourceTree = "<group>"; };
 		CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadView.swift; sourceTree = "<group>"; };
 		E9B300F36E7A7E10794783C5 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
@@ -100,6 +106,7 @@
 				5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */,
 				26B9529DDD64E29EFE76F803 /* AuthView.swift */,
 				F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */,
+				BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */,
 				EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */,
 				CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */,
 				935A1C40FA4E384D1A8042C8 /* KidModeView.swift */,
@@ -133,6 +140,7 @@
 				2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */,
 				2385F3E3C455654AA892AD23 /* OpenAIService.swift */,
 				212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */,
+				B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -140,6 +148,7 @@
 		9F633968E7A02C11C8CBA7C6 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */,
 				CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */,
 			);
 			path = Utils;
@@ -315,11 +324,13 @@
 			files = (
 				B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */,
 				ED022BECE03C7917723AA2C1 /* AlbumsViewModel.swift in Sources */,
+				3D67D7C9B9C68F6DE6DABEED /* AppNotifications.swift in Sources */,
 				2AF310B132BE958FFE58B939 /* AuthView.swift in Sources */,
 				C506A915D402719C92648DFD /* Color+Hex.swift in Sources */,
 				12495C46E5578B84584298AB /* ColoringBookApp.swift in Sources */,
 				4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */,
 				B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */,
+				61E603888004BC54EB989E70 /* ColoringImageDetailView.swift in Sources */,
 				4966800B8387ED163273AB7E /* ContentView.swift in Sources */,
 				2E899558A49C154065C76410 /* DashboardView.swift in Sources */,
 				5FF48F515204ABB82CB26F4E /* DashboardViewModel.swift in Sources */,
@@ -334,6 +345,7 @@
 				D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */,
 				0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */,
 				6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */,
+				CB2F675C992D875D9A04F0D4 /* WebAPIService.swift in Sources */,
 				54EE2AF4F3B96717F4850500 /* WelcomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,6 +378,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -382,6 +395,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -398,6 +412,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -581,6 +596,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

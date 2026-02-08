@@ -11,8 +11,39 @@ import PencilKit
 
 struct ColoringCanvasView: View {
     let image: ColoringImage
+    private let galleryImages: [ColoringImage]
+
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = ColoringCanvasViewModel()
+    @State private var currentPageIndex: Int
+
+    init(image: ColoringImage, galleryImages: [ColoringImage]? = nil, initialIndex: Int = 0) {
+        self.image = image
+
+        let resolvedImages: [ColoringImage]
+        if let galleryImages, !galleryImages.isEmpty {
+            resolvedImages = galleryImages
+        } else {
+            resolvedImages = [image]
+        }
+
+        self.galleryImages = resolvedImages
+
+        let boundedIndex = min(max(0, initialIndex), resolvedImages.count - 1)
+        _currentPageIndex = State(initialValue: boundedIndex)
+    }
+
+    private var displayedImage: ColoringImage {
+        galleryImages[currentPageIndex]
+    }
+
+    private var canGoPrevious: Bool {
+        currentPageIndex > 0
+    }
+
+    private var canGoNext: Bool {
+        currentPageIndex < galleryImages.count - 1
+    }
 
     var body: some View {
         ZStack {
@@ -23,21 +54,55 @@ struct ColoringCanvasView: View {
             VStack(spacing: 0) {
                 // Header
                 ColoringCanvasHeader(
-                    imageName: image.name,
+                    imageName: displayedImage.name,
                     onClose: { dismiss() },
                     onUndo: { viewModel.undo() },
                     onRedo: { viewModel.redo() },
                     onClear: { viewModel.clearCanvas() },
-                    onSave: { await viewModel.saveArtwork(imageId: image.id ?? "") },
+                    onSave: { await viewModel.saveArtwork(imageId: displayedImage.id ?? "") },
                     canUndo: viewModel.canUndo,
                     canRedo: viewModel.canRedo
                 )
+
+                if galleryImages.count > 1 {
+                    HStack(spacing: 10) {
+                        Button {
+                            guard canGoPrevious else { return }
+                            currentPageIndex -= 1
+                        } label: {
+                            Image(systemName: "chevron.left.circle.fill")
+                                .font(.title3)
+                        }
+                        .disabled(!canGoPrevious)
+                        .opacity(canGoPrevious ? 1 : 0.35)
+
+                        Text("Page \(currentPageIndex + 1) of \(galleryImages.count)")
+                            .font(.caption.bold())
+                            .foregroundColor(Color(hex: "594144"))
+
+                        Button {
+                            guard canGoNext else { return }
+                            currentPageIndex += 1
+                        } label: {
+                            Image(systemName: "chevron.right.circle.fill")
+                                .font(.title3)
+                        }
+                        .disabled(!canGoNext)
+                        .opacity(canGoNext ? 1 : 0.35)
+                    }
+                    .foregroundColor(Color(hex: "FF6F91"))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 14)
+                    .background(Color.white.opacity(0.85))
+                    .clipShape(Capsule())
+                    .padding(.top, 8)
+                }
 
                 // Canvas area
                 GeometryReader { geometry in
                     ZStack {
                         // Background image (coloring page)
-                        AsyncImage(url: URL(string: image.coloringPageUrl ?? "")) { phase in
+                        AsyncImage(url: URL(string: displayedImage.coloringPageUrl ?? displayedImage.originalUrl)) { phase in
                             switch phase {
                             case .success(let img):
                                 img
@@ -89,6 +154,9 @@ struct ColoringCanvasView: View {
             }
         }
         .navigationBarHidden(true)
+        .onChange(of: currentPageIndex) { _ in
+            viewModel.resetCanvasForNewPage()
+        }
     }
 }
 

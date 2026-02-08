@@ -2,6 +2,16 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+type MiddlewareCookieOptions = {
+  domain?: string
+  expires?: Date
+  httpOnly?: boolean
+  maxAge?: number
+  path?: string
+  sameSite?: boolean | 'lax' | 'strict' | 'none'
+  secure?: boolean
+}
+
 export async function middleware(req: NextRequest) {
   let responses = NextResponse.next({
     request: {
@@ -27,7 +37,7 @@ export async function middleware(req: NextRequest) {
         get(name: string) {
           return req.cookies.get(name)?.value
         },
-        set(name: string, value: string, options: CookieOptions = {}) {
+        set(name: string, value: string, options: MiddlewareCookieOptions) {
           req.cookies.set({
             name,
             value,
@@ -44,7 +54,7 @@ export async function middleware(req: NextRequest) {
             ...options,
           })
         },
-        remove(name: string, options: CookieOptions = {}) {
+        remove(name: string, options: MiddlewareCookieOptions) {
           req.cookies.set({
             name,
             value: '',
@@ -74,7 +84,6 @@ export async function middleware(req: NextRequest) {
   console.log('🔍 Session check result:', session ? 'Authenticated' : 'Not authenticated')
 
   const protectedApiPrefixes = [
-    '/api/generate-coloring-page',
     '/api/regenerate-coloring-page',
     '/api/retry-processing',
     '/api/images',
@@ -107,7 +116,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/api/generate-coloring-page',
     '/api/regenerate-coloring-page',
     '/api/retry-processing',
     '/api/images/:path*',

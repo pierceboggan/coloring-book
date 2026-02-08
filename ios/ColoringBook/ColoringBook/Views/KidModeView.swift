@@ -12,59 +12,70 @@ struct KidModeView: View {
     @StateObject private var viewModel = KidModeViewModel()
     @State private var showUnlockPrompt = false
     @State private var unlockCode = ""
+    @State private var unlockError = false
+
+    private func selectedIndex(for image: ColoringImage) -> Int {
+        guard let selectedId = image.id,
+              let index = viewModel.availableImages.firstIndex(where: { $0.id == selectedId }) else {
+            return 0
+        }
+        return index
+    }
 
     var body: some View {
         ZStack {
-            // Fun colorful background
-            LinearGradient(
-                colors: [
-                    Color(hex: "FFB3BA"),
-                    Color(hex: "FFD166"),
-                    Color(hex: "9BF6FF"),
-                    Color(hex: "C3F584")
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Soft pastel background
+            Color(hex: "FFF8F0")
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Kid-friendly header
-                HStack {
-                    Text("🎨 Coloring Fun! 🖍️")
-                        .font(.title.bold())
-                        .foregroundColor(.white)
+                // Header
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Coloring Time")
+                            .font(.title.bold())
+                            .foregroundColor(Color(hex: "3A2E39"))
+
+                        Text("\(viewModel.availableImages.count) pages to color")
+                            .font(.subheadline)
+                            .foregroundColor(Color(hex: "594144").opacity(0.7))
+                    }
 
                     Spacer()
 
-                    // Hidden unlock button (parent access)
+                    // Subtle lock icon for parent exit
                     Button {
                         showUnlockPrompt = true
                     } label: {
-                        Image(systemName: "lock.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white.opacity(0.3))
+                        Image(systemName: "lock.fill")
+                            .font(.body)
+                            .foregroundColor(Color(hex: "594144").opacity(0.25))
+                            .padding(10)
                     }
                 }
-                .padding()
-                .background(Color(hex: "FF6F91"))
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
 
-                // Coloring pages grid
+                // Content
                 if viewModel.isLoading {
                     Spacer()
                     ProgressView()
-                        .tint(.white)
+                        .tint(Color(hex: "FF6F91"))
+                        .scaleEffect(1.2)
                     Spacer()
                 } else if viewModel.availableImages.isEmpty {
+                    Spacer()
                     EmptyKidModeView()
+                    Spacer()
                 } else {
-                    ScrollView {
+                    ScrollView(showsIndicators: false) {
                         LazyVGrid(
                             columns: [
-                                GridItem(.flexible(), spacing: 20),
-                                GridItem(.flexible(), spacing: 20)
+                                GridItem(.flexible(), spacing: 14),
+                                GridItem(.flexible(), spacing: 14)
                             ],
-                            spacing: 20
+                            spacing: 14
                         ) {
                             ForEach(viewModel.availableImages) { image in
                                 KidModeImageCard(image: image) {
@@ -72,39 +83,49 @@ struct KidModeView: View {
                                 }
                             }
                         }
-                        .padding()
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 30)
                     }
                 }
             }
 
-            // Parent unlock prompt
+            // Parent unlock overlay
             if showUnlockPrompt {
                 ParentUnlockPrompt(
                     unlockCode: $unlockCode,
+                    showError: $unlockError,
                     onUnlock: {
                         if appState.disableKidMode(withCode: unlockCode) {
                             showUnlockPrompt = false
                             unlockCode = ""
+                            unlockError = false
                         } else {
-                            // Show error - wrong code
+                            unlockError = true
                             unlockCode = ""
                         }
                     },
                     onCancel: {
                         showUnlockPrompt = false
                         unlockCode = ""
+                        unlockError = false
                     }
                 )
             }
         }
         .fullScreenCover(item: $viewModel.selectedImage) { image in
-            ColoringCanvasView(image: image)
+            ColoringCanvasView(
+                image: image,
+                galleryImages: viewModel.availableImages,
+                initialIndex: selectedIndex(for: image)
+            )
         }
         .task {
             await viewModel.loadImages()
         }
     }
 }
+
+// MARK: - Kid Mode Image Card
 
 struct KidModeImageCard: View {
     let image: ColoringImage
@@ -120,112 +141,143 @@ struct KidModeImageCard: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     case .failure:
-                        Image(systemName: "photo")
-                            .font(.system(size: 50))
-                            .foregroundColor(.white)
+                        RoundedRectangle(cornerRadius: 0)
+                            .fill(Color(hex: "F0F0F0"))
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .font(.largeTitle)
+                                    .foregroundColor(Color(hex: "D0D0D0"))
+                            )
                     case .empty:
-                        ProgressView()
-                            .tint(.white)
+                        RoundedRectangle(cornerRadius: 0)
+                            .fill(Color(hex: "F8F8F8"))
+                            .overlay(
+                                ProgressView()
+                                    .tint(Color(hex: "FF6F91"))
+                            )
                     @unknown default:
                         EmptyView()
                     }
                 }
-                .frame(height: 200)
+                .frame(height: 180)
                 .clipped()
-
-                Text("🎨 Color Me! 🖍️")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(12)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(hex: "FF6F91"))
             }
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white, lineWidth: 4)
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(hex: "E8E8E8"), lineWidth: 1)
             )
-            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+            .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
         }
+        .buttonStyle(.plain)
     }
 }
 
+// MARK: - Empty State
+
 struct EmptyKidModeView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            Text("🎨")
-                .font(.system(size: 100))
+        VStack(spacing: 16) {
+            Image(systemName: "paintpalette.fill")
+                .font(.system(size: 60))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [Color(hex: "FF6F91"), Color(hex: "FFD166")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
 
-            Text("No Coloring Pages Yet!")
-                .font(.title.bold())
-                .foregroundColor(.white)
+            Text("No Coloring Pages Yet")
+                .font(.title3.bold())
+                .foregroundColor(Color(hex: "3A2E39"))
 
-            Text("Ask a parent to add some pictures to color!")
-                .font(.title3)
-                .foregroundColor(.white.opacity(0.9))
+            Text("Ask a parent to add some\npictures to color!")
+                .font(.subheadline)
+                .foregroundColor(Color(hex: "594144").opacity(0.7))
                 .multilineTextAlignment(.center)
         }
         .padding(40)
     }
 }
 
+// MARK: - Parent Unlock Prompt
+
 struct ParentUnlockPrompt: View {
     @Binding var unlockCode: String
+    @Binding var showError: Bool
     let onUnlock: () -> Void
     let onCancel: () -> Void
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.7)
+            Color.black.opacity(0.4)
                 .ignoresSafeArea()
-                .onTapGesture {
-                    onCancel()
-                }
+                .onTapGesture { onCancel() }
 
             VStack(spacing: 20) {
-                Text("Parent Access")
-                    .font(.title2.bold())
+                Image(systemName: "lock.open.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(Color(hex: "FF6F91"))
+
+                Text("Exit Kid Mode")
+                    .font(.title3.bold())
                     .foregroundColor(Color(hex: "3A2E39"))
 
-                Text("Enter the parent code to exit Kid Mode")
+                Text("Enter your parent code")
                     .font(.subheadline)
-                    .foregroundColor(Color(hex: "594144"))
-                    .multilineTextAlignment(.center)
+                    .foregroundColor(Color(hex: "594144").opacity(0.7))
 
-                SecureField("Parent Code", text: $unlockCode)
-                    .textFieldStyle(CustomTextFieldStyle())
+                SecureField("Code", text: $unlockCode)
                     .keyboardType(.numberPad)
-                    .padding(.horizontal)
+                    .multilineTextAlignment(.center)
+                    .font(.title2.monospaced())
+                    .padding()
+                    .background(Color(hex: "F5F5F5"))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(showError ? Color.red.opacity(0.5) : Color(hex: "E0E0E0"), lineWidth: 1)
+                    )
+                    .padding(.horizontal, 8)
+
+                if showError {
+                    Text("Incorrect code")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
 
                 HStack(spacing: 12) {
-                    Button("Cancel") {
+                    Button {
                         onCancel()
+                    } label: {
+                        Text("Cancel")
+                            .font(.subheadline.weight(.medium))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color(hex: "F0F0F0"))
+                            .foregroundColor(Color(hex: "594144"))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .foregroundColor(Color(hex: "594144"))
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
 
-                    Button("Unlock") {
+                    Button {
                         onUnlock()
+                    } label: {
+                        Text("Unlock")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color(hex: "FF6F91"))
+                            .foregroundColor(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(hex: "FF6F91"))
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
-                .padding(.horizontal)
             }
-            .padding(30)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 25))
-            .overlay(
-                RoundedRectangle(cornerRadius: 25)
-                    .stroke(Color(hex: "FFB3BA"), lineWidth: 4)
-            )
-            .padding(40)
+            .padding(24)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+            .padding(.horizontal, 40)
         }
     }
 }

@@ -16,8 +16,15 @@ class ImageUploadViewModel: ObservableObject {
     @Published var uploadProgress: Double = 0.0
     @Published var errorMessage: String?
 
-    func uploadAndProcess() async {
-        guard let image = selectedImage else { return }
+    @discardableResult
+    func uploadAndProcess() async -> Bool {
+        guard let image = selectedImage else { return false }
+        guard let userId = SupabaseService.shared.currentUserId,
+              let accessToken = SupabaseService.shared.currentAccessToken,
+              !accessToken.isEmpty else {
+            errorMessage = UploadError.authenticationRequired.localizedDescription
+            return false
+        }
 
         isProcessing = true
         errorMessage = nil
@@ -30,7 +37,6 @@ class ImageUploadViewModel: ObservableObject {
                 throw UploadError.compressionFailed
             }
 
-            let userId = SupabaseService.shared.currentUserId ?? "anonymous"
             let fileName = "photo-\(Date().timeIntervalSince1970).jpg"
 
             // Upload to Supabase Storage
@@ -50,22 +56,14 @@ class ImageUploadViewModel: ObservableObject {
 
             let imageId = try await SupabaseService.shared.createImageRecord(coloringImage)
 
-            // Generate coloring page
+            // Generate coloring page through shared web API
             processingStatus = "AI is creating your coloring page..."
-            uploadProgress = 0.7
-            let coloringPageData = try await OpenAIService.shared.generateColoringPage(from: imageData)
-
-            // Upload coloring page
-            processingStatus = "Finalizing..."
-            uploadProgress = 0.9
-            let coloringPageUrl = try await SupabaseService.shared.uploadImage(
-                coloringPageData,
-                fileName: "coloring-\(fileName)"
+            uploadProgress = 0.75
+            _ = try await WebAPIService.shared.generateColoringPage(
+                imageId: imageId,
+                imageUrl: originalUrl,
+                accessToken: accessToken
             )
-            _ = coloringPageUrl
-
-            // Update image record
-            try await SupabaseService.shared.updateImageStatus(imageId: imageId, status: .completed)
 
             processingStatus = "Complete!"
             uploadProgress = 1.0
@@ -76,11 +74,13 @@ class ImageUploadViewModel: ObservableObject {
             selectedImage = nil
 
             print("✅ Image processed successfully")
+            return true
         } catch {
             errorMessage = error.localizedDescription
             isProcessing = false
             uploadProgress = 0
             print("❌ Upload failed: \(error.localizedDescription)")
+            return false
         }
     }
 }
@@ -89,6 +89,7 @@ enum UploadError: LocalizedError {
     case compressionFailed
     case uploadFailed
     case processingFailed
+    case authenticationRequired
 
     var errorDescription: String? {
         switch self {
@@ -98,6 +99,8 @@ enum UploadError: LocalizedError {
             return "Failed to upload image"
         case .processingFailed:
             return "Failed to process image"
+        case .authenticationRequired:
+            return "Please sign in before creating coloring pages"
         }
     }
 }

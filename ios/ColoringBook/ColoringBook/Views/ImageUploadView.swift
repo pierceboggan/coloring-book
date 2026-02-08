@@ -12,6 +12,11 @@ struct ImageUploadView: View {
     @StateObject private var viewModel = ImageUploadViewModel()
     @State private var showImagePicker = false
     @State private var showCamera = false
+    private let onUploadCompleted: (() -> Void)?
+
+    init(onUploadCompleted: (() -> Void)? = nil) {
+        self.onUploadCompleted = onUploadCompleted
+    }
 
     var body: some View {
         NavigationView {
@@ -100,7 +105,11 @@ struct ImageUploadView: View {
             .onChange(of: viewModel.selectedImage) { newImage in
                 if newImage != nil {
                     Task {
-                        await viewModel.uploadAndProcess()
+                        let didSucceed = await viewModel.uploadAndProcess()
+                        if didSucceed {
+                            NotificationCenter.default.post(name: .galleryRefreshRequested, object: nil)
+                            onUploadCompleted?()
+                        }
                     }
                 }
             }

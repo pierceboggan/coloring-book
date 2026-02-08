@@ -212,10 +212,21 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
   const requestColoringPageGeneration = async (imageId: string, imageUrl: string, age: number) => {
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      const accessToken = session?.access_token
+
+      if (!accessToken) {
+        throw new Error('Missing authenticated session')
+      }
+
       const response = await fetch('/api/generate-coloring-page', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ imageId, imageUrl, age }),
       })

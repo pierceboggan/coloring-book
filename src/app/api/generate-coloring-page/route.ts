@@ -3,6 +3,17 @@ import { generateColoringPage, ImageGenerationProvider, isImageGenerationProvide
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import * as Sentry from '@sentry/nextjs'
 
+function extractBearerToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get('authorization') || request.headers.get('Authorization')
+
+  if (!authHeader?.startsWith('Bearer ')) {
+    return null
+  }
+
+  const token = authHeader.slice('Bearer '.length).trim()
+  return token || null
+}
+
 export async function POST(request: NextRequest) {
   return Sentry.startSpan(
     {
@@ -19,12 +30,39 @@ export async function POST(request: NextRequest) {
         provider?: ImageGenerationProvider | string
       } | null = null
 
+      let authenticatedUserId: string | null = null
+
       try {
+        const accessToken = extractBearerToken(request)
+
+        if (!accessToken) {
+          return NextResponse.json(
+            { error: 'Missing or invalid authorization header' },
+            { status: 401 }
+          )
+        }
+
+        const {
+          data: { user },
+          error: userError,
+        } = await supabaseAdmin.auth.getUser(accessToken)
+
+        if (userError || !user) {
+          console.error('❌ Failed to verify access token:', userError)
+          return NextResponse.json(
+            { error: 'Unable to verify user session' },
+            { status: 401 }
+          )
+        }
+
+        authenticatedUserId = user.id
+
         console.log('📥 Parsing request body...')
         body = await request.json()
         console.log('✅ Request body parsed successfully:', body)
 
-        const { imageId, imageUrl } = body
+        const imageId = body?.imageId
+        const imageUrl = body?.imageUrl
         const requestedAge = typeof body?.age === 'number' && Number.isFinite(body.age)
           ? Math.round(body.age)
           : undefined
@@ -38,20 +76,57 @@ export async function POST(request: NextRequest) {
           : undefined
 
         span.setAttribute('imageId', imageId)
+        span.setAttribute('userId', authenticatedUserId)
         span.setAttribute('hasImageUrl', !!imageUrl)
         span.setAttribute('agePreference', clampedAge ?? 'unspecified')
         span.setAttribute('imageProvider', provider ?? 'default')
 
-        if (!imageId || !imageUrl) {
-          console.error('❌ Missing required fields:', { imageId, imageUrl })
+        if (!imageId) {
+          console.error('❌ Missing required field: imageId')
           return NextResponse.json(
-            { error: 'Missing imageId or imageUrl' },
+            { error: 'Missing imageId' },
             { status: 400 }
           )
         }
 
-        console.log('🎨 About to call generateColoringPage with URL:', imageUrl, 'age:', clampedAge)
-        const coloringPageUrl = await generateColoringPage(imageUrl, { age: clampedAge, provider })
+        const { data: existingRecord, error: fetchError } = await supabaseAdmin
+          .from('images')
+          .select('id, user_id, original_url, status, coloring_page_url')
+          .eq('id', imageId)
+          .single()
+
+        if (fetchError || !existingRecord) {
+          console.error('❌ Failed to fetch existing record:', fetchError)
+          return NextResponse.json(
+            { error: 'Image record not found' },
+            { status: 404 }
+          )
+        }
+
+        if (existingRecord.user_id !== authenticatedUserId) {
+          console.error('❌ User attempted to process image they do not own', {
+            imageId,
+            requestUserId: authenticatedUserId,
+            ownerUserId: existingRecord.user_id,
+          })
+
+          return NextResponse.json(
+            { error: 'Forbidden' },
+            { status: 403 }
+          )
+        }
+
+        const effectiveImageUrl = existingRecord.original_url || imageUrl
+
+        if (!effectiveImageUrl) {
+          return NextResponse.json(
+            { error: 'Image URL is missing on this record' },
+            { status: 400 }
+          )
+        }
+
+        console.log('🎨 About to call generateColoringPage with URL:', effectiveImageUrl, 'age:', clampedAge)
+        const coloringPageUrl = await generateColoringPage(effectiveImageUrl, { age: clampedAge, provider })
         console.log('✅ generateColoringPage completed, result:', coloringPageUrl.substring(0, 50) + '...')
 
         if (!coloringPageUrl) {
@@ -60,30 +135,6 @@ export async function POST(request: NextRequest) {
         }
 
         console.log('💾 Updating database with result...')
-        console.log('🔍 Update data:', {
-          imageId,
-          coloringPageUrl: coloringPageUrl.substring(0, 100) + '...',
-          coloringPageUrlLength: coloringPageUrl.length,
-        })
-
-        // First, verify the record exists and get its current state
-        const { data: existingRecord, error: fetchError } = await supabaseAdmin
-          .from('images')
-          .select('*')
-          .eq('id', imageId)
-          .single()
-
-        if (fetchError) {
-          console.error('❌ Failed to fetch existing record:', fetchError)
-          throw new Error(`Failed to fetch record: ${fetchError.message}`)
-        }
-
-        console.log('📋 Existing record before update:', {
-          id: existingRecord.id,
-          status: existingRecord.status,
-          coloring_page_url: existingRecord.coloring_page_url,
-          user_id: existingRecord.user_id,
-        })
 
         const updatePayload = {
           coloring_page_url: coloringPageUrl,
@@ -91,12 +142,11 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         }
 
-        console.log('📤 Update payload:', updatePayload)
-
         const { data: updateData, error: updateError } = await supabaseAdmin
           .from('images')
           .update(updatePayload)
           .eq('id', imageId)
+          .eq('user_id', authenticatedUserId)
           .select()
 
         if (updateError) {
@@ -106,28 +156,6 @@ export async function POST(request: NextRequest) {
 
         console.log('✅ Database updated successfully')
         console.log('📊 Updated record:', updateData)
-
-        // Verify the update actually took effect
-        const { data: verifyRecord, error: verifyError } = await supabaseAdmin
-          .from('images')
-          .select('*')
-          .eq('id', imageId)
-          .single()
-
-        if (verifyError) {
-          console.error('❌ Failed to verify update:', verifyError)
-        } else {
-          console.log('🔍 Record after update verification:', {
-            id: verifyRecord.id,
-            status: verifyRecord.status,
-            coloring_page_url: verifyRecord.coloring_page_url?.substring(0, 100) + '...',
-            updated_at: verifyRecord.updated_at,
-          })
-
-          if (!verifyRecord.coloring_page_url) {
-            console.error('🚨 CRITICAL: Update appeared successful but coloring_page_url is still NULL!')
-          }
-        }
 
         return NextResponse.json({
           success: true,
@@ -139,7 +167,7 @@ export async function POST(request: NextRequest) {
 
         const imageId = body?.imageId
 
-        if (imageId) {
+        if (imageId && authenticatedUserId) {
           try {
             await supabaseAdmin
               .from('images')
@@ -148,6 +176,7 @@ export async function POST(request: NextRequest) {
                 updated_at: new Date().toISOString(),
               })
               .eq('id', imageId)
+              .eq('user_id', authenticatedUserId)
           } catch (dbError) {
             console.error('Database error:', dbError)
           }

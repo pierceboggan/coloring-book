@@ -36,7 +36,7 @@ class DashboardViewModel: ObservableObject {
         guard let imageId = image.id else { return }
 
         do {
-            try await SupabaseService.shared.deleteImage(imageId: imageId)
+            try await SupabaseService.shared.deleteImage(image)
             images.removeAll { $0.id == imageId }
         } catch {
             self.error = error.localizedDescription
