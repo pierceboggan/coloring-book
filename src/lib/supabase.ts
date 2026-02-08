@@ -163,6 +163,41 @@ export type Database = {
           user_id?: string
         }
       }
+      shared_pages: {
+        Row: {
+          id: string
+          image_id: string
+          user_id: string
+          share_code: string
+          created_at: string
+          expires_at: string | null
+          view_count: number
+          is_variant: boolean
+          variant_url: string | null
+        }
+        Insert: {
+          id?: string
+          image_id: string
+          user_id: string
+          share_code: string
+          created_at?: string
+          expires_at?: string | null
+          view_count?: number
+          is_variant?: boolean
+          variant_url?: string | null
+        }
+        Update: {
+          id?: string
+          image_id?: string
+          user_id?: string
+          share_code?: string
+          created_at?: string
+          expires_at?: string | null
+          view_count?: number
+          is_variant?: boolean
+          variant_url?: string | null
+        }
+      }
       photobooks: {
         Row: {
           created_at: string
