@@ -26,6 +26,10 @@
 	<string>We need permission to save your colored artwork to your photo library</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to create coloring pages from your photos</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6aWdwaHB3aHdvZ2VjcHh2dW9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDkzNTAsImV4cCI6MjA2NzA4NTM1MH0.5WyUJGuo1FU0sCfLQJ-YS_B2gm3aGLVOVC1xyh86dOY</string>
+	<key>SUPABASE_URL</key>
+	<string>https://tzigphpwhwogecpxvuop.supabase.co</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UISupportedInterfaceOrientations</key>

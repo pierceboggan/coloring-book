@@ -97,11 +97,13 @@ struct SettingsView: View {
             .alert("Sign Out", isPresented: $showSignOutAlert) {
                 Button("Cancel", role: .cancel) {}
                 Button("Sign Out", role: .destructive) {
-                    do {
-                        try SupabaseService.shared.signOut()
-                        appState.isAuthenticated = false
-                    } catch {
-                        print("❌ Failed to sign out: \(error.localizedDescription)")
+                    Task {
+                        do {
+                            try await SupabaseService.shared.signOut()
+                            appState.isAuthenticated = false
+                        } catch {
+                            print("❌ Failed to sign out: \(error.localizedDescription)")
+                        }
                     }
                 }
             } message: {

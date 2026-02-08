@@ -26,28 +26,44 @@ class SupabaseService: ObservableObject {
             ?? Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String
             ?? ""
 
+        print("🚀 Supabase URL: \(url.prefix(40))...")
+
         client = SupabaseClient(
             supabaseURL: URL(string: url) ?? URL(string: "https://placeholder.supabase.co")!,
             supabaseKey: key
         )
 
         Task {
-            await checkSession()
+            await listenForAuthChanges()
         }
     }
 
     // MARK: - Auth
 
-    private func checkSession() async {
-        do {
-            let session = try await client.auth.session
-            currentUser = session.user
-            isAuthenticated = true
-            print("✅ Existing Supabase session found")
-        } catch {
-            currentUser = nil
-            isAuthenticated = false
-            print("ℹ️ No existing session")
+    private func listenForAuthChanges() async {
+        for await (event, session) in client.auth.authStateChanges {
+            switch event {
+            case .signedIn, .tokenRefreshed:
+                if let session = session {
+                    self.currentUser = session.user
+                    self.isAuthenticated = true
+                    print("✅ Auth state: signed in (\(session.user.email ?? "no email"))")
+                }
+            case .signedOut:
+                self.currentUser = nil
+                self.isAuthenticated = false
+                print("✅ Auth state: signed out")
+            case .initialSession:
+                if let session = session {
+                    self.currentUser = session.user
+                    self.isAuthenticated = true
+                    print("✅ Auth state: initial session (\(session.user.email ?? "no email"))")
+                } else {
+                    print("ℹ️ No existing session")
+                }
+            default:
+                break
+            }
         }
     }
 
@@ -59,16 +75,16 @@ class SupabaseService: ObservableObject {
     }
 
     func signUp(email: String, password: String) async throws {
-        let session = try await client.auth.signUp(email: email, password: password)
-        currentUser = session.user
-        isAuthenticated = true
+        let result = try await client.auth.signUp(email: email, password: password)
+        if let session = result.session {
+            currentUser = session.user
+            isAuthenticated = true
+        }
         print("✅ Signed up: \(email)")
     }
 
-    func signOut() throws {
-        Task {
-            try await client.auth.signOut()
-        }
+    func signOut() async throws {
+        try await client.auth.signOut()
         currentUser = nil
         isAuthenticated = false
         print("✅ Signed out")
@@ -149,21 +165,6 @@ class SupabaseService: ObservableObject {
             .eq("id", value: imageId)
             .execute()
         print("✅ Image deleted: \(imageId)")
-    }
-
-    // MARK: - Real-time (polling fallback)
-
-    /// Fetches images periodically. For real-time, use Supabase Realtime channels.
-    func listenToImages(userId: String, completion: @escaping ([ColoringImage]) -> Void) {
-        // Initial fetch
-        Task {
-            do {
-                let images = try await fetchImages(userId: userId)
-                completion(images)
-            } catch {
-                print("❌ Error fetching images: \(error.localizedDescription)")
-            }
-        }
     }
 
     // MARK: - Family Albums
