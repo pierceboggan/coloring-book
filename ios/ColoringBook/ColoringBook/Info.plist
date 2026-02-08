@@ -50,9 +50,5 @@
 	<string>We need access to your photo library to create coloring pages from your photos</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need permission to save your colored artwork to your photo library</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
 </dict>
 </plist>

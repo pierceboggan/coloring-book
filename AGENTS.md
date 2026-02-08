@@ -4,7 +4,7 @@
 ColoringBook.AI is a multi-platform application that transforms photos into coloring pages using AI. The repository contains two main projects:
 
 1. **Web Application** (`/src`, root): Next.js 15 web app deployed on Vercel
-2. **iOS Native App** (`/ios`): SwiftUI iOS/iPad app with Firebase backend
+2. **iOS Native App** (`/ios`): SwiftUI iOS/iPad app with Supabase backend
 
 Each platform has its own AGENTS.md file with platform-specific instructions:
 - **Web**: This file (root AGENTS.md)
@@ -35,7 +35,7 @@ coloring-book/
 ## Shared Architecture Principles
 Both platforms share common architectural patterns:
 - **User Flow**: Upload photos → AI generates coloring pages → Create photobooks/albums
-- **Backend**: Supabase (web) / Firebase (iOS) for database, storage, authentication
+- **Backend**: Supabase for both web and iOS (database, storage, authentication)
 - **AI Processing**: OpenAI API for image-to-coloring-page conversion
 - **Real-time Updates**: Live status updates during processing
 - **Offline Support**: Especially emphasized in iOS

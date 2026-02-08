@@ -21,7 +21,7 @@ The star feature of the mobile app - a professional-grade digital coloring exper
 - **Color System**: 10 preset colors + custom color picker
 - **Brush Controls**: Adjustable size (2-30px)
 - **History**: 15-level undo/redo
-- **Export**: Save to Photos library and Firebase
+- **Export**: Save to Photos library and Supabase
 - **iPad Optimized**: Perfect for large-screen coloring
 
 ### 2. 🔒 Kid Mode (Mobile-Exclusive)
@@ -35,7 +35,7 @@ A unique parental control feature for safe child usage:
 ### 3. 📤 Image Upload & AI Processing
 Complete image-to-coloring-page pipeline:
 - Camera and photo library integration
-- Firebase Storage uploads
+- Supabase Storage uploads
 - OpenAI API integration
 - Real-time processing status
 - Automatic watermarking
@@ -46,7 +46,7 @@ Complete image-to-coloring-page pipeline:
 - Email/password authentication
 - Dashboard with image gallery
 - Grid layout with status badges
-- Real-time Firebase updates
+- Real-time Supabase updates
 - Settings and account management
 - Offline support throughout
 
@@ -64,7 +64,7 @@ Robust offline support for uninterrupted use:
 ```
 UI Layer:        SwiftUI
 Architecture:    MVVM
-Backend:         Firebase (Auth, Firestore, Storage)
+Backend:         Supabase (Auth, Firestore, Storage)
 AI Processing:   OpenAI API
 Drawing:         PencilKit
 Concurrency:     Async/await + Combine
@@ -92,7 +92,7 @@ ios/ColoringBook/
 │   │   └── SettingsView.swift
 │   ├── ViewModels/                # 5 view models
 │   ├── Services/                  # 4 services
-│   │   ├── FirebaseService.swift
+│   │   ├── SupabaseService.swift
 │   │   ├── OpenAIService.swift
 │   │   ├── NetworkMonitor.swift
 │   │   └── OfflinePersistence.swift
@@ -111,7 +111,7 @@ ios/ColoringBook/
 ### Comprehensive Guides
 1. **ios/README.md** - Complete setup and usage guide
 2. **ios/AGENTS.md** - Detailed architecture and development instructions
-3. **ios/FIREBASE_SETUP.md** - Step-by-step Firebase configuration
+3. **ios/FIREBASE_SETUP.md** - Step-by-step Supabase configuration
 4. **Root AGENTS.md** - Updated for multi-platform structure
 5. **ios/xcodebuild-mcp.json** - XcodeBuildMCP configuration
 
@@ -153,7 +153,7 @@ Created `.github/workflows/ios-ci.yml` with:
 ### Prerequisites
 1. Xcode 15.0+
 2. iOS 16.0+ device or simulator
-3. Firebase project
+3. Supabase project
 4. OpenAI API key
 
 ### Quick Start
@@ -167,8 +167,8 @@ swift package resolve
 # Open in Xcode
 open ColoringBook.xcodeproj
 
-# Configure Firebase
-# - Add GoogleService-Info.plist to project
+# Configure Supabase
+# - Add Supabase configuration to project
 
 # Set environment variable
 # - Edit Scheme → Environment Variables
@@ -178,7 +178,7 @@ open ColoringBook.xcodeproj
 # Press Cmd+R
 ```
 
-## Firebase Schema
+## Supabase Schema
 
 ### Collections
 - **users**: User profiles and preferences
@@ -195,7 +195,7 @@ open ColoringBook.xcodeproj
 | Feature | Web (Next.js) | iOS (SwiftUI) |
 |---------|---------------|---------------|
 | Drawing Canvas | HTML5 Canvas | PencilKit ⭐ |
-| Backend | Supabase | Firebase |
+| Backend | Supabase | Supabase |
 | Offline Support | Limited | Full ✅ |
 | Kid Mode | ❌ | ✅ |
 | Apple Pencil | ❌ | ✅ Optimized |
@@ -217,7 +217,7 @@ open ColoringBook.xcodeproj
 ## Next Steps for Production
 
 ### Immediate
-1. ✅ Add Firebase configuration file
+1. ✅ Add Supabase configuration file
 2. ✅ Set OpenAI API key
 3. ✅ Test on real devices
 4. ⏳ Beta testing via TestFlight
@@ -250,7 +250,7 @@ open ColoringBook.xcodeproj
 ### Documentation
 - ✅ README with setup instructions
 - ✅ AGENTS.md with architecture details
-- ✅ Firebase setup guide
+- ✅ Supabase setup guide
 - ✅ Code comments throughout
 
 ## Files Delivered
@@ -267,4 +267,4 @@ open ColoringBook.xcodeproj
 
 The iOS native app successfully ports all functionality from the web app while adding mobile-specific features like Kid Mode, Apple Pencil support, and offline-first architecture. The app follows iOS best practices, uses modern Swift features, and provides a beautiful, fun user experience optimized for touch and pencil input.
 
-The implementation is complete, tested, documented, and ready for Firebase configuration and TestFlight deployment.
+The implementation is complete, tested, documented, and ready for Supabase configuration and TestFlight deployment.

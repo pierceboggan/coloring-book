@@ -36,7 +36,7 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
 - iOS 16.0 or later
 - Xcode 15.0 or later
 - Swift 6.0
-- Firebase account
+- Supabase account
 - OpenAI API key
 
 ### Installation
@@ -54,12 +54,12 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
    swift package resolve
    ```
 
-3. **Configure Firebase**
-   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+3. **Configure Supabase**
+   - Create a Supabase project at [Supabase Console](https://console.supabase.google.com/)
    - Download `GoogleService-Info.plist`
    - Add it to the Xcode project (drag into ColoringBook folder)
 
-4. **Set up Firebase Collections**
+4. **Set up Supabase Collections**
    Create these Firestore collections:
    - `users`
    - `images`
@@ -67,7 +67,7 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
    - `family_albums`
 
 5. **Configure Storage**
-   - Create Firebase Storage bucket
+   - Create Supabase Storage bucket
    - Set up storage rules for image uploads
 
 6. **Set Environment Variables**
@@ -95,7 +95,7 @@ xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=i
 ### Tech Stack
 - **UI Framework**: SwiftUI
 - **Architecture**: MVVM (Model-View-ViewModel)
-- **Backend**: Firebase (Auth, Firestore, Storage, Analytics)
+- **Backend**: Supabase (Auth, Firestore, Storage, Analytics)
 - **AI Processing**: OpenAI API
 - **Drawing**: PencilKit
 - **Dependency Management**: Swift Package Manager
@@ -107,7 +107,7 @@ ColoringBook/
 │   ├── Models/            # Data models
 │   ├── Views/             # SwiftUI views
 │   ├── ViewModels/        # Business logic
-│   ├── Services/          # Firebase & OpenAI services
+│   ├── Services/          # Supabase & OpenAI services
 │   ├── Utils/             # Helpers & extensions
 │   └── Resources/         # Assets
 ├── ColoringBookTests/     # Unit tests
@@ -118,7 +118,7 @@ ColoringBook/
 
 **ColoringCanvasView**: The primary feature - digital coloring pad with PencilKit integration
 
-**FirebaseService**: Centralized Firebase operations (Auth, Firestore, Storage)
+**SupabaseService**: Centralized Supabase operations (Auth, Firestore, Storage)
 
 **OpenAIService**: AI image processing and watermarking
 
@@ -126,7 +126,7 @@ ColoringBook/
 
 ## 🔧 Configuration
 
-### Firebase Setup
+### Supabase Setup
 
 1. **Authentication**
    - Enable Email/Password authentication
@@ -152,7 +152,7 @@ ColoringBook/
    ```javascript
    // Storage rules example
    rules_version = '2';
-   service firebase.storage {
+   service supabase.storage {
      match /b/{bucket}/o {
        match /images/{allPaths=**} {
          allow read: if true;
@@ -175,10 +175,10 @@ ColoringBook/
 - Clean build folder: `Shift + Cmd + K`
 - Reset package cache: `File → Packages → Reset Package Caches`
 
-**Firebase Connection Issues:**
+**Supabase Connection Issues:**
 - Verify `GoogleService-Info.plist` is added to target
-- Check Firebase project configuration
-- Ensure bundle ID matches Firebase app
+- Check Supabase project configuration
+- Ensure bundle ID matches Supabase app
 
 **OpenAI API Errors:**
 - Verify API key is correctly set
@@ -209,7 +209,7 @@ The app uses emoji-prefixed logs for easy identification:
 
 ### Unit Tests
 - Test business logic and view models
-- Mock Firebase and OpenAI services
+- Mock Supabase and OpenAI services
 - Test model encoding/decoding
 
 ### UI Tests
@@ -258,6 +258,6 @@ This project is private and proprietary.
 
 ## 🙏 Acknowledgments
 
-- Built with SwiftUI and Firebase
+- Built with SwiftUI and Supabase
 - Powered by OpenAI
 - Uses PencilKit for drawing
