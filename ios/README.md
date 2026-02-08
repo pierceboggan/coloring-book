@@ -35,8 +35,8 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
 ### Requirements
 - iOS 16.0 or later
 - Xcode 15.0 or later
-- Swift 6.0
-- Firebase account
+- Swift 5
+- Supabase project
 - OpenAI API key
 
 ### Installation
@@ -47,35 +47,38 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
    cd coloring-book/ios/ColoringBook
    ```
 
-2. **Install dependencies**
-   Dependencies are managed via Swift Package Manager and will be resolved automatically by Xcode.
-
+2. **Generate the Xcode project**
+   The project uses XcodeGen. Install it and generate the `.xcodeproj`:
    ```bash
-   swift package resolve
+   brew install xcodegen
+   xcodegen generate
    ```
 
-3. **Configure Firebase**
-   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Download `GoogleService-Info.plist`
-   - Add it to the Xcode project (drag into ColoringBook folder)
+3. **Install dependencies**
+   Dependencies are managed via Swift Package Manager and will be resolved automatically when you open the project in Xcode.
 
-4. **Set up Firebase Collections**
-   Create these Firestore collections:
-   - `users`
-   - `images`
-   - `colored_artworks`
-   - `family_albums`
+4. **Configure Supabase**
+   - Create a Supabase project at [supabase.com](https://supabase.com/)
+   - The iOS app shares the same Supabase backend as the web app
+   - Copy your Supabase URL and anon key
 
-5. **Configure Storage**
-   - Create Firebase Storage bucket
-   - Set up storage rules for image uploads
+5. **Set up Supabase Tables**
+   The iOS app uses the same database schema as the web app:
+   - `images` — user photos and generated coloring pages
+   - `family_albums` — shared albums with share codes
 
-6. **Set Environment Variables**
-   Add your OpenAI API key to the scheme environment variables in Xcode:
+6. **Configure Storage**
+   - Uses the same Supabase Storage buckets as the web app
+   - Ensure storage policies allow authenticated uploads
+
+7. **Set Environment Variables**
+   Add keys to the scheme environment variables in Xcode:
    - Edit Scheme → Run → Arguments → Environment Variables
    - Add `OPENAI_API_KEY` with your API key
+   - Add `SUPABASE_URL` with your Supabase project URL
+   - Add `SUPABASE_ANON_KEY` with your Supabase anon key
 
-7. **Build and Run**
+8. **Build and Run**
    - Open `ColoringBook.xcodeproj` in Xcode
    - Select your target device or simulator
    - Press `Cmd + R` to build and run
@@ -84,10 +87,10 @@ Transform any photo into a beautiful coloring page with AI-powered technology - 
 
 ```bash
 # Unit tests
-xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 17'
 
 # UI tests
-xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 15 Pro' -only-testing:ColoringBookUITests
+xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:ColoringBookUITests
 ```
 
 ## 🏗️ Architecture
@@ -95,30 +98,32 @@ xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=i
 ### Tech Stack
 - **UI Framework**: SwiftUI
 - **Architecture**: MVVM (Model-View-ViewModel)
-- **Backend**: Firebase (Auth, Firestore, Storage, Analytics)
+- **Backend**: Supabase (Auth, Database, Storage)
 - **AI Processing**: OpenAI API
 - **Drawing**: PencilKit
 - **Dependency Management**: Swift Package Manager
+- **Project Generation**: XcodeGen (`project.yml`)
 
 ### Project Structure
 ```
 ColoringBook/
-├── ColoringBook/           # Main app
-│   ├── Models/            # Data models
-│   ├── Views/             # SwiftUI views
-│   ├── ViewModels/        # Business logic
-│   ├── Services/          # Firebase & OpenAI services
-│   ├── Utils/             # Helpers & extensions
-│   └── Resources/         # Assets
-├── ColoringBookTests/     # Unit tests
-└── ColoringBookUITests/   # UI tests
+├── project.yml                # XcodeGen project definition
+├── ColoringBook/              # Main app
+│   ├── Models/               # Data models
+│   ├── Views/                # SwiftUI views
+│   ├── ViewModels/           # Business logic
+│   ├── Services/             # Supabase & OpenAI services
+│   ├── Utils/                # Helpers & extensions
+│   └── Resources/            # Assets
+├── ColoringBookTests/        # Unit tests
+└── ColoringBookUITests/      # UI tests
 ```
 
 ### Key Components
 
 **ColoringCanvasView**: The primary feature - digital coloring pad with PencilKit integration
 
-**FirebaseService**: Centralized Firebase operations (Auth, Firestore, Storage)
+**SupabaseService**: Centralized Supabase operations (Auth, Database, Storage) — shares the same backend as the web app
 
 **OpenAIService**: AI image processing and watermarking
 
@@ -126,45 +131,35 @@ ColoringBook/
 
 ## 🔧 Configuration
 
-### Firebase Setup
+### Supabase Setup
+
+The iOS app connects to the same Supabase project as the web app. Ensure these are configured:
 
 1. **Authentication**
    - Enable Email/Password authentication
    - (Optional) Add Apple Sign In
 
-2. **Firestore Database**
-   ```javascript
-   // Security rules example
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /users/{userId} {
-         allow read, write: if request.auth != null && request.auth.uid == userId;
-       }
-       match /images/{imageId} {
-         allow read, write: if request.auth != null;
-       }
-     }
-   }
+2. **Database Tables**
+   The `images` table schema (shared with web):
+   ```sql
+   -- images table
+   id: uuid primary key
+   user_id: text
+   original_url: text
+   coloring_page_url: text | null
+   name: text
+   status: text ('uploading' | 'processing' | 'completed' | 'error')
+   created_at: timestamptz
+   updated_at: timestamptz
    ```
 
 3. **Storage**
-   ```javascript
-   // Storage rules example
-   rules_version = '2';
-   service firebase.storage {
-     match /b/{bucket}/o {
-       match /images/{allPaths=**} {
-         allow read: if true;
-         allow write: if request.auth != null;
-       }
-     }
-   }
-   ```
+   - Uses the same Supabase Storage buckets as the web app
+   - RLS policies should allow authenticated users to upload/read
 
 ### OpenAI Configuration
 - Requires OpenAI API key with access to image generation
-- Uses DALL-E 3 for coloring page generation
+- Uses the Responses API for coloring page generation
 - Configurable prompt templates
 
 ## 🐛 Troubleshooting
@@ -174,11 +169,12 @@ ColoringBook/
 **Build Errors:**
 - Clean build folder: `Shift + Cmd + K`
 - Reset package cache: `File → Packages → Reset Package Caches`
+- Regenerate project: `xcodegen generate`
 
-**Firebase Connection Issues:**
-- Verify `GoogleService-Info.plist` is added to target
-- Check Firebase project configuration
-- Ensure bundle ID matches Firebase app
+**Supabase Connection Issues:**
+- Verify Supabase URL and anon key are set correctly
+- Check that RLS policies allow the operation
+- Ensure the Supabase project is active
 
 **OpenAI API Errors:**
 - Verify API key is correctly set
@@ -209,7 +205,7 @@ The app uses emoji-prefixed logs for easy identification:
 
 ### Unit Tests
 - Test business logic and view models
-- Mock Firebase and OpenAI services
+- Mock Supabase and OpenAI services
 - Test model encoding/decoding
 
 ### UI Tests
@@ -258,6 +254,6 @@ This project is private and proprietary.
 
 ## 🙏 Acknowledgments
 
-- Built with SwiftUI and Firebase
+- Built with SwiftUI and Supabase
 - Powered by OpenAI
 - Uses PencilKit for drawing

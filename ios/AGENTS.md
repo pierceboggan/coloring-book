@@ -2,21 +2,23 @@
 # ColoringBook iOS App - Agent Instructions
 
 ## Overview
-Native iOS application port of ColoringBook.AI web app, built with SwiftUI and Firebase.
+Native iOS application port of ColoringBook.AI web app, built with SwiftUI and Supabase (shared backend with the web app).
 
 ## Architecture
 
 ### Tech Stack
 - **Framework**: SwiftUI with iOS 16+ deployment target
 - **Architecture**: MVVM (Model-View-ViewModel) pattern
-- **Backend**: Firebase (Auth, Firestore, Storage, Analytics)
+- **Backend**: Supabase (Auth, Database, Storage) — same project as the web app
 - **AI Processing**: OpenAI API for image-to-coloring-page conversion
 - **Drawing**: PencilKit for digital coloring experience
-- **Languages**: Swift 6.0
+- **Languages**: Swift 5 (compiled with Swift 6 compiler)
+- **Project Generation**: XcodeGen (`project.yml`)
 
 ### Project Structure
 ```
 ColoringBook/
+├── project.yml                 # XcodeGen project definition
 ├── ColoringBook/               # Main app code
 │   ├── Models/                 # Data models matching web app schema
 │   │   └── Models.swift
@@ -37,8 +39,10 @@ ColoringBook/
 │   │   ├── KidModeViewModel.swift
 │   │   └── AlbumsViewModel.swift
 │   ├── Services/               # Service layer
-│   │   ├── FirebaseService.swift
-│   │   └── OpenAIService.swift
+│   │   ├── FirebaseService.swift     # TODO: Migrate to SupabaseService
+│   │   ├── OpenAIService.swift
+│   │   ├── NetworkMonitor.swift
+│   │   └── OfflinePersistence.swift
 │   ├── Utils/                  # Utility extensions
 │   │   └── Color+Hex.swift
 │   ├── Resources/              # Assets, config files
@@ -61,7 +65,7 @@ ColoringBook/
 - Color palette with preset colors and custom picker
 - Adjustable brush size (2-30px)
 - Undo/redo functionality (15-level history)
-- Save artwork to Firebase and Photos library
+- Save artwork to Supabase Storage and Photos library
 - Optimized for both iPhone and iPad
 
 ### 2. Kid Mode
@@ -76,10 +80,10 @@ ColoringBook/
 - **Location**: `Views/ImageUploadView.swift`, `Services/OpenAIService.swift`
 - Camera and photo library access
 - Image compression and optimization
-- Firebase Storage upload with progress tracking
+- Supabase Storage upload with progress tracking
 - OpenAI API integration for coloring page generation
 - Automatic watermarking
-- Real-time status updates via Firestore
+- Real-time status updates via Supabase subscriptions
 
 ### 4. Dashboard & Gallery
 - **Location**: `Views/DashboardView.swift`
@@ -90,7 +94,7 @@ ColoringBook/
 
 ### 5. Authentication
 - **Location**: `Views/AuthView.swift`, `Services/FirebaseService.swift`
-- Email/password authentication via Firebase
+- Email/password authentication via Supabase Auth
 - Sign in and sign up flows
 - Session management
 - Secure token storage
@@ -98,27 +102,34 @@ ColoringBook/
 ## Development Workflow
 
 ### Setup
-1. Open `ios/ColoringBook/Package.swift` in Xcode or use command line:
+1. Install XcodeGen and generate the project:
    ```bash
+   brew install xcodegen
    cd ios/ColoringBook
-   swift build
+   xcodegen generate
    ```
 
-2. Configure Firebase:
-   - Download `GoogleService-Info.plist` from Firebase Console
-   - Add to Xcode project at root level
-   - Ensure bundle ID matches: `com.coloringbook.app`
+2. Open `ColoringBook.xcodeproj` in Xcode. Dependencies resolve automatically.
 
-3. Set environment variables:
+3. Configure Supabase:
+   - The iOS app uses the same Supabase project as the web app
+   - Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` environment variables
+
+4. Set environment variables:
    - `OPENAI_API_KEY`: OpenAI API key for image processing
+   - `SUPABASE_URL`: Your Supabase project URL
+   - `SUPABASE_ANON_KEY`: Your Supabase anonymous key
 
 ### Building & Running
 ```bash
+# Generate project (required after project.yml changes)
+xcodegen generate
+
 # Build
-xcodebuild -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+xcodebuild -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 17'
 
 # Run tests
-xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=iPhone 17'
 
 # Run on device (requires signing configuration)
 xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
@@ -129,28 +140,23 @@ xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
 - **UI Tests**: User flows, navigation, key interactions
 - **Manual Testing**: Drawing experience, offline mode, kid mode
 
-## Firebase Schema
+## Supabase Schema (Shared with Web)
 
-### Collections
-- **users**: User profiles and settings
-  - `id`, `email`, `display_name`, `created_at`, `is_kid_mode_enabled`
-
+### Tables
 - **images**: Coloring page records
-  - `id`, `user_id`, `original_url`, `coloring_page_url`, `name`, `status`, `created_at`, `updated_at`
-
-- **colored_artworks**: User's colored creations
-  - `id`, `image_id`, `user_id`, `artwork_url`, `thumbnail_url`, `created_at`
+  - `id: uuid`, `user_id: text`, `original_url: text`, `coloring_page_url: text | null`, `name: text`, `status: text` (`uploading` | `processing` | `completed` | `error`), `created_at: timestamptz`, `updated_at: timestamptz`
 
 - **family_albums**: Shared albums
-  - `id`, `name`, `share_code`, `image_ids`, `created_by`, `created_at`
+  - `id: uuid`, `name: text`, `share_code: text`, `image_ids: text[]`, `created_by: text`, `created_at: timestamptz`
 
 ### Storage Buckets
-- **images/**: Original photos and generated coloring pages
-- **artworks/**: User's colored artwork saves
+- Uses the same Supabase Storage buckets as the web app
+- Original photos and generated coloring pages
+- User's colored artwork saves
 
 ## Offline Support
-- Firebase local persistence enabled
-- Cached images for offline viewing
+- Local persistence for offline viewing
+- Cached images for offline coloring
 - Queue system for uploads when connection restored
 - Offline indicator in UI
 
@@ -165,7 +171,7 @@ xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
 
 ## Key Differences from Web App
 1. **Native Drawing**: PencilKit instead of HTML5 Canvas
-2. **Offline-First**: Local persistence with Firebase sync
+2. **Offline-First**: Local persistence with Supabase sync
 3. **Kid Mode**: Mobile-specific parental control feature
 4. **Apple Pencil**: Pressure sensitivity and palm rejection on iPad
 5. **Photos Integration**: Save directly to Photos library
@@ -185,13 +191,13 @@ xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
 ### Debugging
 - Use Xcode's built-in debugger and breakpoints
 - Check console for emoji-prefixed logs
-- Firebase Console for backend debugging
+- Supabase Dashboard for backend debugging
 - Network Link Conditioner for offline testing
 
 ### Updating Dependencies
+Edit `Package.swift` or `project.yml`, then:
 ```bash
-cd ios/ColoringBook
-swift package update
+xcodegen generate
 ```
 
 ## CI/CD
@@ -210,6 +216,7 @@ swift package update
 - Ensure compliance with App Store Review Guidelines
 
 ## Future Enhancements
+- [ ] Migrate FirebaseService to SupabaseService (currently uses Firebase SDK but should use Supabase)
 - [ ] iCloud sync across devices
 - [ ] Widgets for quick access to recent pages
 - [ ] Siri Shortcuts integration
