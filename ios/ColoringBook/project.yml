@@ -1,0 +1,77 @@
+name: ColoringBook
+options:
+  bundleIdPrefix: com.coloringbook
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: Swift
+  xcodeVersion: "15.0"
+
+settings:
+  SWIFT_VERSION: "6.0"
+  MARKETING_VERSION: "1.0.0"
+  CURRENT_PROJECT_VERSION: "1"
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    majorVersion: 10.0.0
+
+targets:
+  ColoringBook:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: ColoringBook
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseStorage
+      - package: Firebase
+        product: FirebaseAnalytics
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.coloringbook.app
+      INFOPLIST_FILE: ColoringBook/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: ""
+      TARGETED_DEVICE_FAMILY: "1,2"
+      SUPPORTS_MACCATALYST: false
+    info:
+      path: ColoringBook/Info.plist
+      properties:
+        CFBundleDisplayName: ColoringBook
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchStoryboardName: LaunchScreen
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCameraUsageDescription: "We need access to your camera to take photos for coloring pages"
+        NSPhotoLibraryUsageDescription: "We need access to your photo library to create coloring pages from your photos"
+        NSPhotoLibraryAddUsageDescription: "We need permission to save your colored artwork to your photo library"
+
+  ColoringBookTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ColoringBookTests
+    dependencies:
+      - target: ColoringBook
+
+  ColoringBookUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ColoringBookUITests
+    dependencies:
+      - target: ColoringBook

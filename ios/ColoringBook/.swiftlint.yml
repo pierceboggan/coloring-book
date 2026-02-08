@@ -1,0 +1,86 @@
+# SwiftLint Configuration for ColoringBook iOS
+
+# Disabled Rules
+disabled_rules:
+  - trailing_whitespace
+  - todo
+  - force_cast
+  - force_try
+
+# Opt-in Rules
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - explicit_init
+  - first_where
+  - modifier_order
+  - multiline_arguments
+  - multiline_parameters
+  - operator_usage_whitespace
+  - redundant_nil_coalescing
+  - sorted_imports
+  - vertical_parameter_alignment_on_call
+
+# Included/Excluded Paths
+included:
+  - ColoringBook
+
+excluded:
+  - ColoringBook/Resources
+  - ColoringBookTests
+  - ColoringBookUITests
+  - build
+
+# Rule Configurations
+line_length:
+  warning: 120
+  error: 150
+  ignores_function_declarations: true
+  ignores_comments: true
+  ignores_urls: true
+
+file_length:
+  warning: 500
+  error: 800
+
+function_body_length:
+  warning: 60
+  error: 100
+
+type_body_length:
+  warning: 300
+  error: 400
+
+type_name:
+  min_length: 3
+  max_length: 40
+
+identifier_name:
+  min_length: 2
+  max_length: 40
+  excluded:
+    - id
+    - to
+    - x
+    - y
+    - db
+    - at
+    - in
+
+cyclomatic_complexity:
+  warning: 15
+  error: 25
+
+# Custom Rules
+custom_rules:
+  print_statement:
+    name: "Print Statement"
+    regex: '(?<!\/\/\s)print\('
+    message: "Use proper logging instead of print()"
+    severity: warning
+
+  multiple_empty_lines:
+    name: "Multiple Empty Lines"
+    regex: '\n\n\n+'
+    message: "Use maximum of one empty line"
+    severity: warning
