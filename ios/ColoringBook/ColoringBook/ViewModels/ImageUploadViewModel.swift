@@ -30,7 +30,7 @@ class ImageUploadViewModel: ObservableObject {
                 throw UploadError.compressionFailed
             }
 
-            let userId = SupabaseService.shared.currentUser?.id.uuidString ?? "anonymous"
+            let userId = SupabaseService.shared.currentUserId ?? "anonymous"
             let fileName = "photo-\(Date().timeIntervalSince1970).jpg"
 
             // Upload to Supabase Storage

@@ -17,7 +17,7 @@ class DashboardViewModel: ObservableObject {
         isLoading = true
         error = nil
 
-        guard let userId = SupabaseService.shared.currentUser?.id.uuidString else {
+        guard let userId = SupabaseService.shared.currentUserId else {
             isLoading = false
             return
         }

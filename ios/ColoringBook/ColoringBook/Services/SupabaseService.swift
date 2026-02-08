@@ -16,6 +16,11 @@ class SupabaseService: ObservableObject {
     @Published var currentUser: User?
     @Published var isAuthenticated = false
 
+    /// The current user's ID as a lowercase string, matching Supabase's format
+    var currentUserId: String? {
+        currentUser?.id.uuidString.lowercased()
+    }
+
     let client: SupabaseClient
 
     private init() {
@@ -222,7 +227,7 @@ class SupabaseService: ObservableObject {
     // MARK: - Colored Artwork
 
     func saveColoredArtwork(imageId: String, artworkData: Data) async throws -> String {
-        let userId = currentUser?.id.uuidString ?? "anonymous"
+        let userId = currentUserId ?? "anonymous"
         let fileName = "\(UUID().uuidString).png"
 
         // Upload artwork image

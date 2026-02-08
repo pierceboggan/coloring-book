@@ -13,7 +13,7 @@ class AlbumsViewModel: ObservableObject {
     @Published var isLoading = false
 
     func createAlbum(name: String, imageIds: [String]) async {
-        guard let userId = SupabaseService.shared.currentUser?.id.uuidString else { return }
+        guard let userId = SupabaseService.shared.currentUserId else { return }
 
         do {
             _ = try await SupabaseService.shared.createFamilyAlbum(

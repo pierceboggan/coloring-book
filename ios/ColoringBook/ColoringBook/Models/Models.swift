@@ -23,8 +23,8 @@ struct ColoringImage: Identifiable, Codable, Equatable {
     var coloringPageUrl: String?
     var name: String
     var status: ImageStatus
-    var createdAt: Date
-    var updatedAt: Date
+    var createdAt: String?
+    var updatedAt: String?
     var errorMessage: String?
 
     enum CodingKeys: String, CodingKey {
@@ -46,8 +46,8 @@ struct ColoringImage: Identifiable, Codable, Equatable {
         coloringPageUrl: String? = nil,
         name: String,
         status: ImageStatus = .uploading,
-        createdAt: Date = Date(),
-        updatedAt: Date = Date(),
+        createdAt: String? = nil,
+        updatedAt: String? = nil,
         errorMessage: String? = nil
     ) {
         self.id = id
@@ -88,7 +88,7 @@ struct FamilyAlbum: Identifiable, Codable {
     var title: String
     var description: String?
     var shareCode: String
-    var createdAt: Date?
+    var createdAt: String?
     var commentsEnabled: Bool?
     var downloadsEnabled: Bool?
 
@@ -111,7 +111,7 @@ struct Photobook: Identifiable, Codable {
     var imageCount: Int
     var pdfUrl: String
     var userId: String
-    var createdAt: Date?
+    var createdAt: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -131,8 +131,8 @@ struct ColoredArtwork: Identifiable, Codable {
     var userId: String
     var artworkUrl: String
     var thumbnailUrl: String?
-    var createdAt: Date?
-    var updatedAt: Date?
+    var createdAt: String?
+    var updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
         case id

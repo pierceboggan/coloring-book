@@ -16,7 +16,7 @@ class KidModeViewModel: ObservableObject {
     func loadImages() async {
         isLoading = true
 
-        guard let userId = SupabaseService.shared.currentUser?.id.uuidString else {
+        guard let userId = SupabaseService.shared.currentUserId else {
             isLoading = false
             return
         }
