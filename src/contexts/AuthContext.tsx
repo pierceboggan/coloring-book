@@ -43,6 +43,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user?.id])
 
   useEffect(() => {
+    const allowDevBypassFlag = process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
+    const hasDevBypass =
+      typeof window !== 'undefined' &&
+      process.env.NODE_ENV !== 'production' &&
+      (document.cookie.split(';').some(cookie => cookie.trim().startsWith('dev-auth-bypass=true')) || allowDevBypassFlag)
+
+    if (hasDevBypass) {
+      const devUser: User = {
+        id: 'dev-user',
+        email: 'dev@coloringbook.ai',
+        aud: 'authenticated',
+        role: 'authenticated',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        email_confirmed_at: new Date().toISOString(),
+        phone: '',
+        phone_confirmed_at: null,
+        app_metadata: { provider: 'email', providers: ['email'] },
+        user_metadata: {},
+        identities: [],
+        last_sign_in_at: new Date().toISOString(),
+        factors: [],
+        is_anonymous: false,
+      }
+
+      const devSession: Session = {
+        access_token: 'dev-access-token',
+        refresh_token: 'dev-refresh-token',
+        token_type: 'bearer',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        provider_token: null,
+        provider_refresh_token: null,
+        user: devUser,
+      }
+
+      console.log('🛠️ Dev auth bypass session applied')
+      setSession(devSession)
+      setUser(devUser)
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('🔍 Initial session check:', session ? 'User logged in' : 'No user')
