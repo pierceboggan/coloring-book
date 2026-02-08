@@ -6,16 +6,10 @@
 //
 
 import SwiftUI
-import FirebaseCore
 
 @main
 struct ColoringBookApp: App {
     @StateObject private var appState = AppState()
-
-    init() {
-        // Configure Firebase
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
         WindowGroup {
