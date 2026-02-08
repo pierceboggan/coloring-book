@@ -172,10 +172,10 @@ The iOS app connects to the same Supabase project as the web app. Ensure these a
    - Copy your DSN from the project settings
 
 2. **Configure the App**
-   - Set the `SENTRY_DSN` environment variable in Xcode:
+   - **Recommended**: Set the `SENTRY_DSN` environment variable in Xcode:
      - Edit Scheme → Run → Arguments → Environment Variables
      - Add `SENTRY_DSN` with your Sentry DSN
-   - Alternatively, update `project.yml` with your DSN (not recommended for public repos)
+   - **Not recommended**: Update `project.yml` with your DSN (avoid for public repos as DSN will be committed)
 
 3. **Features Enabled**
    - Automatic error tracking for crashes and exceptions

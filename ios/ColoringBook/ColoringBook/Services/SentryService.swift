@@ -27,7 +27,11 @@ class SentryService {
             options.debug = false // Set to true for development debugging
             
             // Performance monitoring
-            options.tracesSampleRate = 1.0 // Capture 100% of transactions for performance monitoring
+            #if DEBUG
+            options.tracesSampleRate = 1.0 // Capture 100% in development
+            #else
+            options.tracesSampleRate = 0.1 // Capture 10% in production to reduce costs
+            #endif
             
             // Enable automatic breadcrumbs for better error context
             options.enableAutoSessionTracking = true

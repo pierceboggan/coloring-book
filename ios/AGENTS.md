@@ -114,19 +114,17 @@ ColoringBook/
    ```
 
 2. Open `ColoringBook.xcodeproj` in Xcode. Dependencies resolve automatically.
-2. Configure Supabase:
-   - Download `GoogleService-Info.plist` from Supabase Console
-   - Add to Xcode project at root level
-   - Ensure bundle ID matches: `com.coloringbook.app`
 
 3. Configure Supabase:
    - The iOS app uses the same Supabase project as the web app
-   - Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` environment variables
+   - Supabase URL and anon key are set in Info.plist
+   - These can be overridden with environment variables if needed
 
 4. Set environment variables:
    - `OPENAI_API_KEY`: OpenAI API key for image processing
-   - `SUPABASE_URL`: Your Supabase project URL
-   - `SUPABASE_ANON_KEY`: Your Supabase anonymous key
+   - `SUPABASE_URL`: Your Supabase project URL (optional, defaults to Info.plist)
+   - `SUPABASE_ANON_KEY`: Your Supabase anonymous key (optional, defaults to Info.plist)
+   - `SENTRY_DSN`: Sentry DSN for error tracking (optional)
 
 ### Building & Running
 ```bash
