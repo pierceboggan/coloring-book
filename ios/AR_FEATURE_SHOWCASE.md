@@ -118,8 +118,8 @@ We built something **genuinely fun and innovative** that makes people smile. The
 ## Stats at a Glance
 
 - **Development Time**: Single session
-- **Lines of Code**: 542 Swift
-- **Documentation**: 5 comprehensive guides
+- **Lines of Code**: 545 Swift (249 + 296)
+- **Documentation**: 6 comprehensive guides
 - **Features**: 9 core interactions
 - **Gestures**: 3 simultaneous recognizers
 - **Devices Supported**: All ARKit-compatible iOS devices

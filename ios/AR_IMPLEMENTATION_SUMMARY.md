@@ -12,7 +12,7 @@ The AR Gallery feature has been successfully implemented for the ColoringBook iO
    - Interactive controls and instructions overlay
    - Beautiful pastel UI matching app design system
 
-2. **ARGalleryViewModel.swift** (319 lines)
+2. **ARGalleryViewModel.swift** (296 lines)
    - AR session management with ARKit
    - Gesture handling (tap, pinch, pan)
    - Image loading from Supabase URLs
@@ -176,7 +176,7 @@ While the current implementation is complete and functional, here are some ideas
 
 - **Files Created**: 6 (2 Swift, 4 Markdown)
 - **Files Modified**: 3 (ColoringImageDetailView, project.yml, AGENTS.md, .gitignore)
-- **Lines of Code**: ~568 Swift
+- **Lines of Code**: 545 Swift (249 + 296)
 - **Lines of Documentation**: ~1,400 Markdown
 - **Implementation Time**: Single session
 - **Test Coverage**: Manual testing required (device-specific)
