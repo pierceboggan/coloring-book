@@ -1,0 +1,93 @@
+name: ColoringBook
+options:
+  bundleIdPrefix: com.coloringbook
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: Swift
+
+settings:
+  SWIFT_VERSION: "5"
+  MARKETING_VERSION: "1.0.0"
+  CURRENT_PROJECT_VERSION: "1"
+  SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+  SUPPORTS_MACCATALYST: "NO"
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    majorVersion: 2.0.0
+
+targets:
+  ColoringBook:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: ColoringBook
+    dependencies:
+      - package: Supabase
+        product: Supabase
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.coloringbook.app
+      INFOPLIST_FILE: ColoringBook/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: ""
+      TARGETED_DEVICE_FAMILY: "1,2"
+      SUPPORTS_MACCATALYST: false
+    info:
+      path: ColoringBook/Info.plist
+      properties:
+        CFBundleDisplayName: ColoringBook
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchStoryboardName: LaunchScreen
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCameraUsageDescription: "We need access to your camera to take photos for coloring pages"
+        NSPhotoLibraryUsageDescription: "We need access to your photo library to create coloring pages from your photos"
+        NSPhotoLibraryAddUsageDescription: "We need permission to save your colored artwork to your photo library"
+        SUPABASE_URL: "https://tzigphpwhwogecpxvuop.supabase.co"
+        SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6aWdwaHB3aHdvZ2VjcHh2dW9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDkzNTAsImV4cCI6MjA2NzA4NTM1MH0.5WyUJGuo1FU0sCfLQJ-YS_B2gm3aGLVOVC1xyh86dOY"
+
+  ColoringBookTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ColoringBookTests
+    dependencies:
+      - target: ColoringBook
+
+  ColoringBookUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ColoringBookUITests
+    dependencies:
+      - target: ColoringBook
+
+schemes:
+  ColoringBook:
+    build:
+      targets:
+        ColoringBook: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - ColoringBookTests
+        - ColoringBookUITests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

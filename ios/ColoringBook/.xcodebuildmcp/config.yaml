@@ -1,0 +1,20 @@
+schemaVersion: 1
+
+enabledWorkflows:
+  - simulator
+  - simulator-management
+  - device
+  - project-discovery
+  - session-management
+  - swift-package
+  - logging
+  - debugging
+  - ui-automation
+
+sessionDefaults:
+  projectPath: "./ColoringBook.xcodeproj"
+  scheme: "ColoringBook"
+  configuration: "Debug"
+  simulatorName: "iPhone 16"
+  platform: "iOS"
+  useLatestOS: true

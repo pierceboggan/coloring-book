@@ -1,9 +1,56 @@
-# Agent Instructions
+# ColoringBook.AI - Multi-Platform Agent Instructions
 
-## Development Environment
+## Project Overview
+ColoringBook.AI is a multi-platform application that transforms photos into coloring pages using AI. The repository contains two main projects:
+
+1. **Web Application** (`/src`, root): Next.js 15 web app deployed on Vercel
+2. **iOS Native App** (`/ios`): SwiftUI iOS/iPad app with Supabase backend
+
+Each platform has its own AGENTS.md file with platform-specific instructions:
+- **Web**: This file (root AGENTS.md)
+- **iOS**: `/ios/AGENTS.md`
+
+## Repository Structure
+```
+coloring-book/
+├── src/                    # Next.js web app source
+│   ├── app/               # App Router routes
+│   ├── components/        # React components
+│   ├── contexts/          # React contexts
+│   └── lib/               # Utilities
+├── ios/                   # iOS native app
+│   └── ColoringBook/      # Xcode project
+│       ├── ColoringBook/  # App source
+│       ├── ColoringBookTests/
+│       └── ColoringBookUITests/
+├── .github/
+│   ├── workflows/         # CI/CD for both platforms
+│   │   └── ios-ci.yml    # iOS-specific CI
+│   └── agents/           # Agent configurations
+├── tests/                # Web app E2E tests
+├── public/               # Web static assets
+└── package.json          # Web dependencies
+```
+
+## Shared Architecture Principles
+Both platforms share common architectural patterns:
+- **User Flow**: Upload photos → AI generates coloring pages → Create photobooks/albums
+- **Backend**: Supabase for both web and iOS (database, storage, authentication)
+- **AI Processing**: OpenAI API for image-to-coloring-page conversion
+- **Real-time Updates**: Live status updates during processing
+- **Offline Support**: Especially emphasized in iOS
+- **Kid Mode**: Parental control feature (iOS-specific)
+
+## Development Environment - Web App
 - Use Node.js 18 or newer. The project relies on Next.js 15 with the App Router and Tailwind CSS 4.
 - Install dependencies with `npm install`. The repo uses the `package-lock.json` that ships with the project; do not switch to another package manager.
 - TypeScript is configured in strict mode. Avoid adding `any` types or disabling lint rules unless absolutely necessary and justify any exceptions in the PR description.
+
+## Development Environment - iOS App
+- Requires Xcode 15.0+ and Swift 6.0
+- Uses Swift Package Manager for dependencies
+- SwiftUI with iOS 16+ deployment target
+- See `/ios/AGENTS.md` for detailed iOS instructions
 
 ## Running and Building the App
 - Start the development server with `npm run dev` (Next.js dev server on port 3000). You must configure `.env.local` as described in `README.md` before local API flows will succeed.
