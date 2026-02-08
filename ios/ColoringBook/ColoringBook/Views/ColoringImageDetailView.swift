@@ -24,7 +24,7 @@ struct ColoringImageDetailView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    colors: [Color(hex: "FFF5D6"), Color(hex: "E0F7FA")],
+                    colors: [Color(hex: "FFF5D6"), Color(hex: "FFE6EB"), Color(hex: "E0F7FA")],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -39,7 +39,7 @@ struct ColoringImageDetailView: View {
                                 dismiss()
                                 onColor(canvasImage)
                             } label: {
-                                Label("Start Coloring", systemImage: "pencil.tip")
+                                Label("Start Coloring!", systemImage: "paintpalette.fill")
                                     .font(.headline)
                                     .frame(maxWidth: .infinity)
                             }
@@ -54,21 +54,29 @@ struct ColoringImageDetailView: View {
                                     .font(.subheadline.weight(.semibold))
                                     .frame(maxWidth: .infinity)
                             }
-                            .buttonStyle(SecondaryActionButtonStyle(background: Color.red.opacity(0.12), foreground: .red))
+                            .buttonStyle(SecondaryActionButtonStyle(background: Color.red.opacity(0.14), foreground: .red, border: Color(hex: "FFB3BA")))
                         }
                         .padding(.horizontal)
 
                         if let saveMessage {
                             Text(saveMessage)
-                                .font(.caption.weight(.semibold))
+                                .font(.caption.weight(.bold))
                                 .foregroundColor(Color(hex: "3A2E39"))
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(Color.white.opacity(0.85))
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color(hex: "A0E7E5"), lineWidth: 2)
+                                )
                                 .padding(.horizontal)
                         }
                     }
                     .padding(.vertical)
                 }
             }
-            .navigationTitle(image.name)
+            .navigationTitle("Art Playground ✨")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -122,11 +130,19 @@ struct ColoringImageDetailView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 420)
         .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(hex: "A0E7E5"), lineWidth: 3)
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color(hex: "FFB3BA"), Color(hex: "A0E7E5")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 4
+                )
         )
+        .shadow(color: Color(hex: "FFB3BA").opacity(0.35), radius: 8, x: 4, y: 4)
         .padding(.horizontal)
     }
 
@@ -138,7 +154,7 @@ struct ColoringImageDetailView: View {
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(SecondaryActionButtonStyle())
+                .buttonStyle(SecondaryActionButtonStyle(background: Color.white.opacity(0.95), foreground: Color(hex: "3A2E39"), border: Color(hex: "FFD166")))
             }
 
             Button {
@@ -155,7 +171,7 @@ struct ColoringImageDetailView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            .buttonStyle(SecondaryActionButtonStyle())
+            .buttonStyle(SecondaryActionButtonStyle(background: Color.white.opacity(0.95), foreground: Color(hex: "3A2E39"), border: Color(hex: "A0E7E5")))
             .disabled(isSavingToPhotos)
         }
     }
@@ -183,7 +199,7 @@ struct ColoringImageDetailView: View {
             }
 
             UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
-            saveMessage = "Saved to Photos"
+            saveMessage = "Saved to Photos 🎉"
         } catch {
             saveMessage = "Could not save image"
         }
@@ -201,6 +217,7 @@ private struct PrimaryActionButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color(hex: "FFB3BA"), lineWidth: 3)
             )
+            .shadow(color: Color(hex: "FFB3BA").opacity(0.4), radius: 5, x: 3, y: 3)
             .opacity(configuration.isPressed ? 0.9 : 1)
     }
 }
@@ -208,6 +225,7 @@ private struct PrimaryActionButtonStyle: ButtonStyle {
 private struct SecondaryActionButtonStyle: ButtonStyle {
     var background: Color = Color.white.opacity(0.95)
     var foreground: Color = Color(hex: "3A2E39")
+    var border: Color = Color(hex: "E0E0E0")
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -218,7 +236,7 @@ private struct SecondaryActionButtonStyle: ButtonStyle {
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color(hex: "E0E0E0"), lineWidth: 1)
+                    .stroke(border, lineWidth: 2)
             )
             .opacity(configuration.isPressed ? 0.9 : 1)
     }

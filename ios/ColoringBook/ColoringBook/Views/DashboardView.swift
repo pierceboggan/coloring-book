@@ -27,7 +27,6 @@ struct DashboardView: View {
                     id: "\(image.id ?? UUID().uuidString)-main",
                     parentImage: image,
                     displayURL: image.coloringPageUrl ?? image.originalUrl,
-                    displayName: image.name,
                     isVariant: false
                 )
             ]
@@ -39,7 +38,6 @@ struct DashboardView: View {
                             id: "\(image.id ?? UUID().uuidString)-variant-\(index)",
                             parentImage: image,
                             displayURL: url,
-                            displayName: image.name,
                             isVariant: true
                         )
                     }
@@ -80,7 +78,7 @@ struct DashboardView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    colors: [Color(hex: "FFF5D6"), Color(hex: "E0F7FA")],
+                    colors: [Color(hex: "FFF5D6"), Color(hex: "FFE6EB"), Color(hex: "E0F7FA")],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -89,13 +87,17 @@ struct DashboardView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         // Header
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Your Gallery")
-                                .font(.largeTitle.bold())
-                                .foregroundColor(Color(hex: "3A2E39"))
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 8) {
+                                Text("Your Gallery")
+                                    .font(.largeTitle.bold())
+                                    .foregroundColor(Color(hex: "3A2E39"))
+                                Text("🎨")
+                                    .font(.title)
+                            }
 
-                            Text("\(totalPageCount) coloring pages")
-                                .font(.subheadline)
+                            Text("\(totalPageCount) pages ready for fun!")
+                                .font(.subheadline.bold())
                                 .foregroundColor(Color(hex: "594144"))
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -118,7 +120,6 @@ struct DashboardView: View {
                                 ForEach(galleryItems) { item in
                                     SwipeableGalleryCard(
                                         imageUrl: item.displayURL,
-                                        name: item.displayName,
                                         variantBadge: item.isVariant,
                                         onTap: { openDetail(item) },
                                         onDelete: { requestDelete(item.parentImage) }
@@ -185,7 +186,6 @@ private struct GalleryDisplayItem: Identifiable {
     let id: String
     let parentImage: ColoringImage
     let displayURL: String
-    let displayName: String
     let isVariant: Bool
 }
 
@@ -198,13 +198,12 @@ private struct CanvasSelection: Identifiable {
 
 private struct SwipeableGalleryCard: View {
     let imageUrl: String
-    let name: String
     let variantBadge: Bool
     let onTap: () -> Void
     let onDelete: () -> Void
 
     @State private var horizontalOffset: CGFloat = 0
-    private let revealWidth: CGFloat = 86
+    private let revealWidth: CGFloat = 92
 
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -212,18 +211,27 @@ private struct SwipeableGalleryCard: View {
                 horizontalOffset = 0
                 onDelete()
             } label: {
-                Image(systemName: "trash")
-                    .font(.title3.weight(.semibold))
-                    .foregroundColor(.white)
-                    .frame(width: revealWidth)
-                    .frame(maxHeight: .infinity)
-                    .background(Color.red)
+                VStack(spacing: 6) {
+                    Image(systemName: "trash")
+                        .font(.title3.weight(.semibold))
+                    Text("Delete")
+                        .font(.caption2.bold())
+                }
+                .foregroundColor(.white)
+                .frame(width: revealWidth)
+                .frame(maxHeight: .infinity)
+                .background(
+                    LinearGradient(
+                        colors: [Color(hex: "FF6B6B"), Color(hex: "FF3D71")],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
             }
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
 
             GalleryCard(
                 imageUrl: imageUrl,
-                name: name,
                 variantBadge: variantBadge
             )
             .offset(x: horizontalOffset)
@@ -251,7 +259,7 @@ private struct SwipeableGalleryCard: View {
             )
             .animation(.spring(response: 0.25, dampingFraction: 0.85), value: horizontalOffset)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
 
@@ -259,59 +267,64 @@ private struct SwipeableGalleryCard: View {
 
 struct GalleryCard: View {
     let imageUrl: String
-    let name: String
     let variantBadge: Bool
 
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack(alignment: .topTrailing) {
-                AsyncImage(url: URL(string: imageUrl)) { phase in
-                    switch phase {
-                    case .success(let img):
-                        img
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
+        ZStack(alignment: .topTrailing) {
+            AsyncImage(url: URL(string: imageUrl)) { phase in
+                switch phase {
+                case .success(let img):
+                    img
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                case .failure:
+                    ZStack {
+                        Color.white.opacity(0.9)
                         Image(systemName: "photo")
                             .font(.largeTitle)
                             .foregroundColor(Color(hex: "A0E7E5"))
-                    case .empty:
-                        ProgressView()
-                    @unknown default:
-                        EmptyView()
                     }
-                }
-                .frame(height: 200)
-                .frame(maxWidth: .infinity)
-                .clipped()
-
-                if variantBadge {
-                    Text("Variant")
-                        .font(.caption2.bold())
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(hex: "6C63FF"))
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
-                        .padding(8)
+                case .empty:
+                    ZStack {
+                        Color.white.opacity(0.9)
+                        ProgressView()
+                            .tint(Color(hex: "FF6F91"))
+                    }
+                @unknown default:
+                    EmptyView()
                 }
             }
+            .frame(height: 220)
+            .frame(maxWidth: .infinity)
+            .clipped()
 
-            Text(name)
-                .font(.caption.weight(.medium))
-                .foregroundColor(Color(hex: "3A2E39"))
-                .lineLimit(1)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.95))
+            HStack(spacing: 6) {
+                Text("✨")
+                Text(variantBadge ? "Remix" : "Color Me")
+                    .font(.caption2.bold())
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(variantBadge ? Color(hex: "6C63FF") : Color(hex: "FF6F91"))
+            )
+            .foregroundColor(.white)
+            .padding(10)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color(hex: "E0E0E0"), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color(hex: "FFB3BA"), Color(hex: "A0E7E5")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 4
+                )
         )
-        .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
+        .shadow(color: Color(hex: "FFB3BA").opacity(0.35), radius: 8, x: 4, y: 4)
     }
 }
 
