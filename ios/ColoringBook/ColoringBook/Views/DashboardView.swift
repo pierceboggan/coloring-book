@@ -19,6 +19,12 @@ struct DashboardView: View {
         }
     }
 
+    private func refreshGallery() {
+        Task {
+            await viewModel.loadImages()
+        }
+    }
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -99,6 +105,12 @@ struct DashboardView: View {
         }
         .task {
             await viewModel.loadImages()
+        }
+        .onAppear {
+            refreshGallery()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .galleryRefreshRequested)) { _ in
+            refreshGallery()
         }
     }
 }
