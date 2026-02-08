@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import {
   Download,
   Printer,
@@ -15,6 +16,7 @@ import {
   ArrowLeft,
   Facebook,
   Twitter,
+  X,
 } from 'lucide-react'
 import { FunBackground } from '@/components/FunBackground'
 
@@ -31,6 +33,20 @@ interface SharedPageData {
   expiresAt: string | null
   viewCount: number
 }
+
+type ColoringCanvasModalProps = {
+  imageUrl: string
+  imageName: string
+  onClose: () => void
+}
+
+const ColoringCanvasModal = dynamic<ColoringCanvasModalProps>(
+  () =>
+    import('@/components/ColoringCanvasModal').then((mod) => ({
+      default: mod.ColoringCanvasModal,
+    })),
+  { ssr: false, loading: () => null }
+)
 
 export default function SharedColoringPage() {
   const params = useParams()
@@ -277,27 +293,12 @@ export default function SharedColoringPage() {
         </main>
       </div>
 
-      {showCanvas && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border-2 border-[#C3B5FF] bg-white shadow-[6px_6px_0_0_#A599E9]">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-[#C3B5FF] bg-white p-4">
-              <h3 className="text-lg font-bold text-[#3A2E39]">Color Online</h3>
-              <button
-                onClick={() => setShowCanvas(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#FFB3BA] bg-[#FFE6EB] text-[#FF6F91] transition-transform hover:-translate-y-0.5"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="p-4">
-              <iframe
-                src={`/color?imageUrl=${encodeURIComponent(pageData.image.coloringPageUrl)}`}
-                className="h-[70vh] w-full rounded-xl border-2 border-[#A0E7E5]"
-                title="Coloring Canvas"
-              />
-            </div>
-          </div>
-        </div>
+      {showCanvas && pageData && (
+        <ColoringCanvasModal
+          imageUrl={pageData.image.coloringPageUrl}
+          imageName={pageData.image.name}
+          onClose={() => setShowCanvas(false)}
+        />
       )}
     </div>
   )
