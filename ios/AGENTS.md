@@ -2,24 +2,17 @@
 # ColoringBook iOS App - Agent Instructions
 
 ## Overview
-<<<<<<< HEAD
 Native iOS application port of ColoringBook.AI web app, built with SwiftUI and Supabase (shared backend with the web app).
-=======
-Native iOS application port of ColoringBook.AI web app, built with SwiftUI and Supabase.
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 ## Architecture
 
 ### Tech Stack
 - **Framework**: SwiftUI with iOS 16+ deployment target
 - **Architecture**: MVVM (Model-View-ViewModel) pattern
-<<<<<<< HEAD
 - **Backend**: Supabase (Auth, Database, Storage) — same project as the web app
-=======
-- **Backend**: Supabase (Auth, Firestore, Storage, Analytics)
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - **AI Processing**: OpenAI API for image-to-coloring-page conversion
 - **Drawing**: PencilKit for digital coloring experience
+- **Monitoring**: Sentry for error tracking and performance monitoring
 - **Languages**: Swift 5 (compiled with Swift 6 compiler)
 - **Project Generation**: XcodeGen (`project.yml`)
 
@@ -48,13 +41,10 @@ ColoringBook/
 │   │   └── AlbumsViewModel.swift
 │   ├── Services/               # Service layer
 │   │   ├── SupabaseService.swift
-<<<<<<< HEAD
 │   │   ├── OpenAIService.swift
+│   │   ├── SentryService.swift
 │   │   ├── NetworkMonitor.swift
 │   │   └── OfflinePersistence.swift
-=======
-│   │   └── OpenAIService.swift
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 │   ├── Utils/                  # Utility extensions
 │   │   └── Color+Hex.swift
 │   ├── Resources/              # Assets, config files
@@ -77,11 +67,8 @@ ColoringBook/
 - Color palette with preset colors and custom picker
 - Adjustable brush size (2-30px)
 - Undo/redo functionality (15-level history)
-<<<<<<< HEAD
 - Save artwork to Supabase Storage and Photos library
-=======
 - Save artwork to Supabase and Photos library
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - Optimized for both iPhone and iPad
 
 ### 2. Kid Mode
@@ -110,11 +97,8 @@ ColoringBook/
 
 ### 5. Authentication
 - **Location**: `Views/AuthView.swift`, `Services/SupabaseService.swift`
-<<<<<<< HEAD
 - Email/password authentication via Supabase Auth
-=======
 - Email/password authentication via Supabase
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - Sign in and sign up flows
 - Session management
 - Secure token storage
@@ -129,23 +113,18 @@ ColoringBook/
    xcodegen generate
    ```
 
-<<<<<<< HEAD
 2. Open `ColoringBook.xcodeproj` in Xcode. Dependencies resolve automatically.
-=======
-2. Configure Supabase:
-   - Download `GoogleService-Info.plist` from Supabase Console
-   - Add to Xcode project at root level
-   - Ensure bundle ID matches: `com.coloringbook.app`
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 3. Configure Supabase:
    - The iOS app uses the same Supabase project as the web app
-   - Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` environment variables
+   - Supabase URL and anon key are set in Info.plist
+   - These can be overridden with environment variables if needed
 
 4. Set environment variables:
    - `OPENAI_API_KEY`: OpenAI API key for image processing
-   - `SUPABASE_URL`: Your Supabase project URL
-   - `SUPABASE_ANON_KEY`: Your Supabase anonymous key
+   - `SUPABASE_URL`: Your Supabase project URL (optional, defaults to Info.plist)
+   - `SUPABASE_ANON_KEY`: Your Supabase anonymous key (optional, defaults to Info.plist)
+   - `SENTRY_DSN`: Sentry DSN for error tracking (optional)
 
 ### Building & Running
 ```bash
@@ -167,15 +146,12 @@ xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
 - **UI Tests**: User flows, navigation, key interactions
 - **Manual Testing**: Drawing experience, offline mode, kid mode
 
-<<<<<<< HEAD
 ## Supabase Schema (Shared with Web)
-=======
 ## Supabase Schema
 
 ### Collections
 - **users**: User profiles and settings
   - `id`, `email`, `display_name`, `created_at`, `is_kid_mode_enabled`
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 
 ### Tables
 - **images**: Coloring page records
@@ -190,13 +166,10 @@ xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
 - User's colored artwork saves
 
 ## Offline Support
-<<<<<<< HEAD
 - Local persistence for offline viewing
 - Cached images for offline coloring
-=======
 - Supabase local persistence enabled
 - Cached images for offline viewing
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - Queue system for uploads when connection restored
 - Offline indicator in UI
 
@@ -231,11 +204,8 @@ xcodebuild -scheme ColoringBook -destination 'platform=iOS,name=YOUR_DEVICE'
 ### Debugging
 - Use Xcode's built-in debugger and breakpoints
 - Check console for emoji-prefixed logs
-<<<<<<< HEAD
 - Supabase Dashboard for backend debugging
-=======
 - Supabase Console for backend debugging
->>>>>>> 32729d677315c38e76970fb241eb3f09f53a27e6
 - Network Link Conditioner for offline testing
 
 ### Updating Dependencies

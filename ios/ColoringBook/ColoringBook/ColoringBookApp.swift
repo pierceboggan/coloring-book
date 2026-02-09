@@ -12,6 +12,11 @@ import Supabase
 struct ColoringBookApp: App {
     @StateObject private var appState = AppState()
 
+    init() {
+        // Initialize Sentry for error tracking and monitoring
+        SentryService.shared.configure()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

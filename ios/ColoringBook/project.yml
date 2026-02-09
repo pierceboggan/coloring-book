@@ -16,6 +16,9 @@ packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift
     majorVersion: 2.0.0
+  Sentry:
+    url: https://github.com/getsentry/sentry-cocoa
+    majorVersion: 8.0.0
 
 targets:
   ColoringBook:
@@ -27,6 +30,8 @@ targets:
     dependencies:
       - package: Supabase
         product: Supabase
+      - package: Sentry
+        product: Sentry
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.coloringbook.app
       INFOPLIST_FILE: ColoringBook/Info.plist
@@ -57,6 +62,7 @@ targets:
         SUPABASE_URL: "https://tzigphpwhwogecpxvuop.supabase.co"
         SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6aWdwaHB3aHdvZ2VjcHh2dW9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDkzNTAsImV4cCI6MjA2NzA4NTM1MH0.5WyUJGuo1FU0sCfLQJ-YS_B2gm3aGLVOVC1xyh86dOY"
         WEB_API_BASE_URL: "https://coloringbook.ai"
+        SENTRY_DSN: ""
 
   ColoringBookTests:
     type: bundle.unit-test

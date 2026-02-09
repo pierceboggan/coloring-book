@@ -26,44 +26,68 @@ class OpenAIService {
         targetAge: Int = 6,
         detailLevel: String = "moderate"
     ) async throws -> Data {
-        // Convert image to base64 (for future use with vision API)
-        _ = imageData.base64EncodedString()
+        let operationSpan = SentryService.shared.startTransaction(
+            name: "ai.generate.coloring_page",
+            operation: "ai.processing"
+        )
+        
+        do {
+            // Convert image to base64 (for future use with vision API)
+            _ = imageData.base64EncodedString()
 
-        // Build the prompt
-        let prompt = customPrompt ?? buildDefaultPrompt(targetAge: targetAge, detailLevel: detailLevel)
+            // Build the prompt
+            let prompt = customPrompt ?? buildDefaultPrompt(targetAge: targetAge, detailLevel: detailLevel)
 
-        let requestBody: [String: Any] = [
-            "model": "dall-e-3",
-            "prompt": prompt,
-            "n": 1,
-            "size": "1024x1024",
-            "response_format": "b64_json"
-        ]
+            let requestBody: [String: Any] = [
+                "model": "dall-e-3",
+                "prompt": prompt,
+                "n": 1,
+                "size": "1024x1024",
+                "response_format": "b64_json"
+            ]
 
-        var request = URLRequest(url: URL(string: apiURL)!)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+            var request = URLRequest(url: URL(string: apiURL)!)
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw OpenAIError.invalidResponse
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                let errorInfo = ["statusCode": (response as? HTTPURLResponse)?.statusCode ?? 0]
+                SentryService.shared.captureError(OpenAIError.invalidResponse, context: errorInfo)
+                throw OpenAIError.invalidResponse
+            }
+
+            // Parse response
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let dataArray = json["data"] as? [[String: Any]],
+                  let firstResult = dataArray.first,
+                  let b64Json = firstResult["b64_json"] as? String,
+                  let imageData = Data(base64Encoded: b64Json) else {
+                SentryService.shared.captureError(OpenAIError.invalidData, context: ["step": "parsing"])
+                throw OpenAIError.invalidData
+            }
+
+            // Add watermark
+            let result = try await addWatermark(to: imageData)
+            operationSpan?.finish()
+            SentryService.shared.addBreadcrumb(
+                message: "Coloring page generated successfully",
+                category: "ai.processing",
+                level: .info
+            )
+            return result
+        } catch {
+            operationSpan?.finish()
+            if error is OpenAIError {
+                throw error
+            }
+            SentryService.shared.captureError(error, context: ["targetAge": targetAge, "detailLevel": detailLevel])
+            throw error
         }
-
-        // Parse response
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let dataArray = json["data"] as? [[String: Any]],
-              let firstResult = dataArray.first,
-              let b64Json = firstResult["b64_json"] as? String,
-              let imageData = Data(base64Encoded: b64Json) else {
-            throw OpenAIError.invalidData
-        }
-
-        // Add watermark
-        return try await addWatermark(to: imageData)
     }
 
     private func buildDefaultPrompt(targetAge: Int, detailLevel: String) -> String {
