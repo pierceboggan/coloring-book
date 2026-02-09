@@ -259,6 +259,38 @@ The app includes extensive console logging with emoji indicators:
 
 Check browser console and Vercel logs for detailed information.
 
+## 🧪 Testing
+
+ColoringBook.AI includes comprehensive unit tests with 80%+ code coverage. See [TESTING.md](./TESTING.md) for detailed testing guidelines.
+
+### Running Tests
+
+```bash
+# Run all unit tests
+npm run test:unit
+
+# Run tests in watch mode
+npm test
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Open Vitest UI for interactive testing
+npm run test:ui
+
+# Run E2E tests
+npm run test:e2e
+```
+
+### Test Coverage
+
+The project maintains 80%+ coverage across:
+- **Library utilities**: variants, image processing, PDF generation, type serialization
+- **Components**: UI components with React Testing Library
+- **End-to-end**: Critical user workflows with Playwright
+
+Coverage reports are generated in `coverage/` directory after running `npm run test:coverage`.
+
 ## 🔧 API Reference
 
 ### Core Endpoints
