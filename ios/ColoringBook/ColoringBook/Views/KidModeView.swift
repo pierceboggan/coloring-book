@@ -15,12 +15,15 @@ struct KidModeView: View {
     @State private var unlockError = false
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-    private func selectedIndex(for image: ColoringImage) -> Int {
-        guard let selectedId = image.id,
-              let index = viewModel.availableImages.firstIndex(where: { $0.id == selectedId }) else {
+    private func selectedIndex(for page: KidModeViewModel.KidModePage) -> Int {
+        guard let index = viewModel.availablePages.firstIndex(where: { $0.id == page.id }) else {
             return 0
         }
         return index
+    }
+
+    private var canvasPages: [ColoringImage] {
+        viewModel.availablePages.map { $0.canvasImage }
     }
 
     var body: some View {
@@ -37,7 +40,7 @@ struct KidModeView: View {
                             .font(.title.bold())
                             .foregroundColor(Color(hex: "3A2E39"))
 
-                        Text("\(viewModel.availableImages.count) pages to color")
+                        Text("\(viewModel.availablePages.count) pages to color")
                             .font(.subheadline)
                             .foregroundColor(Color(hex: "594144").opacity(0.7))
                     }
@@ -65,7 +68,7 @@ struct KidModeView: View {
                         .tint(Color(hex: "FF6F91"))
                         .scaleEffect(1.2)
                     Spacer()
-                } else if viewModel.availableImages.isEmpty {
+                } else if viewModel.availablePages.isEmpty {
                     Spacer()
                     EmptyKidModeView()
                     Spacer()
@@ -78,9 +81,9 @@ struct KidModeView: View {
                             ),
                             spacing: 14
                         ) {
-                            ForEach(viewModel.availableImages) { image in
-                                KidModeImageCard(image: image) {
-                                    viewModel.selectedImage = image
+                            ForEach(viewModel.availablePages) { page in
+                                KidModeImageCard(imageUrl: page.displayURL) {
+                                    viewModel.selectedPage = page
                                 }
                             }
                         }
@@ -113,11 +116,11 @@ struct KidModeView: View {
                 )
             }
         }
-        .fullScreenCover(item: $viewModel.selectedImage) { image in
+        .fullScreenCover(item: $viewModel.selectedPage) { page in
             ColoringCanvasView(
-                image: image,
-                galleryImages: viewModel.availableImages,
-                initialIndex: selectedIndex(for: image)
+                image: page.canvasImage,
+                galleryImages: canvasPages,
+                initialIndex: selectedIndex(for: page)
             )
         }
         .task {
@@ -129,13 +132,13 @@ struct KidModeView: View {
 // MARK: - Kid Mode Image Card
 
 struct KidModeImageCard: View {
-    let image: ColoringImage
+    let imageUrl: String
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 0) {
-                AsyncImage(url: URL(string: image.coloringPageUrl ?? image.originalUrl)) { phase in
+                AsyncImage(url: URL(string: imageUrl)) { phase in
                     switch phase {
                     case .success(let img):
                         img
