@@ -25,10 +25,12 @@ class NetworkMonitor: ObservableObject {
 
     private func startMonitoring() {
         monitor.pathUpdateHandler = { [weak self] path in
-            Task { @MainActor in
-                self?.isConnected = path.status == .satisfied
-                self?.connectionType = path.availableInterfaces.first?.type
-                self?.logConnectionStatus(path)
+            guard let self else { return }
+
+            Task { @MainActor [self] in
+                self.isConnected = path.status == .satisfied
+                self.connectionType = path.availableInterfaces.first?.type
+                self.logConnectionStatus(path)
             }
         }
         monitor.start(queue: queue)

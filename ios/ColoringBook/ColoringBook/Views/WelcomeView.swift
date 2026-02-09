@@ -57,7 +57,10 @@ struct WelcomeView: View {
                     .padding(.horizontal)
 
                     // Description
-                    Text("Our friendly AI helpers trace every giggle, wiggle, and wagging tail into playful line art that's ready for crayons, markers, and imagination.")
+                    Text(
+                        "Our friendly AI helpers trace every giggle, wiggle, and wagging tail " +
+                        "into playful line art that's ready for crayons, markers, and imagination."
+                    )
                         .font(.body)
                         .foregroundColor(Color(hex: "594144"))
                         .multilineTextAlignment(.center)

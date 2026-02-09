@@ -161,7 +161,13 @@ struct ColoringImageDetailView: View {
             Button(role: .destructive) {
                 showDeleteConfirmation = true
             } label: {
-                ManagementRow(icon: "trash", title: "Delete page", subtitle: "Remove this page and related variants", foreground: .red, border: Color(hex: "FFB3BA"))
+                ManagementRow(
+                    icon: "trash",
+                    title: "Delete page",
+                    subtitle: "Remove this page and related variants",
+                    foreground: .red,
+                    border: Color(hex: "FFB3BA")
+                )
             }
             .buttonStyle(.plain)
         }

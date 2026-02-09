@@ -30,7 +30,7 @@ jobs:
         xcode-version: ${{ env.XCODE_VERSION }}
 
     - name: Cache SPM dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/Library/Developer/Xcode/DerivedData
@@ -49,7 +49,7 @@ jobs:
       run: |
         xcodebuild clean build \
           -scheme ColoringBook \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'generic/platform=iOS Simulator' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
 
@@ -58,7 +58,7 @@ jobs:
       run: |
         xcodebuild test \
           -scheme ColoringBook \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
 
@@ -67,18 +67,18 @@ jobs:
       run: |
         xcodebuild test \
           -scheme ColoringBook \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
           -only-testing:ColoringBookUITests \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
 
     - name: Upload Test Results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: |
-          ios/ColoringBook/build/Logs/Test/*.xcresult
+          ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
 
   lint:
     name: Lint Swift Code
@@ -115,6 +115,6 @@ jobs:
       run: |
         xcodebuild clean build \
           -scheme ColoringBook \
-          -destination 'platform=iOS Simulator,name=iPad Pro (12.9-inch),OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPad Pro (12.9-inch) (6th generation)' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
