@@ -8,6 +8,16 @@ Transform any photo into a beautiful coloring page with AI-powered technology. P
 [![OpenAI](https://img.shields.io/badge/OpenAI-API-orange?logo=openai)](https://openai.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue?logo=tailwindcss)](https://tailwindcss.com/)
 
+## 📸 Web App Screenshots
+
+### Landing Page
+
+![ColoringBook web landing page](public/readme-screenshots/web/web-home.png)
+
+### Example Gallery
+
+![ColoringBook web examples page](public/readme-screenshots/web/web-examples.png)
+
 ## ✨ Features
 
 ### 🤖 AI-Powered Processing

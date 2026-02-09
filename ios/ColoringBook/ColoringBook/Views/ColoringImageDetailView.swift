@@ -21,7 +21,7 @@ struct ColoringImageDetailView: View {
     @State private var showingARGallery = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [Color(hex: "FFF5D6"), Color(hex: "FFE6EB"), Color(hex: "E0F7FA")],

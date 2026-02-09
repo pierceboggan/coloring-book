@@ -13,7 +13,7 @@ struct SettingsView: View {
     @State private var showSignOutAlert = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [Color(hex: "FFF5D6"), Color(hex: "FFE6EB")],
@@ -126,7 +126,7 @@ struct KidModeSettingsView: View {
     @State private var showSuccess = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     HStack {

@@ -14,6 +14,7 @@ struct DashboardView: View {
     @State private var canvasSelection: CanvasSelection?
     @State private var pendingDeleteImage: ColoringImage?
     @State private var galleryMode: GalleryMode = .color
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     enum GalleryMode: String, CaseIterable, Identifiable {
         case color
@@ -88,7 +89,7 @@ struct DashboardView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [Color(hex: "FFF5D6"), Color(hex: "FFE6EB"), Color(hex: "E0F7FA")],
@@ -146,11 +147,11 @@ struct DashboardView: View {
                             EmptyGalleryView()
                         } else {
                             LazyVGrid(
-                                columns: [
-                                    GridItem(.flexible(), spacing: 24),
-                                    GridItem(.flexible(), spacing: 24)
-                                ],
-                                spacing: 28
+                                columns: Array(
+                                    repeating: GridItem(.flexible(), spacing: 16),
+                                    count: horizontalSizeClass == .regular ? 3 : 2
+                                ),
+                                spacing: 20
                             ) {
                                 ForEach(galleryItems) { item in
                                     SwipeableGalleryCard(
@@ -358,7 +359,7 @@ struct GalleryCard: View {
                 case .success(let img):
                     img
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
                 case .failure:
                     ZStack {
                         Color.white.opacity(0.9)
@@ -376,9 +377,8 @@ struct GalleryCard: View {
                     EmptyView()
                 }
             }
-            .frame(height: 196)
             .frame(maxWidth: .infinity)
-            .clipped()
+            .background(Color.white.opacity(0.9))
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(

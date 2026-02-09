@@ -19,7 +19,7 @@ struct ImageUploadView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 // Background
                 LinearGradient(

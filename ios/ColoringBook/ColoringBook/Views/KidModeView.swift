@@ -13,6 +13,7 @@ struct KidModeView: View {
     @State private var showUnlockPrompt = false
     @State private var unlockCode = ""
     @State private var unlockError = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private func selectedIndex(for image: ColoringImage) -> Int {
         guard let selectedId = image.id,
@@ -71,10 +72,10 @@ struct KidModeView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVGrid(
-                            columns: [
-                                GridItem(.flexible(), spacing: 14),
-                                GridItem(.flexible(), spacing: 14)
-                            ],
+                            columns: Array(
+                                repeating: GridItem(.flexible(), spacing: 14),
+                                count: horizontalSizeClass == .regular ? 3 : 2
+                            ),
                             spacing: 14
                         ) {
                             ForEach(viewModel.availableImages) { image in
@@ -139,7 +140,7 @@ struct KidModeImageCard: View {
                     case .success(let img):
                         img
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
+                            .aspectRatio(contentMode: .fit)
                     case .failure:
                         RoundedRectangle(cornerRadius: 0)
                             .fill(Color(hex: "F0F0F0"))
@@ -159,8 +160,8 @@ struct KidModeImageCard: View {
                         EmptyView()
                     }
                 }
-                .frame(height: 180)
-                .clipped()
+                .frame(maxWidth: .infinity)
+                .background(Color(hex: "F8F8F8"))
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(

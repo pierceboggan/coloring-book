@@ -11,62 +11,66 @@ struct AlbumsView: View {
     @StateObject private var viewModel = AlbumsViewModel()
     @State private var showCreateAlbum = false
     @State private var showShareCodeInput = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var contentMaxWidth: CGFloat {
+        horizontalSizeClass == .regular ? 820 : .infinity
+    }
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                LinearGradient(
-                    colors: [Color(hex: "FFF5D6"), Color(hex: "E0F7FA")],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+        ZStack {
+            LinearGradient(
+                colors: [Color(hex: "FFF5D6"), Color(hex: "E0F7FA")],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Header
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Family Albums")
-                                .font(.largeTitle.bold())
-                                .foregroundColor(Color(hex: "3A2E39"))
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Family Albums")
+                            .font(.largeTitle.bold())
+                            .foregroundColor(Color(hex: "3A2E39"))
 
-                            Text("Create and share collections of coloring pages")
-                                .font(.subheadline)
-                                .foregroundColor(Color(hex: "594144"))
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-
-                        // Action buttons
-                        HStack(spacing: 12) {
-                            ActionButton(
-                                icon: "plus.circle.fill",
-                                title: "Create Album",
-                                color: Color(hex: "FF6F91"),
-                                action: { showCreateAlbum = true }
-                            )
-
-                            ActionButton(
-                                icon: "qrcode",
-                                title: "Enter Code",
-                                color: Color(hex: "A0E7E5"),
-                                action: { showShareCodeInput = true }
-                            )
-                        }
-                        .padding(.horizontal)
-
-                        // Albums list placeholder
-                        Text("Albums coming soon!")
-                            .font(.headline)
+                        Text("Create and share collections of coloring pages")
+                            .font(.subheadline)
                             .foregroundColor(Color(hex: "594144"))
-                            .padding(40)
-
-                        Spacer(minLength: 40)
                     }
-                    .padding(.top)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    // Action buttons
+                    HStack(spacing: 12) {
+                        ActionButton(
+                            icon: "plus.circle.fill",
+                            title: "Create Album",
+                            color: Color(hex: "FF6F91"),
+                            action: { showCreateAlbum = true }
+                        )
+
+                        ActionButton(
+                            icon: "qrcode",
+                            title: "Enter Code",
+                            color: Color(hex: "A0E7E5"),
+                            action: { showShareCodeInput = true }
+                        )
+                    }
+                    .padding(.horizontal)
+
+                    // Albums list placeholder
+                    Text("Albums coming soon!")
+                        .font(.headline)
+                        .foregroundColor(Color(hex: "594144"))
+                        .padding(40)
+
+                    Spacer(minLength: 40)
                 }
+                .frame(maxWidth: contentMaxWidth)
+                .frame(maxWidth: .infinity)
+                .padding(.top)
             }
-            .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $showCreateAlbum) {
             CreateAlbumView()
@@ -110,20 +114,18 @@ struct CreateAlbumView: View {
     @State private var selectedImages: [ColoringImage] = []
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Text("Create Album Feature")
-                    .font(.title)
-                Text("Coming soon!")
-                    .font(.subheadline)
-            }
-            .navigationTitle("Create Album")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+        VStack {
+            Text("Create Album Feature")
+                .font(.title)
+            Text("Coming soon!")
+                .font(.subheadline)
+        }
+        .navigationTitle("Create Album")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
         }
@@ -135,21 +137,19 @@ struct ShareCodeInputView: View {
     @State private var shareCode = ""
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Text("Enter Share Code")
-                    .font(.title)
-                TextField("Enter code", text: $shareCode)
-                    .textFieldStyle(.roundedBorder)
-                    .padding()
-            }
-            .navigationTitle("Join Album")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+        VStack {
+            Text("Enter Share Code")
+                .font(.title)
+            TextField("Enter code", text: $shareCode)
+                .textFieldStyle(.roundedBorder)
+                .padding()
+        }
+        .navigationTitle("Join Album")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
         }
