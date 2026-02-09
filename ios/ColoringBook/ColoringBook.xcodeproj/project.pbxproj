@@ -17,6 +17,7 @@
 		4966800B8387ED163273AB7E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893D38EE01009E98924FFD33 /* ContentView.swift */; };
 		4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935A1C40FA4E384D1A8042C8 /* KidModeView.swift */; };
 		4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */; };
+		5284D7CACCE3A358D31CCE2D /* ARGalleryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90BC6960926AE280B707B43A /* ARGalleryViewModel.swift */; };
 		54EE2AF4F3B96717F4850500 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B300F36E7A7E10794783C5 /* WelcomeView.swift */; };
 		5DCA4C6F063F79CCB510CDA0 /* ImageUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */; };
 		5F1118D3DCBFDCA0508E187E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7DE3E4FD617A1FC92C021E61 /* Supabase */; };
@@ -24,6 +25,8 @@
 		61E603888004BC54EB989E70 /* ColoringImageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */; };
 		661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */; };
 		6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */; };
+		7F124AC96F310DC59BB02770 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5A6F1B5FCD8EA83A5BCEBA1A /* Sentry */; };
+		9D3E6B4E1CB0E755D639862F /* SentryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC2EF52811D50E2574B290B /* SentryService.swift */; };
 		AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */; };
 		B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */; };
 		B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */; };
@@ -34,6 +37,7 @@
 		D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2385F3E3C455654AA892AD23 /* OpenAIService.swift */; };
 		D7A0F4FB36CE303048A7C332 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */; };
 		E01D5E30B3EBA0419797248E /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33CA13ED3683D17B125FA22 /* MainTabView.swift */; };
+		E31FA5409C987791CFE73431 /* ARGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2BC3A6953161437A124CF7 /* ARGalleryView.swift */; };
 		ED022BECE03C7917723AA2C1 /* AlbumsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42943147BAA93DE15489B74 /* AlbumsViewModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +72,7 @@
 		7F5A78BC1C43BD0FCCB643BD /* ColoringBookUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		893D38EE01009E98924FFD33 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookUITests.swift; sourceTree = "<group>"; };
+		90BC6960926AE280B707B43A /* ARGalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGalleryViewModel.swift; sourceTree = "<group>"; };
 		935A1C40FA4E384D1A8042C8 /* KidModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeView.swift; sourceTree = "<group>"; };
 		973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		98F0010079CD6B472B6B5CEC /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -75,12 +80,14 @@
 		9CB1B4B17B3B4CA1A918B119 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookTests.swift; sourceTree = "<group>"; };
 		AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		AF2BC3A6953161437A124CF7 /* ARGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGalleryView.swift; sourceTree = "<group>"; };
 		B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAPIService.swift; sourceTree = "<group>"; };
 		BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringImageDetailView.swift; sourceTree = "<group>"; };
 		C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotifications.swift; sourceTree = "<group>"; };
 		CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadView.swift; sourceTree = "<group>"; };
+		DCC2EF52811D50E2574B290B /* SentryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryService.swift; sourceTree = "<group>"; };
 		E9B300F36E7A7E10794783C5 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringCanvasView.swift; sourceTree = "<group>"; };
@@ -94,6 +101,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F1118D3DCBFDCA0508E187E /* Supabase in Frameworks */,
+				7F124AC96F310DC59BB02770 /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */,
+				AF2BC3A6953161437A124CF7 /* ARGalleryView.swift */,
 				26B9529DDD64E29EFE76F803 /* AuthView.swift */,
 				F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */,
 				BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */,
@@ -139,6 +148,7 @@
 				AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */,
 				2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */,
 				2385F3E3C455654AA892AD23 /* OpenAIService.swift */,
+				DCC2EF52811D50E2574B290B /* SentryService.swift */,
 				212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */,
 				B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */,
 			);
@@ -193,6 +203,7 @@
 			isa = PBXGroup;
 			children = (
 				F42943147BAA93DE15489B74 /* AlbumsViewModel.swift */,
+				90BC6960926AE280B707B43A /* ARGalleryViewModel.swift */,
 				5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */,
 				973BE7BDCF02C3A2AD78DD29 /* DashboardViewModel.swift */,
 				4C4CC7C4527136228FB78B34 /* ImageUploadViewModel.swift */,
@@ -244,6 +255,7 @@
 			name = ColoringBook;
 			packageProductDependencies = (
 				7DE3E4FD617A1FC92C021E61 /* Supabase */,
+				5A6F1B5FCD8EA83A5BCEBA1A /* Sentry */,
 			);
 			productName = ColoringBook;
 			productReference = 1123FCD37029120F80EE9234 /* ColoringBook.app */;
@@ -296,6 +308,7 @@
 			mainGroup = C969AF8ED99F9F05FDF904B6;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				80D5F27E2BF13E69708ABC9A /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 				4E3790DCF76B3D3A82E2705E /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -322,6 +335,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E31FA5409C987791CFE73431 /* ARGalleryView.swift in Sources */,
+				5284D7CACCE3A358D31CCE2D /* ARGalleryViewModel.swift in Sources */,
 				B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */,
 				ED022BECE03C7917723AA2C1 /* AlbumsViewModel.swift in Sources */,
 				3D67D7C9B9C68F6DE6DABEED /* AppNotifications.swift in Sources */,
@@ -343,6 +358,7 @@
 				D7A0F4FB36CE303048A7C332 /* NetworkMonitor.swift in Sources */,
 				C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */,
 				D1B553901D88F22C9FEB2E93 /* OpenAIService.swift in Sources */,
+				9D3E6B4E1CB0E755D639862F /* SentryService.swift in Sources */,
 				0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */,
 				6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */,
 				CB2F675C992D875D9A04F0D4 /* WebAPIService.swift in Sources */,
@@ -659,9 +675,22 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		80D5F27E2BF13E69708ABC9A /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5A6F1B5FCD8EA83A5BCEBA1A /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80D5F27E2BF13E69708ABC9A /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
 		7DE3E4FD617A1FC92C021E61 /* Supabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4E3790DCF76B3D3A82E2705E /* XCRemoteSwiftPackageReference "supabase-swift" */;

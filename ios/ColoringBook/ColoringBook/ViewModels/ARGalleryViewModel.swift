@@ -143,7 +143,7 @@ class ARGalleryViewModel: NSObject, ObservableObject {
         imageNode.position = position
         
         // Orient the plane based on the surface alignment
-        if raycastResult.target.alignment == .vertical {
+        if raycastResult.targetAlignment == .vertical {
             // For vertical surfaces (walls), rotate to face the camera
             imageNode.eulerAngles.y = .pi
         }
@@ -269,11 +269,11 @@ class ARGalleryViewModel: NSObject, ObservableObject {
 
 // MARK: - ARSCNViewDelegate
 extension ARGalleryViewModel: ARSCNViewDelegate {
-    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+    nonisolated func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         // Plane detected
         if anchor is ARPlaneAnchor {
-            DispatchQueue.main.async {
-                self.showMessage("Surface detected! Tap to place.", duration: 2.0)
+            Task { @MainActor [weak self] in
+                self?.showMessage("Surface detected! Tap to place.", duration: 2.0)
             }
         }
     }
@@ -281,16 +281,22 @@ extension ARGalleryViewModel: ARSCNViewDelegate {
 
 // MARK: - ARSessionDelegate
 extension ARGalleryViewModel: ARSessionDelegate {
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        showMessage("AR Session failed: \(error.localizedDescription)")
+    nonisolated func session(_ session: ARSession, didFailWithError error: Error) {
+        Task { @MainActor [weak self] in
+            self?.showMessage("AR Session failed: \(error.localizedDescription)")
+        }
     }
-    
-    func sessionWasInterrupted(_ session: ARSession) {
-        showMessage("AR Session interrupted")
+
+    nonisolated func sessionWasInterrupted(_ session: ARSession) {
+        Task { @MainActor [weak self] in
+            self?.showMessage("AR Session interrupted")
+        }
     }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        showMessage("AR Session resumed")
-        resetScene()
+
+    nonisolated func sessionInterruptionEnded(_ session: ARSession) {
+        Task { @MainActor [weak self] in
+            self?.showMessage("AR Session resumed")
+            self?.resetScene()
+        }
     }
 }

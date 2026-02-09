@@ -21,19 +21,17 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos for coloring pages</string>
+	<string>We need camera access to take photos for coloring pages and to display them in augmented reality</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need permission to save your colored artwork to your photo library</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to create coloring pages from your photos</string>
+	<key>SENTRY_DSN</key>
+	<string></string>
 	<key>SUPABASE_ANON_KEY</key>
 	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6aWdwaHB3aHdvZ2VjcHh2dW9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDkzNTAsImV4cCI6MjA2NzA4NTM1MH0.5WyUJGuo1FU0sCfLQJ-YS_B2gm3aGLVOVC1xyh86dOY</string>
 	<key>SUPABASE_URL</key>
 	<string>https://tzigphpwhwogecpxvuop.supabase.co</string>
-	<key>WEB_API_BASE_URL</key>
-	<string>https://coloringbook.ai</string>
-	<key>SENTRY_DSN</key>
-	<string>$(SENTRY_DSN)</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -49,5 +47,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>WEB_API_BASE_URL</key>
+	<string>https://coloringbook.ai</string>
 </dict>
 </plist>
