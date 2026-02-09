@@ -18,6 +18,7 @@ struct ColoringImageDetailView: View {
     @State private var isSavingToPhotos = false
     @State private var saveMessage: String?
     @State private var showDeleteConfirmation = false
+    @State private var showingARGallery = false
 
     var body: some View {
         NavigationView {
@@ -70,6 +71,9 @@ struct ColoringImageDetailView: View {
                 }
             } message: {
                 Text("This removes the coloring page and all associated variants.")
+            }
+            .fullScreenCover(isPresented: $showingARGallery) {
+                ARGalleryView(image: image)
             }
         }
     }
@@ -135,6 +139,13 @@ struct ColoringImageDetailView: View {
                 }
                 .buttonStyle(.plain)
             }
+
+            Button {
+                showingARGallery = true
+            } label: {
+                ManagementRow(icon: "arkit", title: "View in AR", subtitle: "See this page in augmented reality", border: Color(hex: "FFB3BA"))
+            }
+            .buttonStyle(.plain)
 
             Button {
                 Task {

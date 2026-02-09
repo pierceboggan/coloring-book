@@ -76,3 +76,4 @@ next-env.d.ts
 # iOS local overrides
 ios/ColoringBookApp/AppConfig.local.swift
 ios/ColoringBookApp/Assets.xcassets/AppIcon.appiconset/*.png
+xcodegen

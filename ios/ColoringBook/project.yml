@@ -56,7 +56,7 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-        NSCameraUsageDescription: "We need access to your camera to take photos for coloring pages"
+        NSCameraUsageDescription: "We need camera access to take photos for coloring pages and to display them in augmented reality"
         NSPhotoLibraryUsageDescription: "We need access to your photo library to create coloring pages from your photos"
         NSPhotoLibraryAddUsageDescription: "We need permission to save your colored artwork to your photo library"
         SUPABASE_URL: "https://tzigphpwhwogecpxvuop.supabase.co"
