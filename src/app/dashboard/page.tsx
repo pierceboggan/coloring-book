@@ -27,6 +27,7 @@ import {
   Heart,
   Grid3x3,
   LayoutGrid,
+  Share2,
 } from 'lucide-react'
 
 interface UserImage {
@@ -222,6 +223,22 @@ const VariantsModal = dynamic<VariantsModalProps>(
   { ssr: false, loading: () => null }
 )
 
+type ShareModalProps = {
+  imageId: string
+  imageName: string
+  isVariant?: boolean
+  variantUrl?: string
+  onClose: () => void
+}
+
+const ShareModal = dynamic<ShareModalProps>(
+  () =>
+    import('@/components/ShareModal').then((mod) => ({
+      default: mod.ShareModal,
+    })),
+  { ssr: false, loading: () => null }
+)
+
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -241,6 +258,7 @@ export default function Dashboard() {
   const [renamingImageId, setRenamingImageId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
   const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('compact')
+  const [shareImage, setShareImage] = useState<ColoringDisplayItem | null>(null)
 
   const fetchUserImages = useCallback(async () => {
     try {
@@ -932,6 +950,13 @@ export default function Dashboard() {
                               <Download className="h-3.5 w-3.5" />
                             </a>
                             <button
+                              onClick={() => setShareImage(item)}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 bg-[#FFD166] text-white transition-transform hover:scale-110"
+                              title="Share"
+                            >
+                              <Share2 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
                               onClick={() => toggleFavorite(item.id, item.isFavorite)}
                               className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 transition-transform hover:scale-110 ${
                                 item.isFavorite
@@ -1040,6 +1065,13 @@ export default function Dashboard() {
                               <Download className="h-4 w-4" />
                               Download
                             </a>
+                            <button
+                              onClick={() => setShareImage(item)}
+                              className="flex items-center gap-2 rounded-full border-2 border-[#FFD166] bg-[#FFF3BF] px-3 py-1.5 text-xs font-semibold text-[#AA6A00] shadow-[3px_3px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5"
+                            >
+                              <Share2 className="h-4 w-4" />
+                              Share
+                            </button>
                           </div>
 
                           <div className="flex items-center gap-2">
@@ -1382,6 +1414,16 @@ export default function Dashboard() {
           onClose={() => setPromptRemixImage(null)}
           imageName={promptRemixImage.name}
           imageUrl={promptRemixImage.original_url}
+        />
+      )}
+
+      {shareImage && (
+        <ShareModal
+          imageId={shareImage.id}
+          imageName={shareImage.name}
+          isVariant={shareImage.isVariant}
+          variantUrl={shareImage.isVariant ? shareImage.coloringPageUrl : undefined}
+          onClose={() => setShareImage(null)}
         />
       )}
     </div>
