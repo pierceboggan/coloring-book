@@ -241,6 +241,7 @@ export default function Dashboard() {
   const [renamingImageId, setRenamingImageId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
   const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('compact')
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
 
   const fetchUserImages = useCallback(async () => {
     try {
@@ -333,6 +334,12 @@ export default function Dashboard() {
   })
 
   const completedCount = coloringDisplayItems.length
+  const filteredColoringDisplayItems = favoritesOnly
+    ? coloringDisplayItems.filter(item => item.isFavorite)
+    : coloringDisplayItems
+  const filteredUploadsViewImages = favoritesOnly
+    ? sortedUploadsViewImages.filter(image => image.is_favorite ?? false)
+    : sortedUploadsViewImages
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -817,7 +824,21 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {viewMode === 'coloring' && coloringDisplayItems.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setFavoritesOnly(prev => !prev)}
+              className={`inline-flex items-center gap-2 rounded-full border-2 px-3 py-1 text-sm font-semibold shadow-[4px_4px_0_0] transition-all ${
+                favoritesOnly
+                  ? 'border-[#FF6F91] bg-[#FF6F91] text-white shadow-[#f2557b]'
+                  : 'border-[#FFB3BA] bg-white/95 text-[#FF6F91] shadow-[#FF8A80] hover:bg-[#FFE6EB]'
+              }`}
+              title={favoritesOnly ? 'Show all items' : 'Show favorites only'}
+            >
+              <Heart className={`h-4 w-4 ${favoritesOnly ? 'fill-current' : ''}`} />
+              Favorites
+            </button>
+
+            {viewMode === 'coloring' && filteredColoringDisplayItems.length > 0 && (
               <div className="inline-flex items-center gap-1 rounded-full border-2 border-[#FFB3BA] bg-white/95 p-1 shadow-[4px_4px_0_0_#FF8A80]">
                 <button
                   type="button"
@@ -848,7 +869,7 @@ export default function Dashboard() {
           </div>
 
           {viewMode === 'coloring' ? (
-            coloringDisplayItems.length === 0 ? (
+            filteredColoringDisplayItems.length === 0 ? (
               <div className="mx-auto max-w-2xl">
                 <div className="relative overflow-hidden rounded-2xl border-2 border-[#FFB3BA] bg-white/90 p-8 text-center shadow-[6px_6px_0_0_#FF8A80]">
                   <div className="pointer-events-none absolute -top-10 right-10 h-20 w-20 rounded-full bg-[#FF8A80]/40" aria-hidden="true" />
@@ -856,15 +877,30 @@ export default function Dashboard() {
                   <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#FF6F91] text-white shadow-inner">
                     <Palette className="h-7 w-7" />
                   </div>
-                  <h3 className="mb-2 text-xl font-bold text-gray-800">No coloring pages yet</h3>
-                  <p className="mb-4 text-sm text-gray-600">Upload photos or explore uploads to start creating pages.</p>
-                  <button
-                    onClick={() => setShowUploader(true)}
-                    className="inline-flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Upload photos
-                  </button>
+                  <h3 className="mb-2 text-xl font-bold text-gray-800">
+                    {favoritesOnly ? 'No favorite coloring pages yet' : 'No coloring pages yet'}
+                  </h3>
+                  <p className="mb-4 text-sm text-gray-600">
+                    {favoritesOnly
+                      ? 'Tap the heart on any page to pin it here.'
+                      : 'Upload photos or explore uploads to start creating pages.'}
+                  </p>
+                  {favoritesOnly ? (
+                    <button
+                      onClick={() => setFavoritesOnly(false)}
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-white px-5 py-2 text-sm font-semibold text-[#FF6F91] shadow-[3px_3px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                    >
+                      Show all pages
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowUploader(true)}
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-[#FFB3BA] bg-[#FF6F91] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#f2557b] transition-transform hover:-translate-y-0.5"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Upload photos
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
@@ -872,7 +908,7 @@ export default function Dashboard() {
                 ? 'grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
                 : 'grid grid-cols-2 gap-6 lg:grid-cols-3'
               }>
-                {coloringDisplayItems.map((item) =>
+                {filteredColoringDisplayItems.map((item) =>
                   layoutMode === 'compact' ? (
                     /* ── Compact card ── */
                     <div
@@ -1060,7 +1096,7 @@ export default function Dashboard() {
                 )}
               </div>
             )
-          ) : sortedUploadsViewImages.length === 0 ? (
+          ) : filteredUploadsViewImages.length === 0 ? (
             <div className="mx-auto max-w-2xl">
               <div className="relative overflow-hidden rounded-2xl border-2 border-[#A0E7E5] bg-white/90 p-8 text-center shadow-[6px_6px_0_0_#55C6C0]">
                 <div className="pointer-events-none absolute -top-10 right-10 h-20 w-20 rounded-full bg-[#55C6C0]/40" aria-hidden="true" />
@@ -1068,20 +1104,35 @@ export default function Dashboard() {
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-[#55C6C0] text-white shadow-inner">
                   <Images className="h-7 w-7" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-gray-800">No uploads yet</h3>
-                <p className="mb-4 text-sm text-gray-600">Drop in photos to start building your variant library.</p>
-                <button
-                  onClick={() => setShowUploader(true)}
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#55C6C0] bg-[#55C6C0] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  Upload photos
-                </button>
+                <h3 className="mb-2 text-xl font-bold text-gray-800">
+                  {favoritesOnly ? 'No favorite uploads yet' : 'No uploads yet'}
+                </h3>
+                <p className="mb-4 text-sm text-gray-600">
+                  {favoritesOnly
+                    ? 'Heart an upload to quickly find it here.'
+                    : 'Drop in photos to start building your variant library.'}
+                </p>
+                {favoritesOnly ? (
+                  <button
+                    onClick={() => setFavoritesOnly(false)}
+                    className="inline-flex items-center gap-2 rounded-full border-2 border-[#55C6C0] bg-white px-5 py-2 text-sm font-semibold text-[#1DB9B3] shadow-[3px_3px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
+                  >
+                    Show all uploads
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowUploader(true)}
+                    className="inline-flex items-center gap-2 rounded-full border-2 border-[#55C6C0] bg-[#55C6C0] px-5 py-2 text-sm font-semibold text-white shadow-[3px_3px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Upload photos
+                  </button>
+                )}
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-              {sortedUploadsViewImages.map((image) => {
+              {filteredUploadsViewImages.map((image) => {
                 const variantSummaries = getVariantSummaries(image)
                 return (
                   <div
