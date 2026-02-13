@@ -746,7 +746,6 @@ export default function Dashboard() {
       <main className="container mx-auto px-4 pb-10 pt-2.5">
         <div className="relative overflow-hidden rounded-2xl border-2 border-[#A0E7E5] bg-white/90 px-4 py-3 shadow-[6px_6px_0_0_#55C6C0]">
           <div className="pointer-events-none absolute -top-10 right-10 h-24 w-24 rounded-full bg-[#FF8A80]/70" aria-hidden="true" />
-          <div className="pointer-events-none absolute -bottom-8 left-6 h-20 w-20 rounded-full bg-[#B4F8C8]/70" aria-hidden="true" />
           <div className="flex flex-col gap-4">
             <div className="max-w-3xl space-y-2">
               <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#E97777]">
