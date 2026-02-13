@@ -1223,6 +1223,10 @@ export default function Dashboard() {
             </div>
           )}
         </section>
+
+        <footer className="mt-6 pb-2 text-center text-xs font-semibold text-[#594144]/70">
+          made with love by pierceboggan
+        </footer>
       </main>
 
       {showUploader && (
