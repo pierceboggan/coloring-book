@@ -1,5 +1,7 @@
 # 🎨 ColoringBook.AI
 
+i love james montemagno <3 it's valentines
+
 Transform any photo into a beautiful coloring page with AI-powered technology. Perfect for family memories, gifts, or creative fun!
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
