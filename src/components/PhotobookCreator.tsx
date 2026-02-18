@@ -401,7 +401,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-5xl">
         <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#A0E7E5]/40 via-[#FFB3BA]/40 to-[#FFD166]/40 blur-2xl" aria-hidden="true" />
-        <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
+        <div className="relative flex max-h-[90vh] w-full flex-col rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
           <div className="flex items-start justify-between gap-4 border-b-4 border-dashed border-[#A0E7E5] px-8 py-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#A0E7E5] text-white shadow-inner">
@@ -440,7 +440,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col gap-6 overflow-hidden px-8 py-6 lg:flex-row">
+          <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-8 py-6 lg:flex-row">
             <div className="flex-1 space-y-4 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-5">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-[#3A2E39]">Available Pages ({availableImages.length})</h3>
