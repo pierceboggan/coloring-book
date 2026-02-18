@@ -422,25 +422,26 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
             </button>
           </div>
 
-          <div className="shrink-0 space-y-6 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-8 py-6">
-            <div className="rounded-[2rem] border-4 border-dashed border-[#FFB3BA] bg-white/80 p-6">
-              <label className="text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
-              <input
-                type="text"
-                value={photobookTitle}
-                onChange={(e) => setPhotobookTitle(e.target.value)}
-                className="mt-3 w-full rounded-2xl border-2 border-[#FFB3BA] bg-white/80 px-4 py-3 text-[#3A2E39] focus:border-[#FF6F91] focus:outline-none"
-                placeholder="Enter photobook title..."
-              />
-              <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Up to 20 pages per book</p>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="space-y-6 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-8 py-6">
+              <div className="rounded-[2rem] border-4 border-dashed border-[#FFB3BA] bg-white/80 p-6">
+                <label className="text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
+                <input
+                  type="text"
+                  value={photobookTitle}
+                  onChange={(e) => setPhotobookTitle(e.target.value)}
+                  className="mt-3 w-full rounded-2xl border-2 border-[#FFB3BA] bg-white/80 px-4 py-3 text-[#3A2E39] focus:border-[#FF6F91] focus:outline-none"
+                  placeholder="Enter photobook title..."
+                />
+                <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Up to 20 pages per book</p>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3]">
+                <Sparkles className="h-3 w-3" />
+                Choose finished pages to add to your story
+              </div>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3]">
-              <Sparkles className="h-3 w-3" />
-              Choose finished pages to add to your story
-            </div>
-          </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-8 py-6 lg:flex-row">
+            <div className="flex flex-col gap-6 px-8 py-6 lg:flex-row">
             <div className="flex-1 space-y-4 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-5">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-[#3A2E39]">Available Pages ({availableImages.length})</h3>
@@ -577,6 +578,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
                 </div>
               )}
             </div>
+          </div>
           </div>
 
           <div className="flex shrink-0 flex-col gap-4 border-t-4 border-dashed border-[#FFB3BA] bg-white/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
