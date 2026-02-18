@@ -401,8 +401,8 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-5xl">
         <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#A0E7E5]/40 via-[#FFB3BA]/40 to-[#FFD166]/40 blur-2xl" aria-hidden="true" />
-        <div className="relative flex max-h-[90vh] w-full flex-col rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
-          <div className="flex items-start justify-between gap-4 border-b-4 border-dashed border-[#A0E7E5] px-8 py-6">
+        <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b-4 border-dashed border-[#A0E7E5] px-8 py-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#A0E7E5] text-white shadow-inner">
                 <Book className="h-6 w-6" />
@@ -422,7 +422,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
             </button>
           </div>
 
-          <div className="space-y-6 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-8 py-6">
+          <div className="shrink-0 space-y-6 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-8 py-6">
             <div className="rounded-[2rem] border-4 border-dashed border-[#FFB3BA] bg-white/80 p-6">
               <label className="text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
               <input
@@ -579,7 +579,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 border-t-4 border-dashed border-[#FFB3BA] bg-white/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex shrink-0 flex-col gap-4 border-t-4 border-dashed border-[#FFB3BA] bg-white/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-col gap-3 text-sm font-semibold text-[#594144]">
               <div>
                 {selectedImages.length > 0
