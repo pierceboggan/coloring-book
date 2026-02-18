@@ -399,59 +399,54 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/40 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-5xl">
-        <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#A0E7E5]/40 via-[#FFB3BA]/40 to-[#FFD166]/40 blur-2xl" aria-hidden="true" />
-        <div className="relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
-          <div className="flex shrink-0 items-start justify-between gap-4 border-b-4 border-dashed border-[#A0E7E5] px-8 py-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#A0E7E5] text-white shadow-inner">
-                <Book className="h-6 w-6" />
+      <div className="relative w-full max-w-3xl">
+        <div className="pointer-events-none absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-[#A0E7E5]/40 via-[#FFB3BA]/40 to-[#FFD166]/40 blur-2xl" aria-hidden="true" />
+        <div className="relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-2xl border-3 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[12px_12px_0_0_#55C6C0]">
+          <div className="flex shrink-0 items-start justify-between gap-3 border-b-2 border-dashed border-[#A0E7E5] px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#A0E7E5] text-white shadow-inner">
+                <Book className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#1DB9B3]">Photobook studio</p>
-                <h2 className="text-3xl font-extrabold text-[#3A2E39]">Create a printable book</h2>
-                <p className="text-sm font-medium text-[#594144]">Sequence your favorite pages, name your book, and download a ready-to-print PDF.</p>
+                <p className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-[#1DB9B3]">Photobook studio</p>
+                <h2 className="text-xl font-extrabold text-[#3A2E39]">Create a printable book</h2>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="rounded-full border-2 border-[#A0E7E5] bg-white px-3 py-2 text-[#1DB9B3] shadow-[4px_4px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
+              className="rounded-full border-2 border-[#A0E7E5] bg-white p-1.5 text-[#1DB9B3] shadow-[3px_3px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5"
               aria-label="Close photobook modal"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="space-y-6 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-8 py-6">
-              <div className="rounded-[2rem] border-4 border-dashed border-[#FFB3BA] bg-white/80 p-6">
-                <label className="text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
+            <div className="space-y-3 border-b-2 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-5 py-4">
+              <div className="rounded-xl border-2 border-dashed border-[#FFB3BA] bg-white/80 p-4">
+                <label className="text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
                 <input
                   type="text"
                   value={photobookTitle}
                   onChange={(e) => setPhotobookTitle(e.target.value)}
-                  className="mt-3 w-full rounded-2xl border-2 border-[#FFB3BA] bg-white/80 px-4 py-3 text-[#3A2E39] focus:border-[#FF6F91] focus:outline-none"
+                  className="mt-2 w-full rounded-xl border-2 border-[#FFB3BA] bg-white/80 px-3 py-2 text-sm text-[#3A2E39] focus:border-[#FF6F91] focus:outline-none"
                   placeholder="Enter photobook title..."
                 />
-                <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Up to 20 pages per book</p>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3]">
-                <Sparkles className="h-3 w-3" />
-                Choose finished pages to add to your story
+                <p className="mt-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-[#FF6F91]">Up to 20 pages per book</p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-6 px-8 py-6 lg:flex-row">
-            <div className="flex-1 space-y-4 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-5">
+            <div className="flex flex-col gap-4 px-5 py-4 lg:flex-row">
+            <div className="flex-1 space-y-3 rounded-xl border-2 border-[#FFB3BA] bg-[#FFE6EB]/80 p-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-[#3A2E39]">Available Pages ({availableImages.length})</h3>
                 <span className="rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-1 text-xs font-semibold text-[#FF6F91]">
                   {selectedImages.length} selected
                 </span>
               </div>
-              <div className="grid max-h-96 grid-cols-2 gap-4 overflow-y-auto pr-1">
+              <div className="grid max-h-60 grid-cols-2 gap-3 overflow-y-auto pr-1">
                 {availableImages.length === 0 ? (
-                  <div className="col-span-2 rounded-[1.5rem] border-4 border-dashed border-[#FFB3BA] bg-white/70 p-8 text-center text-sm font-semibold text-[#FF6F91]">
+                  <div className="col-span-2 rounded-xl border-2 border-dashed border-[#FFB3BA] bg-white/70 p-6 text-center text-sm font-semibold text-[#FF6F91]">
                     Generate a coloring page to add it to your photobook.
                   </div>
                 ) : (
@@ -462,10 +457,10 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
                         key={image.id}
                         type="button"
                         onClick={() => toggleImageSelection(image)}
-                        className={`group relative overflow-hidden rounded-[1.5rem] border-4 border-dashed px-2 pb-3 pt-2 transition-transform hover:-translate-y-0.5 ${
+                        className={`group relative overflow-hidden rounded-xl border-2 border-dashed px-2 pb-2 pt-1.5 transition-transform hover:-translate-y-0.5 ${
                           isSelected
-                            ? 'border-[#55C6C0] bg-[#E0F7FA] shadow-[8px_8px_0_0_#55C6C0]/60'
-                            : 'border-[#FFB3BA] bg-white/80 shadow-[6px_6px_0_0_#FFB3BA]/40'
+                            ? 'border-[#55C6C0] bg-[#E0F7FA] shadow-[4px_4px_0_0_#55C6C0]/60'
+                            : 'border-[#FFB3BA] bg-white/80 shadow-[3px_3px_0_0_#FFB3BA]/40'
                         }`}
                       >
                         <div className="relative overflow-hidden rounded-[1.1rem] border-2 border-white/70">
@@ -492,7 +487,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
               </div>
             </div>
 
-            <div className="flex-1 space-y-4 rounded-[2rem] border-4 border-[#A0E7E5] bg-[#E0F7FA]/80 p-5">
+            <div className="flex-1 space-y-3 rounded-xl border-2 border-[#A0E7E5] bg-[#E0F7FA]/80 p-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-[#3A2E39]">Photobook Order ({selectedImages.length})</h3>
                 {selectedImages.length > 0 && (
@@ -539,8 +534,8 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
                 </div>
               )}
               {selectedImages.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border-4 border-dashed border-[#A0E7E5] bg-white/70 p-8 text-center text-sm font-semibold text-[#1DB9B3]">
-                  <Book className="mb-3 h-10 w-10 text-[#55C6C0]" />
+                <div className="flex h-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#A0E7E5] bg-white/70 p-6 text-center text-sm font-semibold text-[#1DB9B3]">
+                  <Book className="mb-2 h-8 w-8 text-[#55C6C0]" />
                   Pick some pages to start assembling your photobook.
                 </div>
               ) : (
@@ -581,7 +576,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
           </div>
           </div>
 
-          <div className="flex shrink-0 flex-col gap-4 border-t-4 border-dashed border-[#FFB3BA] bg-white/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex shrink-0 flex-col gap-3 border-t-2 border-dashed border-[#FFB3BA] bg-white/80 px-5 py-4 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-col gap-3 text-sm font-semibold text-[#594144]">
               <div>
                 {selectedImages.length > 0
@@ -611,14 +606,14 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
             <div className="flex flex-col gap-3 md:flex-row">
               <button
                 onClick={onClose}
-                className="rounded-full border-4 border-[#FFB3BA] bg-white px-6 py-3 text-sm font-semibold text-[#FF6F91] shadow-[6px_6px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
+                className="rounded-full border-2 border-[#FFB3BA] bg-white px-5 py-2 text-sm font-semibold text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
               >
                 Cancel
               </button>
               <button
                 onClick={generatePhotobook}
                 disabled={selectedImages.length === 0 || isGenerating}
-                className="rounded-full border-4 border-[#A0E7E5] bg-[#55C6C0] px-8 py-3 text-sm font-semibold text-white shadow-[8px_8px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                className="rounded-full border-2 border-[#A0E7E5] bg-[#55C6C0] px-6 py-2 text-sm font-semibold text-white shadow-[4px_4px_0_0_#1DB9B3] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
                 {isGenerating ? 'Generating...' : 'Generate PDF'}
               </button>
