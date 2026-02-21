@@ -5,22 +5,47 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export const runtime = 'nodejs'
 
+function extractBearerToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get('authorization') || request.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return null
+  }
+  const token = authHeader.slice('Bearer '.length).trim()
+  return token || null
+}
+
 export async function POST(request: NextRequest) {
+  const accessToken = extractBearerToken(request)
+
+  if (!accessToken) {
+    return NextResponse.json(
+      { error: 'Missing or invalid authorization header' },
+      { status: 401 }
+    )
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabaseAdmin.auth.getUser(accessToken)
+
+  if (userError || !user) {
+    console.error('❌ Mobile upload: failed to verify access token:', userError)
+    return NextResponse.json(
+      { error: 'Unable to verify user session' },
+      { status: 401 }
+    )
+  }
+
+  const userId = user.id
+
   try {
     const formData = await request.formData()
     const file = formData.get('file')
-    const userId = formData.get('userId')
 
     if (!(file instanceof File)) {
       return NextResponse.json(
         { error: 'File is required' },
-        { status: 400 }
-      )
-    }
-
-    if (typeof userId !== 'string' || !userId) {
-      return NextResponse.json(
-        { error: 'Missing userId field' },
         { status: 400 }
       )
     }
