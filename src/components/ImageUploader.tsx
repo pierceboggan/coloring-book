@@ -322,31 +322,33 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
               className="mx-auto mt-8 w-full max-w-md text-left"
               onClick={(event) => event.stopPropagation()}
             >
-              <label
-                htmlFor="age-slider"
-                className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#594144]"
-              >
-                Age focus
-              </label>
-              <div className="mb-3 flex justify-between text-[11px] font-semibold text-[#9B6A6C]">
-                <span>Toddlers ({MIN_AGE})</span>
-                <span>Big kids ({MAX_AGE})</span>
+              <div className="rounded-2xl border border-[#FFD6DC] bg-white/95 p-4 shadow-sm">
+                <label
+                  htmlFor="age-slider"
+                  className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#594144]"
+                >
+                  Age focus
+                </label>
+                <div className="mb-3 flex justify-between text-[11px] font-semibold text-[#9B6A6C]">
+                  <span>Toddlers ({MIN_AGE})</span>
+                  <span>Big kids ({MAX_AGE})</span>
+                </div>
+                <input
+                  id="age-slider"
+                  type="range"
+                  min={MIN_AGE}
+                  max={MAX_AGE}
+                  step={1}
+                  value={targetAge}
+                  onChange={(event) => setTargetAge(Number(event.target.value))}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onPointerUp={(event) => event.stopPropagation()}
+                  disabled={!user}
+                  aria-valuetext={`Tailored for ages ${targetAge}`}
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full border border-[#D8CDD0] bg-white shadow-inner disabled:cursor-not-allowed disabled:opacity-70 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#FF6F91] [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-[#FF6F91] [&::-moz-range-thumb]:shadow-md"
+                  style={{ accentColor: '#FF6F91' }}
+                />
               </div>
-              <input
-                id="age-slider"
-                type="range"
-                min={MIN_AGE}
-                max={MAX_AGE}
-                step={1}
-                value={targetAge}
-                onChange={(event) => setTargetAge(Number(event.target.value))}
-                onPointerDown={(event) => event.stopPropagation()}
-                onPointerUp={(event) => event.stopPropagation()}
-                disabled={!user}
-                aria-valuetext={`Tailored for ages ${targetAge}`}
-                className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#FFE6EB]"
-                style={{ accentColor: '#FF6F91' }}
-              />
               <div className="mt-4 rounded-2xl border border-[#FFD6DC] bg-white/80 p-4 text-sm font-semibold text-[#3A2E39] shadow-sm">
                 <p className="mb-1">
                   Tailored for ages <span className="font-extrabold">{targetAge}</span>
