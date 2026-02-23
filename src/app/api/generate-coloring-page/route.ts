@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         const { data: existingRecord, error: fetchError } = await supabaseAdmin
           .from('images')
           .select('id, user_id, original_url, status, coloring_page_url')
-          .eq('id', imageId)
+          .eq('id', authenticatedUserId)
           .single()
 
         if (fetchError || !existingRecord) {
