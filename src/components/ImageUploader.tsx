@@ -228,7 +228,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ imageId, imageUrl, age }),
+        body: JSON.stringify({ imageId: imageUrl, imageUrl: imageId, age }),
       })
 
       if (!response.ok) {
