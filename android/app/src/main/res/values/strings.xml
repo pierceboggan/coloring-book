@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ColoringBook.AI</string>
+    <string name="tab_gallery">Gallery</string>
+    <string name="tab_create">Create</string>
+    <string name="tab_albums">Albums</string>
+    <string name="tab_settings">Settings</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="welcome_title">ColoringBook.AI</string>
+    <string name="welcome_subtitle">Transform your photos into beautiful coloring pages</string>
+    <string name="upload_photo">Upload Photo</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="processing">Processing…</string>
+    <string name="completed">Completed</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="retry">Retry</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="kid_mode">Kid Mode</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="create_album">Create Album</string>
+    <string name="share_code">Share Code</string>
+    <string name="no_images">No coloring pages yet. Upload a photo to get started!</string>
+    <string name="offline_banner">You\'re offline. Some features may be limited.</string>
+</resources>
