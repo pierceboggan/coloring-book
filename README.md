@@ -1,71 +1,99 @@
 # 🎨 ColoringBook.AI
 
-Transform any photo into a beautiful coloring page with AI-powered technology. Perfect for family memories, gifts, or creative fun!
+Transform any photo into a beautiful coloring page with AI-powered technology. Available as a **Next.js web app** and a **native iOS/iPadOS app**. Perfect for family memories, gifts, or creative fun!
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)](https://supabase.com/)
 [![OpenAI](https://img.shields.io/badge/OpenAI-API-orange?logo=openai)](https://openai.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue?logo=tailwindcss)](https://tailwindcss.com/)
+[![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift)](https://swift.org/)
+[![iOS](https://img.shields.io/badge/iOS-16%2B-blue?logo=apple)](https://developer.apple.com/ios/)
 
-## 📸 Web App Screenshots
+## 📸 Screenshots
 
-### Landing Page
+### Web — Landing Page
 
 ![ColoringBook web landing page](public/readme-screenshots/web/web-home.png)
 
-### Example Gallery
+### Web — Example Gallery
 
 ![ColoringBook web examples page](public/readme-screenshots/web/web-examples.png)
+
+### iOS — iPhone
+
+![ColoringBook iOS app on iPhone](public/readme-screenshots/ios/ios-iphone17-native.png)
+
+### iOS — iPad
+
+![ColoringBook iOS app on iPad](public/readme-screenshots/ios/ios-ipadpro13-native.png)
 
 ## ✨ Features
 
 ### 🤖 AI-Powered Processing
-- **Smart Line Art Generation**: Advanced OpenAI and Google Gemini APIs analyze photos and create perfect line art
-- **Provider Benchmarks**: Built-in evaluation endpoint compares output quality, latency, and cost metadata across providers
-- **Custom Prompts**: Regenerate coloring pages with different styles and complexity levels
-- **Real-time Status Updates**: Live progress tracking during AI processing
-- **Automatic Watermarking**: Professional watermark system for processed images
+- **Smart Line Art Generation**: OpenAI and Google Gemini APIs convert photos into clean black-and-white line art
+- **Provider Benchmarks**: Built-in `/api/evaluate-image-providers` endpoint compares output quality, latency, and cost across providers side-by-side
+- **Prompt Remix**: Regenerate coloring pages with different styles, complexity levels, and custom prompts
+- **Real-time Status Updates**: Live progress tracking during AI processing via Supabase subscriptions
+- **Automatic Watermarking**: Professional watermark applied to all generated images via Sharp
 
 ### 👨‍👩‍👧‍👦 Family & Sharing
 - **Family Albums**: Create and share coloring page collections with unique share codes
+- **Social Sharing**: Share individual pages to Twitter, Facebook, and WhatsApp via unique short links
 - **Photobook Creator**: Combine multiple coloring pages into PDF collections (up to 20 pages)
-- **Instant Download**: Get coloring pages ready to print within minutes
-- **Safe & Family-Friendly**: Suitable for all ages with content protection
+- **Instant Download**: Get print-ready coloring pages within minutes
 
 ### 🎛️ User Management
-- **Dashboard**: Intuitive interface to manage your coloring pages
-- **Real-time Updates**: Live status updates using Supabase subscriptions
-- **Image Gallery**: View and organize all your created coloring pages
-- **Bulk Operations**: Delete multiple images or create collections easily
+- **Dashboard**: Manage all your coloring pages with status tracking and bulk operations
+- **Real-time Updates**: Live status updates using Supabase real-time subscriptions with fallback polling
+- **Image Variants**: Generate style variants of a single photo and compare them side-by-side
+
+### 📱 iOS App (Native)
+- **Digital Coloring Canvas**: Color directly on your device with Apple Pencil support, multiple brush types, and undo/redo
+- **AR Gallery**: View your coloring pages in augmented reality using ARKit
+- **Kid Mode**: PIN-protected parental control mode that locks the app to coloring only
+- **Offline-First**: Continue coloring without an internet connection; sync when back online
+- **Universal**: Optimized for both iPhone and iPad with dark mode support
 
 ## 🏗️ Tech Stack
 
+### Web
 - **Framework**: Next.js 15 with App Router & TypeScript
-- **Styling**: Tailwind CSS with modern gradient design
+- **Styling**: Tailwind CSS 4
 - **Database**: Supabase with real-time subscriptions
 - **Authentication**: Supabase Auth with React Context
-- **AI Processing**: OpenAI Responses API (not DALL-E directly)
-- **Storage**: Supabase Storage for images
+- **AI Processing**: OpenAI Responses API + Google Gemini image generation
+- **Storage**: Supabase Storage
 - **Image Processing**: Sharp for watermarking and manipulation
 - **PDF Generation**: jsPDF for photobook creation
 - **Monitoring**: Sentry for error tracking and performance
-- **Deployment**: Vercel with automatic builds
+- **Deployment**: Vercel
+
+### iOS
+- **Language**: Swift 6 / SwiftUI
+- **Minimum Deployment**: iOS 16
+- **Backend**: Supabase (shared with web app)
+- **AI**: OpenAI API via the same backend API routes
+- **AR**: ARKit for the AR Gallery feature
+- **Monitoring**: Sentry Cocoa SDK
+- **Project Generation**: XcodeGen (`project.yml`)
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Web App
+
+#### Prerequisites
 - Node.js 18+
 - A Supabase account
 - An OpenAI API key
 - (Optional) A Google Gemini API key for Gemini-based image generation and benchmarking
 
-### Installation
+#### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/bogganpierce/coloringbook.git
-   cd coloringbook
+   git clone https://github.com/pierceboggan/coloring-book.git
+   cd coloring-book
    ```
 
 2. **Install dependencies**
@@ -135,10 +163,51 @@ Transform any photo into a beautiful coloring page with AI-powered technology. P
    ```
 
 6. **Open your browser**
-   
+
    Visit [http://localhost:3000](http://localhost:3000)
 
    > **Note**: The development environment is password-protected with: `parkcityutah`
+
+### iOS App
+
+#### Prerequisites
+- macOS with Xcode 15.0+
+- iOS 16.0+ device or simulator
+- Homebrew (for XcodeGen)
+
+#### Installation
+
+1. **Install XcodeGen**
+   ```bash
+   brew install xcodegen
+   ```
+
+2. **Generate the Xcode project**
+   ```bash
+   cd ios/ColoringBook
+   xcodegen generate
+   ```
+
+3. **Open in Xcode**
+   ```bash
+   open ColoringBook.xcodeproj
+   ```
+
+4. **Configure environment variables**
+
+   In Xcode, select the `ColoringBook` scheme and add these to the scheme's environment variables (or set them in `Info.plist`):
+   ```
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   OPENAI_API_KEY=your_openai_api_key
+   SENTRY_DSN=your_sentry_dsn  # optional
+   ```
+
+5. **Run on simulator or device**
+
+   Press `Cmd+R` in Xcode or select your target device and click Run.
+
+> **Note**: The iOS app shares the same Supabase backend as the web app. See [ios/AGENTS.md](ios/AGENTS.md) for detailed iOS development instructions.
 
 ## 🔬 Evaluating image providers
 
@@ -224,9 +293,15 @@ vercel --prod
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | ✅ |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | ✅ |
-| `OPENAI_API_KEY` | OpenAI API key with access to Responses API | ✅ |
-| `NEXT_PUBLIC_APP_URL` | Your app's URL for proper redirects | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-side only) | ✅ |
+| `OPENAI_API_KEY` | OpenAI API key with access to the Responses API | ✅ |
+| `NEXT_PUBLIC_APP_URL` | Your app's public URL (used for share links and redirects) | ✅ |
+| `GOOGLE_API_KEY` | Google Gemini API key for alternative image generation | ⬜ |
+| `GEMINI_IMAGE_MODEL` | Gemini model ID (e.g. `gemini-2.5-flash-image-preview`) | ⬜ |
+| `GEMINI_API_BASE_URL` | Gemini API base URL | ⬜ |
+| `IMAGE_GENERATION_PROVIDER` | Default provider: `openai` or `gemini` | ⬜ |
+| `OPENAI_IMAGE_COST_USD` | Cost per image for OpenAI (used in evaluation reports) | ⬜ |
+| `GEMINI_IMAGE_COST_USD` | Cost per image for Gemini (used in evaluation reports) | ⬜ |
 
 ### Supabase Configuration
 
@@ -307,18 +382,32 @@ Coverage reports are generated in `coverage/` directory after running `npm run t
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/generate-coloring-page` | Main AI processing endpoint - converts uploaded image to coloring page |
-| `POST` | `/api/regenerate-coloring-page` | Regenerate coloring page with custom prompts |
-| `POST` | `/api/retry-processing` | Retry failed image processing |
-| `DELETE` | `/api/images/[id]` | Delete image and associated coloring page |
-| `GET` | `/api/download/[id]` | Download coloring page with proper headers |
+| `POST` | `/api/generate-coloring-page` | Main AI processing — converts uploaded photo to a coloring page |
+| `POST` | `/api/regenerate-coloring-page` | Regenerate with a custom prompt or style |
+| `POST` | `/api/retry-processing` | Retry a failed image processing job |
+| `DELETE` | `/api/images/[id]` | Delete an image and its coloring page |
+| `GET` | `/api/download/[id]` | Download the coloring page with correct headers |
 
 ### Album & Sharing
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/family-albums` | Create shareable family album |
-| `GET` | `/api/family-albums/[shareCode]` | Access shared album by code |
-| `POST` | `/api/generate-photobook` | Generate PDF photobook from multiple images |
+| `POST` | `/api/family-albums` | Create a shareable family album |
+| `GET` | `/api/family-albums/[shareCode]` | Access a shared album by code |
+| `POST` | `/api/generate-photobook` | Generate a PDF photobook from multiple images |
+| `POST` | `/api/share` | Create a public share link for an individual page |
+| `GET` | `/api/share/[shareCode]` | Retrieve share data and increment view count |
+
+### AI & Evaluation
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/evaluate-image-providers` | Compare OpenAI and Gemini side-by-side with timing, usage, and cost metadata |
+| `POST` | `/api/prompt-remix` | Start an async prompt-remix job for batch style variants |
+| `GET` | `/api/prompt-remix` | Poll the status of a running remix job |
+
+### Mobile
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `*` | `/api/mobile/*` | Mobile-specific API routes used by the iOS app |
 
 ### Image Processing Flow
 1. **Upload** → Image stored in Supabase Storage
@@ -374,9 +463,12 @@ const subscription = supabase
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Make your changes — follow the conventions in [AGENTS.md](AGENTS.md) and [CONTRIBUTING.md](CONTRIBUTING.md)
+4. Run linting and tests: `npm run lint && npm run test:unit`
+5. Submit a pull request
+
+For iOS contributions, see [ios/AGENTS.md](ios/AGENTS.md) for platform-specific guidelines.
 
 ## License
 
