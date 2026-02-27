@@ -119,7 +119,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative z-10 container mx-auto px-4 py-16">
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 p-12 text-center shadow-[16px_16px_0_0_#55C6C0]">
-          <div className="pointer-events-none absolute -top-10 right-12 flex h-24 w-24 items-center justify-center rounded-full bg-[#FF8A80] text-white shadow-lg" aria-hidden="true">
+          <div className="pointer-events-none absolute top-6 right-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#FF8A80] text-white shadow-lg" aria-hidden="true">
             <Sparkles className="h-10 w-10" />
           </div>
           <div className="pointer-events-none absolute -bottom-6 left-8 h-28 w-28 rounded-full bg-[#B4F8C8] opacity-70" aria-hidden="true" />
