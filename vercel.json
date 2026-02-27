@@ -1,11 +1,11 @@
-l{
+{
   "framework": "nextjs",
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "regions": ["iad1"],
   "functions": {
-    "web/src/app/api/*/route.ts": {
+    "src/app/api/*/route.ts": {
       "maxDuration": 60
     }
   }

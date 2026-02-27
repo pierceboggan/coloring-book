@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient, type SupabaseClient } from '@supabase/ssr'
 
 export type Json =
   | string
@@ -196,8 +196,20 @@ export type Database = {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+let _supabaseClient: SupabaseClient<Database> | null = null
+
+function getSupabaseClient(): SupabaseClient<Database> {
+  if (!_supabaseClient) {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+    _supabaseClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  }
+  return _supabaseClient
 }
 
-export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+export const supabase = new Proxy({} as SupabaseClient<Database>, {
+  get(_target, prop) {
+    return (getSupabaseClient() as unknown as Record<string | symbol, unknown>)[prop]
+  }
+})

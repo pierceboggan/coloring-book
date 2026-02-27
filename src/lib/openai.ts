@@ -55,10 +55,17 @@ interface ImageSource {
 
 const BASE_COLORING_PROMPT = "Create a black and white coloring book page based on this image. Transform it into simple, clean line art suitable for coloring with bold black outlines, no shading or fills, family-friendly content, and thick outlines perfect for coloring on a pure white background. Style: coloring book, line art, black and white only."
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  organization: 'org-xBug09vn6Yh8Uf19bKLjgxxu',
-})
+// Lazily initialized so the key check only runs at request time, not at build time
+let _openaiClient: OpenAI | null = null
+function getOpenAIClient(): OpenAI {
+  if (!_openaiClient) {
+    _openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      organization: 'org-xBug09vn6Yh8Uf19bKLjgxxu',
+    })
+  }
+  return _openaiClient
+}
 
 const geminiModelName = process.env.GEMINI_IMAGE_MODEL ?? 'gemini-2.5-flash-image-preview'
 const geminiApiBaseUrl = process.env.GEMINI_API_BASE_URL ?? 'https://generativelanguage.googleapis.com/v1beta'
@@ -381,7 +388,7 @@ async function generateWithOpenAI({
   mimeType: string
 }): Promise<ProviderGenerationResult> {
   console.log('🤖 Calling OpenAI Responses API...')
-  const response = await openai.responses.create({
+  const response = await getOpenAIClient().responses.create({
     model: 'gpt-4o',
     input: [
       {
@@ -521,7 +528,7 @@ async function generateWithGemini({
   }
 }
 
-export { openai }
+export { getOpenAIClient as openai }
 export function isImageGenerationProvider(value: unknown): value is ImageGenerationProvider {
   return value === 'openai' || value === 'gemini'
 }
