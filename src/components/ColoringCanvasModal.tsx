@@ -64,7 +64,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
 
       // Compute CSS display size to fit within the visible area while preserving aspect ratio
       const MAX_W = 700
-      const MAX_H = 580
+      const MAX_H = Math.min(window.innerHeight - 220, 580)
       const ratio = coloringImage.naturalWidth / coloringImage.naturalHeight
       let displayW = coloringImage.naturalWidth
       let displayH = coloringImage.naturalHeight
@@ -212,17 +212,16 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3A2E39]/50 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-5xl">
+      <div className="relative w-full max-w-5xl max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden">
         <div className="pointer-events-none absolute -inset-6 rounded-[3.5rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#A0E7E5]/40 blur-2xl" aria-hidden="true" />
-        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
-          <div className="flex flex-col gap-4 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/80 px-8 py-6 md:flex-row md:items-center md:justify-between">
+        <div className="relative flex min-h-0 flex-1 w-full flex-col overflow-hidden rounded-[2.75rem] border-4 border-[#A0E7E5] bg-[#FFF5D6]/95 shadow-[20px_20px_0_0_#55C6C0]">
+          <div className="flex shrink-0 flex-col gap-2 border-b-4 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/80 px-8 py-4 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-[#FFD166] bg-[#FFF3BF] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">
                 <Sparkles className="h-4 w-4" />
                 Coloring studio
               </div>
-              <h2 className="mt-3 text-3xl font-extrabold text-[#3A2E39]">Color your page</h2>
-              <p className="text-sm font-medium text-[#594144]">Use the brush controls below to add color and download your finished artwork.</p>
+              <h2 className="mt-1 text-xl font-extrabold text-[#3A2E39]">Color your page</h2>
             </div>
             <button
               onClick={onClose}
@@ -233,8 +232,8 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
             </button>
           </div>
 
-          <div className="flex flex-1 flex-col gap-6 overflow-hidden px-8 py-6 lg:flex-row">
-            <div className="flex flex-1 items-center justify-center overflow-auto rounded-[2rem] border-4 border-[#A0E7E5] bg-[#E0F7FA]/80 p-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-8 py-6 lg:flex-row">
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto rounded-[2rem] border-4 border-[#A0E7E5] bg-[#E0F7FA]/80 p-4">
               <div className="relative">
                 <canvas
                   ref={canvasRef}
@@ -263,7 +262,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
               </div>
             </div>
 
-            <div className="flex w-full flex-col gap-5 rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-5 lg:w-72">
+            <div className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto rounded-[2rem] border-4 border-[#FFB3BA] bg-[#FFE6EB]/80 p-5 lg:w-72 lg:shrink-0">
               <div>
                 <h3 className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#FF6F91]">Brush color</h3>
                 <div className="grid grid-cols-5 gap-2">
