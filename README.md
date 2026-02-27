@@ -1,6 +1,6 @@
 # 🎨 ColoringBook.AI
 
-Transform any photo into a beautiful coloring page with AI-powered technology. Available as a **Next.js web app** and a **native iOS/iPadOS app**. Perfect for family memories, gifts, or creative fun!
+Transform any photo into a beautiful coloring page with AI-powered technology. Available as a **Next.js web app**, a **native iOS/iPadOS app**, and a **native Android app**. Perfect for family memories, gifts, or creative fun!
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -9,6 +9,8 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue?logo=tailwindcss)](https://tailwindcss.com/)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift)](https://swift.org/)
 [![iOS](https://img.shields.io/badge/iOS-16%2B-blue?logo=apple)](https://developer.apple.com/ios/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1-purple?logo=kotlin)](https://kotlinlang.org/)
+[![Android](https://img.shields.io/badge/Android-API%2026%2B-green?logo=android)](https://developer.android.com/)
 
 ## 📸 Screenshots
 
@@ -55,6 +57,13 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
 - **Offline-First**: Continue coloring without an internet connection; sync when back online
 - **Universal**: Optimized for both iPhone and iPad with dark mode support
 
+### 🤖 Android App (Native)
+- **Digital Coloring Canvas**: Touch and stylus drawing with colors, brush sizes, and undo/redo
+- **Kid Mode**: PIN-locked coloring-only experience for children
+- **Family Albums**: Create and share coloring page albums with share codes
+- **Offline Support**: Room database caching for offline viewing
+- **Authentication**: Email/password login via Supabase Auth
+
 ## 🏗️ Tech Stack
 
 ### Web
@@ -77,6 +86,17 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
 - **AR**: ARKit for the AR Gallery feature
 - **Monitoring**: Sentry Cocoa SDK
 - **Project Generation**: XcodeGen (`project.yml`)
+
+### Android
+- **Language**: Kotlin 2.1 / Jetpack Compose (Material 3)
+- **Minimum SDK**: API 26 (Android 8.0)
+- **Architecture**: MVVM + Repository pattern with Hilt DI
+- **Backend**: Supabase Kotlin SDK (shared with web app)
+- **AI**: Delegates to shared Next.js API routes
+- **Offline**: Room database + DataStore preferences
+- **Image Loading**: Coil
+- **Monitoring**: Sentry Android SDK
+- **Build**: Gradle Kotlin DSL with version catalogs
 
 ## 🚀 Quick Start
 
@@ -208,6 +228,34 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
    Press `Cmd+R` in Xcode or select your target device and click Run.
 
 > **Note**: The iOS app shares the same Supabase backend as the web app. See [ios/AGENTS.md](ios/AGENTS.md) for detailed iOS development instructions.
+
+### Android App
+
+#### Prerequisites
+- Android Studio (latest stable)
+- Android SDK with API 26+
+- A Supabase account (shared backend with web/iOS)
+
+#### Installation
+
+1. **Open in Android Studio**
+   ```bash
+   # Open the android/ folder in Android Studio
+   ```
+
+2. **Configure Supabase credentials**
+
+   Copy `local.properties.example` and add your credentials:
+   ```properties
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+3. **Sync and run**
+
+   Sync Gradle and run on a device or emulator (API 26+).
+
+> **Note**: The Android app shares the same Supabase backend as the web and iOS apps. See [android/AGENTS.md](android/AGENTS.md) for detailed Android development instructions.
 
 ## 🔬 Evaluating image providers
 
@@ -407,7 +455,7 @@ Coverage reports are generated in `coverage/` directory after running `npm run t
 ### Mobile
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `*` | `/api/mobile/*` | Mobile-specific API routes used by the iOS app |
+| `*` | `/api/mobile/*` | Mobile-specific API routes used by the iOS and Android apps |
 
 ### Image Processing Flow
 1. **Upload** → Image stored in Supabase Storage
@@ -469,6 +517,7 @@ const subscription = supabase
 5. Submit a pull request
 
 For iOS contributions, see [ios/AGENTS.md](ios/AGENTS.md) for platform-specific guidelines.
+For Android contributions, see [android/AGENTS.md](android/AGENTS.md) for platform-specific guidelines.
 
 ## License
 
