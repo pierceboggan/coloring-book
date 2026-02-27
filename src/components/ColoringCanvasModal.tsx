@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import React, { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { X, Undo2, Trash2, Download, Droplet, Sparkles } from 'lucide-react'
 
 interface ColoringCanvasModalProps {
@@ -32,6 +32,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
   const [history, setHistory] = useState<string[]>([])
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [canvasStyle, setCanvasStyle] = useState<React.CSSProperties>({})
   const isCanvasReady = isImageLoaded && !loadError
 
   // Load the coloring page image onto the canvas when the modal opens
@@ -60,6 +61,16 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
       imageRef.current = coloringImage
       canvas.width = coloringImage.naturalWidth
       canvas.height = coloringImage.naturalHeight
+
+      // Compute CSS display size to fit within the visible area while preserving aspect ratio
+      const MAX_W = 700
+      const MAX_H = 580
+      const ratio = coloringImage.naturalWidth / coloringImage.naturalHeight
+      let displayW = coloringImage.naturalWidth
+      let displayH = coloringImage.naturalHeight
+      if (displayW > MAX_W) { displayW = MAX_W; displayH = displayW / ratio }
+      if (displayH > MAX_H) { displayH = MAX_H; displayW = displayH * ratio }
+      setCanvasStyle({ width: `${Math.round(displayW)}px`, height: `${Math.round(displayH)}px` })
 
       context.clearRect(0, 0, canvas.width, canvas.height)
       context.drawImage(coloringImage, 0, 0, canvas.width, canvas.height)
@@ -227,6 +238,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
               <div className="relative">
                 <canvas
                   ref={canvasRef}
+                  style={canvasStyle}
                   className={`rounded-[1.5rem] border-4 border-[#A0E7E5]/70 bg-white ${
                     isCanvasReady ? '' : 'pointer-events-none opacity-0'
                   }`}
