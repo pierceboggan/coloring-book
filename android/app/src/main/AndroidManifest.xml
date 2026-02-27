@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ColoringBook">
 
+        <!-- Disable Sentry auto-init; we initialize manually in ColoringBookApp -->
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
