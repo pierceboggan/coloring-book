@@ -21,10 +21,22 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Supabase config from local.properties or environment
-        buildConfigField("String", "SUPABASE_URL", "\"${findProperty("SUPABASE_URL") ?: System.getenv("SUPABASE_URL") ?: ""}\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${findProperty("SUPABASE_ANON_KEY") ?: System.getenv("SUPABASE_ANON_KEY") ?: ""}\"")
-        buildConfigField("String", "WEB_API_BASE_URL", "\"${findProperty("WEB_API_BASE_URL") ?: System.getenv("WEB_API_BASE_URL") ?: "https://coloringbook.ai"}\"")
-        buildConfigField("String", "SENTRY_DSN", "\"${findProperty("SENTRY_DSN") ?: System.getenv("SENTRY_DSN") ?: ""}\"")
+        val localPropsFile = rootProject.file("local.properties")
+        val localProps = if (localPropsFile.exists()) {
+            localPropsFile.readLines()
+                .filter { it.contains("=") && !it.startsWith("#") }
+                .associate { line ->
+                    val (k, v) = line.split("=", limit = 2)
+                    k.trim() to v.trim()
+                }
+        } else emptyMap()
+        fun localProp(key: String, default: String = ""): String =
+            localProps[key] ?: System.getenv(key) ?: default
+
+        buildConfigField("String", "SUPABASE_URL", "\"${localProp("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProp("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "WEB_API_BASE_URL", "\"${localProp("WEB_API_BASE_URL", "https://coloringbook.ai")}\"")
+        buildConfigField("String", "SENTRY_DSN", "\"${localProp("SENTRY_DSN")}\"")
     }
 
     buildTypes {
