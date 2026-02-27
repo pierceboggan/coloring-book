@@ -2,11 +2,17 @@
 
 import React, { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { X, Undo2, Trash2, Download, Droplet, Sparkles } from 'lucide-react'
+import type { RealtimeChannel } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 
 interface ColoringCanvasModalProps {
   imageUrl: string
   imageName: string
   onClose: () => void
+  collaboration?: {
+    sessionId: string
+    userId: string
+  }
 }
 
 const PRESET_COLOR = [
@@ -22,7 +28,7 @@ const PRESET_COLOR = [
   '#f9fafb',
 ]
 
-export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCanvasModalProps) {
+export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboration }: ColoringCanvasModalProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const contextRef = useRef<CanvasRenderingContext2D | null>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
@@ -34,6 +40,12 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
   const [loadError, setLoadError] = useState<string | null>(null)
   const [canvasStyle, setCanvasStyle] = useState<React.CSSProperties>({})
   const isCanvasReady = isImageLoaded && !loadError
+
+  const collabChannelRef = useRef<RealtimeChannel | null>(null)
+  const remoteDrawingRef = useRef(
+    new Map<string, { color: string; size: number; isDrawing: boolean }>()
+  )
+  const [collabParticipantCount, setCollabParticipantCount] = useState<number | null>(null)
 
   // Load the coloring page image onto the canvas when the modal opens
   useEffect(() => {
@@ -84,6 +96,108 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
       setLoadError('We could not load this coloring page. Please try downloading it instead.')
     }
   }, [imageUrl])
+
+  useEffect(() => {
+    if (!collaboration?.sessionId || !collaboration.userId) {
+      return
+    }
+
+    const channel = supabase.channel(`collab:${collaboration.sessionId}`)
+    collabChannelRef.current = channel
+
+    const updatePresenceCount = () => {
+      const state = channel.presenceState() as Record<string, Array<{ userId?: string }>>
+      const ids = new Set<string>()
+      Object.values(state).forEach((entries) => {
+        entries.forEach((entry) => {
+          if (entry.userId) {
+            ids.add(entry.userId)
+          }
+        })
+      })
+      setCollabParticipantCount(ids.size)
+    }
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        updatePresenceCount()
+      })
+      .on('presence', { event: 'join' }, () => {
+        updatePresenceCount()
+      })
+      .on('presence', { event: 'leave' }, () => {
+        updatePresenceCount()
+      })
+      .on(
+        'broadcast',
+        { event: 'stroke' },
+        (payload: { payload: unknown }) => {
+          const incoming = payload.payload as {
+            type: 'start' | 'move' | 'end'
+            userId: string
+            x?: number
+            y?: number
+            color?: string
+            size?: number
+          }
+
+          if (!contextRef.current || !canvasRef.current || !isCanvasReady) {
+            return
+          }
+
+          if (incoming.userId === collaboration.userId) {
+            return
+          }
+
+          const remoteState = remoteDrawingRef.current.get(incoming.userId) ?? {
+            color: incoming.color ?? '#000000',
+            size: incoming.size ?? 6,
+            isDrawing: false,
+          }
+
+          if (incoming.type === 'start' && typeof incoming.x === 'number' && typeof incoming.y === 'number') {
+            remoteState.color = incoming.color ?? remoteState.color
+            remoteState.size = incoming.size ?? remoteState.size
+            remoteState.isDrawing = true
+            remoteDrawingRef.current.set(incoming.userId, remoteState)
+
+            contextRef.current.beginPath()
+            contextRef.current.moveTo(incoming.x, incoming.y)
+            contextRef.current.strokeStyle = remoteState.color
+            contextRef.current.lineWidth = remoteState.size
+            return
+          }
+
+          if (incoming.type === 'move' && remoteState.isDrawing && typeof incoming.x === 'number' && typeof incoming.y === 'number') {
+            contextRef.current.strokeStyle = remoteState.color
+            contextRef.current.lineWidth = remoteState.size
+            contextRef.current.lineTo(incoming.x, incoming.y)
+            contextRef.current.stroke()
+            remoteDrawingRef.current.set(incoming.userId, remoteState)
+            return
+          }
+
+          if (incoming.type === 'end') {
+            remoteState.isDrawing = false
+            remoteDrawingRef.current.set(incoming.userId, remoteState)
+            contextRef.current.closePath()
+          }
+        }
+      )
+      .subscribe(async (status: string) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ userId: collaboration.userId })
+          updatePresenceCount()
+        }
+      })
+
+    return () => {
+      remoteDrawingRef.current.clear()
+      setCollabParticipantCount(null)
+      collabChannelRef.current?.unsubscribe()
+      collabChannelRef.current = null
+    }
+  }, [collaboration?.sessionId, collaboration?.userId, isCanvasReady])
 
   // Handle window resizing to keep the modal scroll position at top when opened
   useEffect(() => {
@@ -140,6 +254,21 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
     contextRef.current.lineWidth = brushSize
     canvasRef.current.setPointerCapture(event.pointerId)
     setIsDrawing(true)
+
+    if (collaboration?.sessionId && collaboration.userId) {
+      collabChannelRef.current?.send({
+        type: 'broadcast',
+        event: 'stroke',
+        payload: {
+          type: 'start',
+          userId: collaboration.userId,
+          x,
+          y,
+          color: brushColor,
+          size: brushSize,
+        },
+      })
+    }
   }
 
   const draw = (event: ReactPointerEvent<HTMLCanvasElement>) => {
@@ -151,6 +280,19 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
     const { x, y } = getCanvasCoordinates(event)
     contextRef.current.lineTo(x, y)
     contextRef.current.stroke()
+
+    if (collaboration?.sessionId && collaboration.userId) {
+      collabChannelRef.current?.send({
+        type: 'broadcast',
+        event: 'stroke',
+        payload: {
+          type: 'move',
+          userId: collaboration.userId,
+          x,
+          y,
+        },
+      })
+    }
   }
 
   const stopDrawing = (event?: ReactPointerEvent<HTMLCanvasElement>) => {
@@ -162,6 +304,17 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
     setIsDrawing(false)
     if (event && canvasRef.current) {
       canvasRef.current.releasePointerCapture(event.pointerId)
+    }
+
+    if (collaboration?.sessionId && collaboration.userId) {
+      collabChannelRef.current?.send({
+        type: 'broadcast',
+        event: 'stroke',
+        payload: {
+          type: 'end',
+          userId: collaboration.userId,
+        },
+      })
     }
   }
 
@@ -223,6 +376,11 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose }: ColoringCa
               </div>
               <h2 className="mt-1 text-xl font-extrabold text-[#3A2E39]">Color your page</h2>
             </div>
+            {collaboration?.sessionId && collabParticipantCount !== null && (
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3] shadow-[4px_4px_0_0_#55C6C0]">
+                {collabParticipantCount} artists online
+              </div>
+            )}
             <button
               onClick={onClose}
               className="self-start rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-2 text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5 md:self-auto"
