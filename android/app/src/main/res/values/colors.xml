@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_primary">#6750A4</color>
+    <color name="purple_on_primary">#FFFFFF</color>
+    <color name="purple_container">#EADDFF</color>
+    <color name="surface">#FFFBFE</color>
+    <color name="on_surface">#1C1B1F</color>
+    <color name="error">#B3261E</color>
+</resources>
