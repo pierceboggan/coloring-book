@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coloringbook.ai.service.SupabaseService
 import com.coloringbook.ai.ui.theme.CanvasBlack
-import com.coloringbook.ai.ui.theme.canvasColors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +31,13 @@ class ColoringCanvasViewModel @Inject constructor(
     private val _coloringPageUrl = MutableStateFlow<String?>(null)
     val coloringPageUrl: StateFlow<String?> = _coloringPageUrl.asStateFlow()
 
+    // Committed paths (complete strokes only)
+    private val _committedPaths = MutableStateFlow<List<DrawingPath>>(emptyList())
+
+    // Current in-progress stroke (while finger is down)
+    private val _currentStroke = MutableStateFlow<DrawingPath?>(null)
+
+    // Combined paths for rendering: committed + in-progress
     private val _paths = MutableStateFlow<List<DrawingPath>>(emptyList())
     val paths: StateFlow<List<DrawingPath>> = _paths.asStateFlow()
 
@@ -41,11 +47,14 @@ class ColoringCanvasViewModel @Inject constructor(
     private val _strokeWidth = MutableStateFlow(8f)
     val strokeWidth: StateFlow<Float> = _strokeWidth.asStateFlow()
 
-    private val _undoStack = MutableStateFlow<List<List<DrawingPath>>>(emptyList())
-    private val _redoStack = MutableStateFlow<List<List<DrawingPath>>>(emptyList())
+    private val undoStack = mutableListOf<List<DrawingPath>>()
+    private val redoStack = mutableListOf<List<DrawingPath>>()
 
-    val canUndo: Boolean get() = _undoStack.value.isNotEmpty()
-    val canRedo: Boolean get() = _redoStack.value.isNotEmpty()
+    private val _canUndo = MutableStateFlow(false)
+    val canUndo: StateFlow<Boolean> = _canUndo.asStateFlow()
+
+    private val _canRedo = MutableStateFlow(false)
+    val canRedo: StateFlow<Boolean> = _canRedo.asStateFlow()
 
     private var currentPoints = mutableListOf<Offset>()
 
@@ -62,6 +71,17 @@ class ColoringCanvasViewModel @Inject constructor(
         }
     }
 
+    private fun updateRenderPaths() {
+        val stroke = _currentStroke.value
+        _paths.value = if (stroke != null) _committedPaths.value + stroke
+            else _committedPaths.value
+    }
+
+    private fun updateUndoRedoState() {
+        _canUndo.value = undoStack.isNotEmpty()
+        _canRedo.value = redoStack.isNotEmpty()
+    }
+
     fun setColor(color: Color) {
         _currentColor.value = color
     }
@@ -72,58 +92,65 @@ class ColoringCanvasViewModel @Inject constructor(
 
     fun onDrawStart(offset: Offset) {
         currentPoints = mutableListOf(offset)
+        _currentStroke.value = DrawingPath(
+            points = listOf(offset),
+            color = _currentColor.value,
+            strokeWidth = _strokeWidth.value,
+        )
+        updateRenderPaths()
     }
 
     fun onDrawMove(offset: Offset) {
         currentPoints.add(offset)
-        // Update paths with in-progress stroke
-        val inProgressPath = DrawingPath(
+        _currentStroke.value = DrawingPath(
             points = currentPoints.toList(),
             color = _currentColor.value,
             strokeWidth = _strokeWidth.value,
         )
-        _paths.value = _paths.value.dropLast(
-            if (_paths.value.lastOrNull()?.points == currentPoints) 1 else 0
-        ) + inProgressPath
+        updateRenderPaths()
     }
 
     fun onDrawEnd() {
-        if (currentPoints.size >= 2) {
-            // Save undo state (max 15 levels)
-            val undoList = _undoStack.value.toMutableList()
-            undoList.add(_paths.value.dropLast(1))
-            if (undoList.size > 15) undoList.removeFirst()
-            _undoStack.value = undoList
-            _redoStack.value = emptyList()
+        val stroke = _currentStroke.value
+        if (stroke != null && stroke.points.size >= 2) {
+            // Push current committed state onto undo stack
+            if (undoStack.size >= 15) undoStack.removeFirst()
+            undoStack.add(_committedPaths.value)
+            redoStack.clear()
+
+            // Commit the stroke
+            _committedPaths.value = _committedPaths.value + stroke
         }
+        _currentStroke.value = null
         currentPoints = mutableListOf()
+        updateRenderPaths()
+        updateUndoRedoState()
     }
 
     fun undo() {
-        val undoStack = _undoStack.value.toMutableList()
         if (undoStack.isEmpty()) return
-        val redoStack = _redoStack.value.toMutableList()
-        redoStack.add(_paths.value)
-        _redoStack.value = redoStack
-        _paths.value = undoStack.removeLast()
-        _undoStack.value = undoStack
+        redoStack.add(_committedPaths.value)
+        _committedPaths.value = undoStack.removeLast()
+        updateRenderPaths()
+        updateUndoRedoState()
     }
 
     fun redo() {
-        val redoStack = _redoStack.value.toMutableList()
         if (redoStack.isEmpty()) return
-        val undoStack = _undoStack.value.toMutableList()
-        undoStack.add(_paths.value)
-        _undoStack.value = undoStack
-        _paths.value = redoStack.removeLast()
-        _redoStack.value = redoStack
+        undoStack.add(_committedPaths.value)
+        _committedPaths.value = redoStack.removeLast()
+        updateRenderPaths()
+        updateUndoRedoState()
     }
 
     fun clearCanvas() {
-        val undoStack = _undoStack.value.toMutableList()
-        undoStack.add(_paths.value)
-        _undoStack.value = undoStack
-        _redoStack.value = emptyList()
-        _paths.value = emptyList()
+        if (_committedPaths.value.isNotEmpty()) {
+            undoStack.add(_committedPaths.value)
+            redoStack.clear()
+        }
+        _committedPaths.value = emptyList()
+        _currentStroke.value = null
+        updateRenderPaths()
+        updateUndoRedoState()
     }
 }
