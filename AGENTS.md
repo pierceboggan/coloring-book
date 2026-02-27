@@ -1,14 +1,16 @@
 # ColoringBook.AI - Multi-Platform Agent Instructions
 
 ## Project Overview
-ColoringBook.AI is a multi-platform application that transforms photos into coloring pages using AI. The repository contains two main projects:
+ColoringBook.AI is a multi-platform application that transforms photos into coloring pages using AI. The repository contains three main projects:
 
 1. **Web Application** (`/src`, root): Next.js 15 web app deployed on Vercel
 2. **iOS Native App** (`/ios`): SwiftUI iOS/iPad app with Supabase backend
+3. **Android Native App** (`/android`): Kotlin/Jetpack Compose app with Supabase backend
 
 Each platform has its own AGENTS.md file with platform-specific instructions:
 - **Web**: This file (root AGENTS.md)
 - **iOS**: `/ios/AGENTS.md`
+- **Android**: `/android/AGENTS.md`
 
 ## Repository Structure
 ```
@@ -23,9 +25,15 @@ coloring-book/
 │       ├── ColoringBook/  # App source
 │       ├── ColoringBookTests/
 │       └── ColoringBookUITests/
+├── android/               # Android native app
+│   ├── app/              # Main app module
+│   │   └── src/main/java/com/coloringbook/ai/
+│   ├── gradle/           # Gradle wrapper & version catalog
+│   └── build.gradle.kts  # Root build config
 ├── .github/
-│   ├── workflows/         # CI/CD for both platforms
-│   │   └── ios-ci.yml    # iOS-specific CI
+│   ├── workflows/         # CI/CD for all platforms
+│   │   ├── ios-ci.yml    # iOS-specific CI
+│   │   └── android-ci.yml # Android-specific CI
 │   └── agents/           # Agent configurations
 ├── tests/                # Web app E2E tests
 ├── public/               # Web static assets

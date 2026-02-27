@@ -344,7 +344,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
                 onPointerUp={(event) => event.stopPropagation()}
                 disabled={!user}
                 aria-valuetext={`Tailored for ages ${targetAge}`}
-                className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#FFE6EB]"
+                className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#FFB3BA]"
                 style={{ accentColor: '#FF6F91' }}
               />
               <div className="mt-4 rounded-2xl border border-[#FFD6DC] bg-white/80 p-4 text-sm font-semibold text-[#3A2E39] shadow-sm">
