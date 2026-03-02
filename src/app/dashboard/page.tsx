@@ -242,6 +242,57 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
   const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('compact')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
+  const [collabSession, setCollabSession] = useState<any>(null)
+
+  const startCollaborativeSession = async (imageId: string, imageName: string) => {
+    try {
+      const devBypassActive =
+        process.env.NODE_ENV !== 'production' &&
+        process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
+
+      let userId, userName
+      if (devBypassActive) {
+        userId = 'dev-user-123'
+        userName = 'Demo User'
+      } else {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          router.push('/')
+          return
+        }
+        userId = user.id
+        userName = user.user_metadata?.full_name || user.email || 'Anonymous'
+      }
+
+      const res = await fetch('/api/collaborative/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${imageName} - Collaborative`,
+          imageId,
+          userId,
+          userName
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        console.error('Failed to create session:', data.error)
+        return
+      }
+
+      const targetImage = images.find(img => img.id === imageId)
+      if (!targetImage?.coloring_page_url) {
+        console.error('No coloring page URL found for image')
+        return
+      }
+
+      setActiveDrawingImage({ ...targetImage, coloring_page_url: targetImage.coloring_page_url })
+      setCollabSession({ sessionId: data.session.id, userId })
+    } catch (e) {
+      console.error('Failed to start collaborative session:', e)
+    }
+  }
 
   const fetchUserImages = useCallback(async () => {
     try {
@@ -372,7 +423,7 @@ export default function Dashboard() {
             fetchUserImages()
           }
         )
-        .subscribe((status) => {
+        .subscribe((status: string) => {
           if (status === 'SUBSCRIBED') {
             isRealTimeWorking = true
           } else if (status === 'CHANNEL_ERROR') {
@@ -440,7 +491,7 @@ export default function Dashboard() {
       }
 
       // Update local state
-      setImages(prev => prev.filter(img => img.id !== imageId))
+      setImages((prev: UserImage[]) => prev.filter((img: UserImage) => img.id !== imageId))
 
     } catch (error) {
       console.error('❌ Failed to archive image:', error)
@@ -932,6 +983,13 @@ export default function Dashboard() {
                             >
                               <Paintbrush className="h-3.5 w-3.5" />
                             </button>
+                            <button
+                              onClick={() => startCollaborativeSession(item.parentImage.id, item.name)}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 bg-white/90 text-[#FFB3BA] transition-transform hover:scale-110"
+                              title="Start Collaboration"
+                            >
+                              <Users className="h-3.5 w-3.5" />
+                            </button>
                             <a
                               href={item.coloringPageUrl}
                               download={`coloring-page-${item.name}${item.isVariant ? '-variant' : ''}.png`}
@@ -1352,11 +1410,23 @@ export default function Dashboard() {
         />
       )}
 
-      {activeDrawingImage && activeDrawingImage.coloring_page_url && (
+      {activeDrawingImage && activeDrawingImage.coloring_page_url && !collabSession && (
         <ColoringCanvasModal
           imageUrl={activeDrawingImage.coloring_page_url}
           imageName={activeDrawingImage.name}
           onClose={() => setActiveDrawingImage(null)}
+        />
+      )}
+
+      {collabSession && activeDrawingImage?.coloring_page_url && (
+        <ColoringCanvasModal
+          imageUrl={activeDrawingImage.coloring_page_url}
+          imageName={activeDrawingImage.name}
+          onClose={() => {
+            setCollabSession(null)
+            setActiveDrawingImage(null)
+          }}
+          collaboration={collabSession}
         />
       )}
 
