@@ -20,8 +20,17 @@
       "command": "node",
       "args": ["/Users/pierceboggan/Documents/GitHub/nano-banana-mcp/dist/index.js"],
       "env": {
-        "GOOGLE_API_KEY": "your-actual-google-api-key-here"
+        "GOOGLE_API_KEY": "${input:google-api-key}"
       }
     }
-  }
+  },
+  "inputs": [
+    {
+      "id": "google-api-key",
+      "type": "promptString",
+      "description": "Google AI Studio key",
+      "password": true
+
+    }
+  ]
 }
