@@ -16,10 +16,11 @@
       "args": ["-y", "xcodebuildmcp@beta", "mcp"]
     },
     "nano-banana": {
+      "type": "stdio",
       "command": "node",
       "args": ["/Users/pierceboggan/Documents/GitHub/nano-banana-mcp/dist/index.js"],
       "env": {
-        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}"
+        "GOOGLE_API_KEY": "your-actual-google-api-key-here"
       }
     }
   }
