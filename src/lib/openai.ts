@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { recordImageGenerationMetrics, withActiveSpan } from '@/lib/telemetry'
 
 export type ImageDetailLevel = 'low' | 'auto' | 'high'
 
@@ -216,85 +217,128 @@ export async function generateColoringPageWithCustomPromptDetailed(
 ): Promise<ImageGenerationResult> {
   const provider = resolveProvider(options.provider)
   const detailLevel = options.detail ?? 'high'
+  const promptLength = customPrompt.length
 
   try {
-    console.log('🎨 Starting coloring page generation for image:', imageUrl)
-    console.log('📝 Using prompt:', customPrompt)
-    console.log('⚙️ Selected provider:', provider)
+    return await withActiveSpan('coloringbook.image_generation', {
+      'coloringbook.provider': provider,
+      'coloringbook.detail': detailLevel,
+      'coloringbook.prompt_length': promptLength,
+    }, async (span) => {
+      console.log('🎨 Starting coloring page generation for image:', imageUrl)
+      console.log('📝 Using prompt:', customPrompt)
+      console.log('⚙️ Selected provider:', provider)
 
-    console.log('📥 Converting image to base64...')
-    const { base64: base64Image, mimeType } = await imageUrlToBase64(imageUrl)
-    console.log('✅ Image converted to base64, length:', base64Image.length)
+      console.log('📥 Converting image to base64...')
+      const { base64: base64Image, mimeType } = await withActiveSpan('coloringbook.source_image.download', {
+        'coloringbook.provider': provider,
+      }, async () => imageUrlToBase64(imageUrl))
+      console.log('✅ Image converted to base64, length:', base64Image.length)
 
-    const startTime = Date.now()
+      const startTime = Date.now()
 
-    const providerResult = await generateWithProvider({
-      provider,
-      base64Image,
-      mimeType,
-      prompt: customPrompt,
-      detailLevel,
-    })
+      const providerResult = await withActiveSpan('coloringbook.provider.generate', {
+        'coloringbook.provider': provider,
+        'coloringbook.detail': detailLevel,
+      }, async () => generateWithProvider({
+        provider,
+        base64Image,
+        mimeType,
+        prompt: customPrompt,
+        detailLevel,
+      }))
 
-    const latencyMs = Date.now() - startTime
+      const latencyMs = Date.now() - startTime
 
-    console.log('✅ Image generated successfully via', provider)
+      console.log('✅ Image generated successfully via', provider)
 
-    if (!providerResult.base64) {
-      console.error('❌ Generated image data is empty')
-      throw new Error('Generated image data is empty')
-    }
+      if (!providerResult.base64) {
+        console.error('❌ Generated image data is empty')
+        throw new Error('Generated image data is empty')
+      }
 
-    const { supabase } = await import('./supabase')
-    const { addWatermark } = await import('./imageProcessor')
+      const { supabase } = await import('./supabase')
+      const { addWatermark } = await import('./imageProcessor')
 
-    let buffer = Buffer.from(providerResult.base64, 'base64')
-    const imageBytes = buffer.length
+      let buffer = Buffer.from(providerResult.base64, 'base64')
+      const imageBytes = buffer.length
 
-    console.log('🏷️ Adding watermark to coloring page...')
-    buffer = await addWatermark(buffer)
+      console.log('🏷️ Adding watermark to coloring page...')
+      buffer = await withActiveSpan('coloringbook.image.watermark', {
+        'coloringbook.provider': provider,
+      }, async () => addWatermark(buffer))
 
-    const fileName = `coloring-page-${provider}-${Date.now()}.png`
-    const filePath = `coloring-pages/${fileName}`
+      const fileName = `coloring-page-${provider}-${Date.now()}.png`
+      const filePath = `coloring-pages/${fileName}`
 
-    console.log('📤 Uploading coloring page to Supabase storage...')
-    const { error: uploadError } = await supabase.storage
-      .from('images')
-      .upload(filePath, buffer, {
-        contentType: 'image/png',
+      console.log('📤 Uploading coloring page to Supabase storage...')
+      await withActiveSpan('coloringbook.storage.upload_generated_image', {
+        'coloringbook.provider': provider,
+        'coloringbook.storage_bucket': 'images',
+      }, async () => {
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, buffer, {
+            contentType: 'image/png',
+          })
+
+        if (uploadError) {
+          console.error('❌ Failed to upload coloring page:', uploadError)
+          throw new Error(`Storage upload failed: ${uploadError.message}`)
+        }
       })
 
-    if (uploadError) {
-      console.error('❌ Failed to upload coloring page:', uploadError)
-      throw new Error(`Storage upload failed: ${uploadError.message}`)
-    }
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath)
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('images')
-      .getPublicUrl(filePath)
+      console.log('✅ Coloring page uploaded successfully:', publicUrl)
 
-    console.log('✅ Coloring page uploaded successfully:', publicUrl)
+      span.setAttributes({
+        'coloringbook.model': providerResult.model,
+        'coloringbook.image_bytes': imageBytes,
+      })
 
-    const metadata: ImageGenerationMetadata = {
-      provider,
-      model: providerResult.model,
-      detail: detailLevel,
-      prompt: customPrompt,
-      latencyMs,
-      estimatedCostUSD: providerResult.cost,
-      usageMetrics: providerResult.usage,
-      base64Length: providerResult.base64.length,
-      imageBytes,
-      responseId: providerResult.responseId,
-    }
+      recordImageGenerationMetrics({
+        provider,
+        detail: detailLevel,
+        status: 'success',
+        latencyMs,
+        imageBytes,
+        promptLength,
+        model: providerResult.model,
+        estimatedCostUsd: providerResult.cost,
+        usageMetrics: providerResult.usage,
+      })
 
-    return {
-      publicUrl,
-      storagePath: filePath,
-      metadata,
-    }
+      const metadata: ImageGenerationMetadata = {
+        provider,
+        model: providerResult.model,
+        detail: detailLevel,
+        prompt: customPrompt,
+        latencyMs,
+        estimatedCostUSD: providerResult.cost,
+        usageMetrics: providerResult.usage,
+        base64Length: providerResult.base64.length,
+        imageBytes,
+        responseId: providerResult.responseId,
+      }
+
+      return {
+        publicUrl,
+        storagePath: filePath,
+        metadata,
+      }
+    })
   } catch (error) {
     console.error('💥 Error generating coloring page:', error)
+
+    recordImageGenerationMetrics({
+      provider,
+      detail: detailLevel,
+      status: 'error',
+      promptLength,
+    })
 
     if (error instanceof Error) {
       console.error('🔍 Error details:', {

@@ -1,6 +1,7 @@
 import sharp from 'sharp'
 import { PassThrough, Readable } from 'stream'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { recordPhotobookMetrics, withActiveSpan } from '@/lib/telemetry'
 import type { Database } from '@/lib/supabase'
 import {
   parsePayload,
@@ -433,43 +434,71 @@ async function generatePhotobookPdf(job: PhotobookJobRow, payload: PhotobookJobP
 }
 
 export async function enqueuePhotobookJob(payload: PhotobookJobPayload) {
-  const now = new Date().toISOString()
-  const insertPayload: Database['public']['Tables']['photobook_jobs']['Insert'] = {
-    status: 'queued',
-    title: payload.title,
-    user_id: payload.userId,
-    created_at: now,
-    updated_at: now,
-    payload: serializePayload(payload),
-    processed_count: 0,
-    total_count: payload.images.length,
-  }
+  return withActiveSpan('coloringbook.photobook.job.enqueue', {
+    'coloringbook.page_count': payload.images.length,
+  }, async () => {
+    const now = new Date().toISOString()
+    const insertPayload: Database['public']['Tables']['photobook_jobs']['Insert'] = {
+      status: 'queued',
+      title: payload.title,
+      user_id: payload.userId,
+      created_at: now,
+      updated_at: now,
+      payload: serializePayload(payload),
+      processed_count: 0,
+      total_count: payload.images.length,
+    }
 
-  const { data, error } = await supabaseAdmin
-    .from('photobook_jobs')
-    .insert(insertPayload)
-    .select('*')
-    .single<PhotobookJobRow>()
+    const { data, error } = await supabaseAdmin
+      .from('photobook_jobs')
+      .insert(insertPayload)
+      .select('*')
+      .single<PhotobookJobRow>()
 
-  if (error) {
-    throw new Error(`Failed to enqueue photobook job: ${error.message}`)
-  }
+    if (error) {
+      throw new Error(`Failed to enqueue photobook job: ${error.message}`)
+    }
 
-  return data
+    recordPhotobookMetrics({
+      status: 'queued',
+      pageCount: payload.images.length,
+    })
+
+    return data
+  })
 }
 
 async function processSingleJob(job: PhotobookJobRow) {
+  const startedAt = Date.now()
+
   try {
     const payload = parsePayload(job.payload)
     if (!payload) {
       throw new Error('Photobook job payload is invalid or missing')
     }
 
-    await generatePhotobookPdf(job, payload)
+    await withActiveSpan('coloringbook.photobook.job.process', {
+      'coloringbook.job_id': job.id,
+      'coloringbook.page_count': payload.images.length,
+    }, async () => generatePhotobookPdf(job, payload))
+
+    recordPhotobookMetrics({
+      status: 'completed',
+      pageCount: payload.images.length,
+      durationMs: Date.now() - startedAt,
+    })
   } catch (error) {
+    const payload = parsePayload(job.payload)
     const message = error instanceof Error ? error.message : 'Unknown photobook job error'
     console.error('💥 Photobook job failed:', message)
     console.error(error)
+
+    recordPhotobookMetrics({
+      status: 'failed',
+      pageCount: payload?.images.length ?? 0,
+      durationMs: Date.now() - startedAt,
+    })
+
     await markJobFailed(job.id, message)
   }
 }

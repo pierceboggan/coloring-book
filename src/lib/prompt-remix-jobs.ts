@@ -1,5 +1,6 @@
 import { generateColoringPageWithCustomPrompt, ImageGenerationProvider } from '@/lib/openai'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { recordPromptRemixMetrics, withActiveSpan } from '@/lib/telemetry'
 import {
   type PromptRemixJob,
   type PromptRemixJobResult,
@@ -47,26 +48,38 @@ export async function createPromptRemixJob({
   prompts,
   provider,
 }: CreatePromptRemixJobInput): Promise<PromptRemixJob> {
-  const initialResults = buildResultSkeleton(prompts)
+  return withActiveSpan('coloringbook.prompt_remix.job.create', {
+    'coloringbook.prompt_count': prompts.length,
+    'coloringbook.provider': provider ?? 'default',
+    'coloringbook.has_image_id': Boolean(imageId),
+  }, async () => {
+    const initialResults = buildResultSkeleton(prompts)
 
-  const { data, error } = await supabaseAdmin
-    .from(JOB_TABLE)
-    .insert({
-      image_id: imageId ?? null,
-      image_url: imageUrl,
+    const { data, error } = await supabaseAdmin
+      .from(JOB_TABLE)
+      .insert({
+        image_id: imageId ?? null,
+        image_url: imageUrl,
+        status: 'queued',
+        prompts,
+        results: initialResults,
+        provider: provider ?? null,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    recordPromptRemixMetrics({
       status: 'queued',
-      prompts,
-      results: initialResults,
-      provider: provider ?? null,
+      promptCount: prompts.length,
+      provider: provider ?? 'default',
     })
-    .select()
-    .single()
 
-  if (error) {
-    throw error
-  }
-
-  return data as PromptRemixJob
+    return data as PromptRemixJob
+  })
 }
 
 export async function getPromptRemixJob(jobId: string): Promise<PromptRemixJob | null> {
@@ -132,135 +145,151 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
     return job
   }
 
-  const results = job.results?.length ? [...job.results] : buildResultSkeleton(job.prompts)
+  return withActiveSpan('coloringbook.prompt_remix.job.process', {
+    'coloringbook.job_id': job.id,
+    'coloringbook.prompt_count': job.prompts.length,
+    'coloringbook.provider': job.provider ?? 'default',
+  }, async () => {
+    const results = job.results?.length ? [...job.results] : buildResultSkeleton(job.prompts)
 
-  if (!job.results?.length) {
-    try {
-      await updateJobFields(job.id, { results })
-    } catch (error) {
-      console.error('Failed to initialize job results', error)
-    }
-  }
-
-  try {
-    await updateJobFields(job.id, {
-      status: 'processing',
-      started_at: job.started_at ?? new Date().toISOString(),
-      error_message: null,
-    })
-  } catch (error) {
-    console.error('Failed to mark job as processing', error)
-    return job
-  }
-
-  let variantAccumulator: { urls: string[]; prompts: string[] } | null = null
-
-  if (job.image_id) {
-    const { data: imageRecord, error: fetchError } = await supabaseAdmin
-      .from('images')
-      .select('variant_urls, variant_prompts')
-      .eq('id', job.image_id)
-      .maybeSingle()
-
-    if (fetchError) {
-      console.error('Failed to load existing variants for job', job.id, fetchError)
-    } else if (imageRecord) {
-      variantAccumulator = {
-        urls: Array.isArray(imageRecord.variant_urls) ? [...imageRecord.variant_urls] : [],
-        prompts: Array.isArray(imageRecord.variant_prompts) ? [...imageRecord.variant_prompts] : [],
+    if (!job.results?.length) {
+      try {
+        await updateJobFields(job.id, { results })
+      } catch (error) {
+        console.error('Failed to initialize job results', error)
       }
     }
-  }
-
-  const errors: string[] = []
-
-  for (let index = 0; index < results.length; index += 1) {
-    const current = results[index]
-
-    if (shouldSkipStatus(current.status)) {
-      continue
-    }
-
-    const startedAt = new Date().toISOString()
-    results[index] = {
-      ...current,
-      status: 'processing',
-      error: null,
-      started_at: startedAt,
-      completed_at: null,
-    }
 
     try {
-      await updateJobFields(job.id, { results })
-    } catch (error) {
-      console.error('Failed to update job progress', error)
-    }
-
-    try {
-      const combinedPrompt = buildCombinedPrompt(current.prompt)
-      const provider = job.provider && typeof job.provider === 'string' ? (job.provider as ImageGenerationProvider) : undefined
-      const coloringPageUrl = await generateColoringPageWithCustomPrompt(job.image_url, combinedPrompt, {
-        provider,
+      await updateJobFields(job.id, {
+        status: 'processing',
+        started_at: job.started_at ?? new Date().toISOString(),
+        error_message: null,
       })
-
-      results[index] = {
-        ...results[index],
-        status: 'succeeded',
-        url: coloringPageUrl,
-        completed_at: new Date().toISOString(),
-      }
-
-      await updateJobFields(job.id, { results })
-
-      if (job.image_id && coloringPageUrl && variantAccumulator) {
-        await persistVariantToImage(job.image_id, current.prompt, coloringPageUrl, variantAccumulator)
-      }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to generate prompt remix variant.'
+      console.error('Failed to mark job as processing', error)
+      return job
+    }
 
-      results[index] = {
-        ...results[index],
-        status: 'failed',
-        error: message,
-        completed_at: new Date().toISOString(),
+    let variantAccumulator: { urls: string[]; prompts: string[] } | null = null
+
+    if (job.image_id) {
+      const { data: imageRecord, error: fetchError } = await supabaseAdmin
+        .from('images')
+        .select('variant_urls, variant_prompts')
+        .eq('id', job.image_id)
+        .maybeSingle()
+
+      if (fetchError) {
+        console.error('Failed to load existing variants for job', job.id, fetchError)
+      } else if (imageRecord) {
+        variantAccumulator = {
+          urls: Array.isArray(imageRecord.variant_urls) ? [...imageRecord.variant_urls] : [],
+          prompts: Array.isArray(imageRecord.variant_prompts) ? [...imageRecord.variant_prompts] : [],
+        }
+      }
+    }
+
+    const errors: string[] = []
+
+    for (let index = 0; index < results.length; index += 1) {
+      const current = results[index]
+
+      if (shouldSkipStatus(current.status)) {
+        continue
       }
 
-      errors.push(`${current.prompt}: ${message}`)
+      const startedAt = new Date().toISOString()
+      results[index] = {
+        ...current,
+        status: 'processing',
+        error: null,
+        started_at: startedAt,
+        completed_at: null,
+      }
 
       try {
         await updateJobFields(job.id, { results })
-      } catch (updateError) {
-        console.error('Failed to store error result for prompt remix job', updateError)
+      } catch (error) {
+        console.error('Failed to update job progress', error)
       }
 
-      console.error('Prompt remix generation failed', error)
+      try {
+        const combinedPrompt = buildCombinedPrompt(current.prompt)
+        const provider = job.provider && typeof job.provider === 'string' ? (job.provider as ImageGenerationProvider) : undefined
+        const coloringPageUrl = await withActiveSpan('coloringbook.prompt_remix.variant.generate', {
+          'coloringbook.job_id': job.id,
+          'coloringbook.prompt_length': current.prompt.length,
+          'coloringbook.provider': provider ?? 'default',
+        }, async () => generateColoringPageWithCustomPrompt(job.image_url, combinedPrompt, {
+          provider,
+        }))
+
+        results[index] = {
+          ...results[index],
+          status: 'succeeded',
+          url: coloringPageUrl,
+          completed_at: new Date().toISOString(),
+        }
+
+        await updateJobFields(job.id, { results })
+
+        if (job.image_id && coloringPageUrl && variantAccumulator) {
+          await persistVariantToImage(job.image_id, current.prompt, coloringPageUrl, variantAccumulator)
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to generate prompt remix variant.'
+
+        results[index] = {
+          ...results[index],
+          status: 'failed',
+          error: message,
+          completed_at: new Date().toISOString(),
+        }
+
+        errors.push(`${current.prompt}: ${message}`)
+
+        try {
+          await updateJobFields(job.id, { results })
+        } catch (updateError) {
+          console.error('Failed to store error result for prompt remix job', updateError)
+        }
+
+        console.error('Prompt remix generation failed', error)
+      }
     }
-  }
 
-  const finalStatus = results.every(result => result.status === 'succeeded') ? 'completed' : 'failed'
+    const finalStatus = results.every(result => result.status === 'succeeded') ? 'completed' : 'failed'
 
-  const { data: finalJob, error: finalizeError } = await supabaseAdmin
-    .from(JOB_TABLE)
-    .update({
+    const { data: finalJob, error: finalizeError } = await supabaseAdmin
+      .from(JOB_TABLE)
+      .update({
+        status: finalStatus,
+        results,
+        completed_at: new Date().toISOString(),
+        error_message: errors.length ? errors.join('\n') : null,
+      })
+      .eq('id', job.id)
+      .select()
+      .single()
+
+    recordPromptRemixMetrics({
       status: finalStatus,
-      results,
-      completed_at: new Date().toISOString(),
-      error_message: errors.length ? errors.join('\n') : null,
+      promptCount: job.prompts.length,
+      provider: job.provider ?? 'default',
     })
-    .eq('id', job.id)
-    .select()
-    .single()
 
-  if (finalizeError) {
-    console.error('Failed to finalize prompt remix job', finalizeError)
-    return {
-      ...job,
-      status: finalStatus,
-      results,
-      error_message: errors.length ? errors.join('\n') : null,
+    if (finalizeError) {
+      console.error('Failed to finalize prompt remix job', finalizeError)
+      return {
+        ...job,
+        status: finalStatus,
+        results,
+        error_message: errors.length ? errors.join('\n') : null,
+      }
     }
-  }
 
-  return finalJob as PromptRemixJob
+    return finalJob as PromptRemixJob
+  })
 }
