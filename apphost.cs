@@ -1,7 +1,11 @@
 #:sdk Aspire.AppHost.Sdk@13.3.0-preview.1.26172.1
 #:package Aspire.Hosting.JavaScript@13.3.0-preview.1.26172.1
 
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 static Uri ExternalServiceUri(string url) => new(url.TrimEnd('/') + "/");
 

@@ -42,6 +42,7 @@ tests/e2e/
 .env.development.local
 .env.test.local
 .env.production.local
+appsettings.Local.json
 
 # OS generated files
 .DS_Store

@@ -144,6 +144,18 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
+    If you are running the Aspire AppHost, create an `appsettings.Local.json` file in the repo root so Aspire can resolve the same values without prompting in the dashboard:
+    ```json
+    {
+       "NEXT_PUBLIC_SUPABASE_URL": "https://your-project.supabase.co/",
+       "NEXT_PUBLIC_SUPABASE_ANON_KEY": "your_supabase_anon_key",
+       "SUPABASE_SERVICE_ROLE_KEY": "your_supabase_service_role_key",
+       "OPENAI_API_KEY": "your_openai_api_key"
+    }
+    ```
+
+    `appsettings.Local.json` is ignored by git and is loaded by [apphost.cs](apphost.cs#L1) before Aspire parameter resolution.
+
 4. **Set up Supabase**
    
    Run this SQL in your Supabase SQL editor:
