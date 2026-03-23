@@ -28,7 +28,6 @@ Native Android companion app for [ColoringBook.AI](https://coloringbook.ai), bui
 - **Supabase Kotlin SDK** for backend
 - **Coil** for image loading
 - **Room** for offline database
-- **Sentry** for error monitoring
 
 ## Architecture
 

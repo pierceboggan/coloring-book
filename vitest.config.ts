@@ -21,7 +21,6 @@ export default defineConfig({
         '**/types/**',
         'src/app/**', // API routes and pages tested via E2E
         'instrumentation*.ts',
-        'sentry.*.config.ts',
         '.next/',
         'coverage/',
       ],

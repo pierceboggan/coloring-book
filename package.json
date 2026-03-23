@@ -16,7 +16,6 @@
   "dependencies": {
     "@amplitude/analytics-browser": "^2.11.4",
     "@amplitude/plugin-session-replay-browser": "^1.8.0",
-    "@sentry/nextjs": "^9.36.0",
     "@supabase/ssr": "^0.6.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",

@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/nextjs'
-
 import { generateColoringPageWithCustomPrompt, ImageGenerationProvider } from '@/lib/openai'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import {
@@ -112,7 +110,6 @@ async function persistVariantToImage(
 
   if (error) {
     console.error('Failed to persist variant for image', imageId, error)
-    Sentry.captureException(error)
   }
 }
 
@@ -142,7 +139,6 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
       await updateJobFields(job.id, { results })
     } catch (error) {
       console.error('Failed to initialize job results', error)
-      Sentry.captureException(error)
     }
   }
 
@@ -154,7 +150,6 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
     })
   } catch (error) {
     console.error('Failed to mark job as processing', error)
-    Sentry.captureException(error)
     return job
   }
 
@@ -169,7 +164,6 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
 
     if (fetchError) {
       console.error('Failed to load existing variants for job', job.id, fetchError)
-      Sentry.captureException(fetchError)
     } else if (imageRecord) {
       variantAccumulator = {
         urls: Array.isArray(imageRecord.variant_urls) ? [...imageRecord.variant_urls] : [],
@@ -200,7 +194,6 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
       await updateJobFields(job.id, { results })
     } catch (error) {
       console.error('Failed to update job progress', error)
-      Sentry.captureException(error)
     }
 
     try {
@@ -239,11 +232,9 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
         await updateJobFields(job.id, { results })
       } catch (updateError) {
         console.error('Failed to store error result for prompt remix job', updateError)
-        Sentry.captureException(updateError)
       }
 
       console.error('Prompt remix generation failed', error)
-      Sentry.captureException(error)
     }
   }
 
@@ -263,7 +254,6 @@ export async function processPromptRemixJob(jobId: string): Promise<PromptRemixJ
 
   if (finalizeError) {
     console.error('Failed to finalize prompt remix job', finalizeError)
-    Sentry.captureException(finalizeError)
     return {
       ...job,
       status: finalStatus,

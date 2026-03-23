@@ -4,7 +4,6 @@ import { useState, useRef, useMemo } from 'react'
 import { Upload, Image as ImageIcon, Loader2, Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
-import * as Sentry from '@sentry/nextjs'
 import { VARIANT_THEMES } from '@/lib/variants'
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'error'
@@ -55,47 +54,36 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   )
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    return Sentry.startSpan(
-      {
-        op: 'ui.upload',
-        name: 'Image Upload Process',
-      },
-      async (span) => {
-        const files = event.target.files
+    const files = event.target.files
 
-        if (!files || files.length === 0) {
-          return
-        }
+    if (!files || files.length === 0) {
+      return
+    }
 
-        span.setAttribute('fileCount', files.length)
-        span.setAttribute('targetAge', targetAge)
+    if (!user) {
+      setError('Please sign in to upload images')
+      return
+    }
 
-        if (!user) {
-          setError('Please sign in to upload images')
-          return
-        }
+    const validFiles: File[] = []
 
-        const validFiles: File[] = []
-
-        for (const file of Array.from(files)) {
-          if (!file.type.startsWith('image/')) {
-            setError(`${file.name} is not an image file`)
-            return
-          }
-
-          if (file.size > 10 * 1024 * 1024) {
-            setError(`${file.name} is too large (max 10MB)`)
-            return
-          }
-
-          validFiles.push(file)
-        }
-
-        console.log(`📸 Uploading ${validFiles.length} images...`)
-        setError('')
-        await uploadMultipleImages(validFiles, targetAge)
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) {
+        setError(`${file.name} is not an image file`)
+        return
       }
-    )
+
+      if (file.size > 10 * 1024 * 1024) {
+        setError(`${file.name} is too large (max 10MB)`)
+        return
+      }
+
+      validFiles.push(file)
+    }
+
+    console.log(`📸 Uploading ${validFiles.length} images...`)
+    setError('')
+    await uploadMultipleImages(validFiles, targetAge)
   }
 
   const uploadMultipleImages = async (files: File[], age: number) => {
@@ -117,7 +105,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
     if (failedUploads.length > 0) {
       failedUploads.forEach(({ result }) => {
         if (result.status === 'rejected') {
-          Sentry.captureException(result.reason)
+          console.error('Upload failed', result.reason)
         }
       })
 

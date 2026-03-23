@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/nextjs'
 import sharp from 'sharp'
 import { PassThrough, Readable } from 'stream'
 import { supabaseAdmin } from '@/lib/supabase-admin'
@@ -262,22 +261,8 @@ async function writePhotobookPdf(job: PhotobookJobRow, payload: PhotobookJobPayl
       throw new Error('Missing image metadata for photobook page')
     }
 
-    const prepared = await Sentry.startSpan(
-      {
-        op: 'photobook.fetch_image',
-        name: 'Fetch photobook image',
-        attributes: {
-          'photobook.image_id': plan.image.id,
-        },
-      },
-      async (span) => {
-        const buffer = await fetchImageBuffer(plan.image!.coloring_page_url)
-        const processed = await prepareImage(buffer)
-        span.setAttribute('photobook.image.width', processed.width)
-        span.setAttribute('photobook.image.height', processed.height)
-        return processed
-      }
-    )
+    const buffer = await fetchImageBuffer(plan.image.coloring_page_url)
+    const prepared = await prepareImage(buffer)
 
     writer.addStream(plan.imageId, [
       '/Type /XObject',
@@ -423,15 +408,6 @@ async function generatePhotobookPdf(job: PhotobookJobRow, payload: PhotobookJobP
       upsert: false,
     })
 
-  const span = Sentry.startSpan({
-    op: 'photobook.build_pdf',
-    name: 'Build photobook PDF',
-    attributes: {
-      'photobook.job_id': job.id,
-      'photobook.page_count': payload.images.length + 1,
-    },
-  })
-
   try {
     const { catalogId } = await writePhotobookPdf(job, payload, writer)
     writer.finalize(catalogId)
@@ -453,8 +429,6 @@ async function generatePhotobookPdf(job: PhotobookJobRow, payload: PhotobookJobP
     const message = error instanceof Error ? error.message : 'Unknown photobook failure'
     await markJobFailed(job.id, message)
     throw error
-  } finally {
-    span.end()
   }
 }
 
@@ -485,32 +459,19 @@ export async function enqueuePhotobookJob(payload: PhotobookJobPayload) {
 }
 
 async function processSingleJob(job: PhotobookJobRow) {
-  return Sentry.startSpan(
-    {
-      op: 'photobook.process_job',
-      name: 'Process photobook job',
-      attributes: {
-        'photobook.job_id': job.id,
-        'photobook.user_id': job.user_id,
-      },
-    },
-    async (span) => {
-      try {
-        const payload = parsePayload(job.payload)
-        if (!payload) {
-          throw new Error('Photobook job payload is invalid or missing')
-        }
-
-        await generatePhotobookPdf(job, payload)
-      } catch (error) {
-        span.setStatus('internal_error')
-        const message = error instanceof Error ? error.message : 'Unknown photobook job error'
-        console.error('💥 Photobook job failed:', message)
-        Sentry.captureException(error)
-        await markJobFailed(job.id, message)
-      }
+  try {
+    const payload = parsePayload(job.payload)
+    if (!payload) {
+      throw new Error('Photobook job payload is invalid or missing')
     }
-  )
+
+    await generatePhotobookPdf(job, payload)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown photobook job error'
+    console.error('💥 Photobook job failed:', message)
+    console.error(error)
+    await markJobFailed(job.id, message)
+  }
 }
 
 export async function processPhotobookQueue() {

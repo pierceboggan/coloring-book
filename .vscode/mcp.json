@@ -8,9 +8,6 @@
       "command": "npx",
       "args": ["@playwright/mcp@latest"]
     },
-    "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp"
-    },
     "XcodeBuildMCP": {
       "command": "npx",
       "args": ["-y", "xcodebuildmcp@beta", "mcp"]

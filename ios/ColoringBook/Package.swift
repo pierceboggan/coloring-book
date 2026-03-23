@@ -16,14 +16,12 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/supabase/supabase-swift", from: "2.0.0"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "8.0.0"),
     ],
     targets: [
         .target(
             name: "ColoringBook",
             dependencies: [
                 .product(name: "Supabase", package: "supabase-swift"),
-                .product(name: "Sentry", package: "sentry-cocoa"),
             ]
         ),
         .testTarget(

@@ -89,11 +89,8 @@ class SupabaseService: ObservableObject {
             isAuthenticated = true
             isInitialSessionResolved = true
             print("✅ Signed in: \(email)")
-            
-            // Set user context in Sentry
-            SentryService.shared.setUser(id: session.user.id.uuidString.lowercased(), email: email)
         } catch {
-            SentryService.shared.captureError(error, context: ["operation": "signIn", "email": email])
+            print("❌ Sign in failed: \(error.localizedDescription)")
             throw error
         }
     }
@@ -106,13 +103,10 @@ class SupabaseService: ObservableObject {
                 currentAccessToken = session.accessToken
                 isAuthenticated = true
                 isInitialSessionResolved = true
-                
-                // Set user context in Sentry
-                SentryService.shared.setUser(id: session.user.id.uuidString.lowercased(), email: email)
             }
             print("✅ Signed up: \(email)")
         } catch {
-            SentryService.shared.captureError(error, context: ["operation": "signUp", "email": email])
+            print("❌ Sign up failed: \(error.localizedDescription)")
             throw error
         }
     }
@@ -123,10 +117,7 @@ class SupabaseService: ObservableObject {
         currentAccessToken = nil
         isAuthenticated = false
         isInitialSessionResolved = true
-        
-        // Clear user context in Sentry
-        SentryService.shared.clearUser()
-        
+
         print("✅ Signed out")
     }
 
@@ -148,20 +139,10 @@ class SupabaseService: ObservableObject {
             )
 
             let publicURL = try client.storage.from("images").getPublicURL(path: path)
-            
-            SentryService.shared.addBreadcrumb(
-                message: "Image uploaded successfully",
-                category: "storage",
-                level: .info
-            )
-            
+
             return publicURL.absoluteString
         } catch {
-            SentryService.shared.captureError(error, context: [
-                "operation": "uploadImage",
-                "fileName": fileName,
-                "dataSize": imageData.count
-            ])
+            print("❌ Upload image failed: \(error.localizedDescription)")
             throw error
         }
     }
@@ -185,20 +166,10 @@ class SupabaseService: ObservableObject {
                 throw SupabaseServiceError.insertFailed
             }
             print("✅ Image record created: \(id)")
-            
-            SentryService.shared.addBreadcrumb(
-                message: "Image record created",
-                category: "database",
-                level: .info
-            )
-            
+
             return id
         } catch {
-            SentryService.shared.captureError(error, context: [
-                "operation": "createImageRecord",
-                "imageName": image.name,
-                "userId": image.userId
-            ])
+            print("❌ Create image record failed: \(error.localizedDescription)")
             throw error
         }
     }

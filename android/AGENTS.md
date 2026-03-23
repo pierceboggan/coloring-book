@@ -16,7 +16,6 @@ Native Android application port of ColoringBook.AI, built with Kotlin and Jetpac
 - **Image Loading**: Coil
 - **Drawing**: Android Canvas API (Compose Canvas)
 - **Offline**: Room database + DataStore preferences
-- **Monitoring**: Sentry Android SDK
 - **Build**: Gradle Kotlin DSL with version catalogs
 
 ### Project Structure
@@ -120,7 +119,6 @@ android/
    SUPABASE_URL=https://your-project.supabase.co
    SUPABASE_ANON_KEY=your-anon-key
    WEB_API_BASE_URL=https://coloringbook.ai
-   SENTRY_DSN=your-sentry-dsn
    ```
 4. Sync Gradle and run on device/emulator
 
@@ -149,7 +147,6 @@ Config values are read from `local.properties` or system environment:
 - `SUPABASE_URL` — Supabase project URL
 - `SUPABASE_ANON_KEY` — Supabase anonymous key
 - `WEB_API_BASE_URL` — Web API base URL (defaults to https://coloringbook.ai)
-- `SENTRY_DSN` — Sentry DSN for error tracking
 
 ## Supabase Schema (Shared)
 Same schema as web and iOS apps:

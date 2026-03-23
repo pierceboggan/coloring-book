@@ -75,7 +75,6 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
 - **Storage**: Supabase Storage
 - **Image Processing**: Sharp for watermarking and manipulation
 - **PDF Generation**: jsPDF for photobook creation
-- **Monitoring**: Sentry for error tracking and performance
 - **Deployment**: Vercel
 
 ### iOS
@@ -84,7 +83,6 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
 - **Backend**: Supabase (shared with web app)
 - **AI**: OpenAI API via the same backend API routes
 - **AR**: ARKit for the AR Gallery feature
-- **Monitoring**: Sentry Cocoa SDK
 - **Project Generation**: XcodeGen (`project.yml`)
 
 ### Android
@@ -95,7 +93,6 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
 - **AI**: Delegates to shared Next.js API routes
 - **Offline**: Room database + DataStore preferences
 - **Image Loading**: Coil
-- **Monitoring**: Sentry Android SDK
 - **Build**: Gradle Kotlin DSL with version catalogs
 
 ## 🚀 Quick Start
@@ -220,7 +217,6 @@ Transform any photo into a beautiful coloring page with AI-powered technology. A
    SUPABASE_URL=your_supabase_url
    SUPABASE_ANON_KEY=your_supabase_anon_key
    OPENAI_API_KEY=your_openai_api_key
-   SENTRY_DSN=your_sentry_dsn  # optional
    ```
 
 5. **Run on simulator or device**

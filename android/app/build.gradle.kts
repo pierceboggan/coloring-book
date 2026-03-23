@@ -36,7 +36,6 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"${localProp("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProp("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "WEB_API_BASE_URL", "\"${localProp("WEB_API_BASE_URL", "https://coloringbook.ai")}\"")
-        buildConfigField("String", "SENTRY_DSN", "\"${localProp("SENTRY_DSN")}\"")
     }
 
     buildTypes {
@@ -120,10 +119,6 @@ dependencies {
 
     // WorkManager
     implementation(libs.work.runtime.ktx)
-
-    // Sentry
-    implementation(libs.sentry.android)
-    implementation(libs.sentry.compose)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)

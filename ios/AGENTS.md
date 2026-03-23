@@ -12,7 +12,6 @@ Native iOS application port of ColoringBook.AI web app, built with SwiftUI and S
 - **Backend**: Supabase (Auth, Database, Storage) — same project as the web app
 - **AI Processing**: OpenAI API for image-to-coloring-page conversion
 - **Drawing**: PencilKit for digital coloring experience
-- **Monitoring**: Sentry for error tracking and performance monitoring
 - **Languages**: Swift 5 (compiled with Swift 6 compiler)
 - **Project Generation**: XcodeGen (`project.yml`)
 
@@ -42,7 +41,6 @@ ColoringBook/
 │   ├── Services/               # Service layer
 │   │   ├── SupabaseService.swift
 │   │   ├── OpenAIService.swift
-│   │   ├── SentryService.swift
 │   │   ├── NetworkMonitor.swift
 │   │   └── OfflinePersistence.swift
 │   ├── Utils/                  # Utility extensions
@@ -124,7 +122,6 @@ ColoringBook/
    - `OPENAI_API_KEY`: OpenAI API key for image processing
    - `SUPABASE_URL`: Your Supabase project URL (optional, defaults to Info.plist)
    - `SUPABASE_ANON_KEY`: Your Supabase anonymous key (optional, defaults to Info.plist)
-   - `SENTRY_DSN`: Sentry DSN for error tracking (optional)
 
 ### Building & Running
 ```bash

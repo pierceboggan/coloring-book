@@ -26,11 +26,6 @@ class OpenAIService {
         targetAge: Int = 6,
         detailLevel: String = "moderate"
     ) async throws -> Data {
-        let operationSpan = SentryService.shared.startTransaction(
-            name: "ai.generate.coloring_page",
-            operation: "ai.processing"
-        )
-        
         do {
             // Convert image to base64 (for future use with vision API)
             _ = imageData.base64EncodedString()
@@ -56,8 +51,6 @@ class OpenAIService {
 
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else {
-                let errorInfo = ["statusCode": (response as? HTTPURLResponse)?.statusCode ?? 0]
-                SentryService.shared.captureError(OpenAIError.invalidResponse, context: errorInfo)
                 throw OpenAIError.invalidResponse
             }
 
@@ -67,25 +60,17 @@ class OpenAIService {
                   let firstResult = dataArray.first,
                   let b64Json = firstResult["b64_json"] as? String,
                   let imageData = Data(base64Encoded: b64Json) else {
-                SentryService.shared.captureError(OpenAIError.invalidData, context: ["step": "parsing"])
                 throw OpenAIError.invalidData
             }
 
             // Add watermark
             let result = try await addWatermark(to: imageData)
-            operationSpan?.finish()
-            SentryService.shared.addBreadcrumb(
-                message: "Coloring page generated successfully",
-                category: "ai.processing",
-                level: .info
-            )
             return result
         } catch {
-            operationSpan?.finish()
             if error is OpenAIError {
                 throw error
             }
-            SentryService.shared.captureError(error, context: ["targetAge": targetAge, "detailLevel": detailLevel])
+            print("❌ OpenAI image generation failed: \(error.localizedDescription)")
             throw error
         }
     }

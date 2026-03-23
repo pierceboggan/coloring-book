@@ -81,7 +81,6 @@ Visit http://localhost:3000 to see your ColorBook.ai application!
 - User authentication with Supabase Auth
 - Image gallery and management
 - Stripe payment integration
-- Sentry monitoring
 - User profiles and saved images
 
 ## Troubleshooting

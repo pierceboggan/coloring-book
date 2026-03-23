@@ -78,7 +78,6 @@ Both platforms share common architectural patterns:
 - `public/`: Static assets, including icons and imagery used in PDFs or marketing pages.
 - `scripts/`: Operational scripts (e.g., data migration or maintenance tooling) that may use Supabase or OpenAI clients.
 - `tests/`: Playwright end-to-end specs. Keep scenarios idempotent so they can run against seeded demo data.
-- Instrumentation files (`instrumentation.ts`, `instrumentation-client.ts`, `sentry.*.config.ts`) configure Sentry tracing. Update these consistently when introducing new tracing spans.
 
 ## Coding Conventions
 - Follow functional, component-driven design and keep business logic in hooks or lib helpers rather than in React component bodies.

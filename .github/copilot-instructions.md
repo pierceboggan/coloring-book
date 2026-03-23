@@ -6,7 +6,7 @@
 - Next.js 15 App Router with TypeScript
 - Supabase for database, storage, and authentication
 - OpenAI Responses API for image-to-coloring-page conversion
-- Sentry for error monitoring, extensive console logging
+- Extensive console logging for operational visibility
 
 ## Key Components & Data Flow
 
@@ -71,7 +71,6 @@ npm run dev
 
 ### Error Handling Conventions
 - Console logging with emojis (🚀, ❌, ✅) for easy debugging
-- Sentry integration with span tracking
 - Graceful degradation (watermarking failures return original image)
 - Status-based UI states with proper loading indicators
 
@@ -108,7 +107,7 @@ npm run dev
 
 ### Adding New API Endpoints
 - Follow the pattern in `/api/generate-coloring-page/route.ts`
-- Use proper error handling and Sentry tracking
+- Use proper error handling and detailed logging
 - Include detailed console logging
 - Use `supabaseAdmin` for privileged operations
 

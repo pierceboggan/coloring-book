@@ -111,7 +111,6 @@ xcodebuild test -scheme ColoringBook -destination 'platform=iOS Simulator,name=i
 - **Backend**: Supabase (Auth, Database, Storage)
 - **AI Processing**: OpenAI API
 - **Drawing**: PencilKit
-- **Monitoring**: Sentry for error tracking and performance monitoring
 - **Dependency Management**: Swift Package Manager
 - **Project Generation**: XcodeGen (`project.yml`)
 
@@ -137,8 +136,6 @@ ColoringBook/
 **SupabaseService**: Centralized Supabase operations (Auth, Database, Storage) — shares the same backend as the web app
 
 **OpenAIService**: AI image processing and watermarking
-
-**SentryService**: Error tracking and performance monitoring
 
 **KidModeView**: Parental control locked mode
 
@@ -174,25 +171,6 @@ The iOS app connects to the same Supabase project as the web app. Ensure these a
 - Requires OpenAI API key with access to image generation
 - Uses the Responses API for coloring page generation
 - Configurable prompt templates
-
-### Sentry Configuration
-1. **Create Sentry Project**
-   - Sign up at [sentry.io](https://sentry.io/)
-   - Create a new iOS project
-   - Copy your DSN from the project settings
-
-2. **Configure the App**
-   - **Recommended**: Set the `SENTRY_DSN` environment variable in Xcode:
-     - Edit Scheme → Run → Arguments → Environment Variables
-     - Add `SENTRY_DSN` with your Sentry DSN
-   - **Not recommended**: Update `project.yml` with your DSN (avoid for public repos as DSN will be committed)
-
-3. **Features Enabled**
-   - Automatic error tracking for crashes and exceptions
-   - Performance monitoring for AI operations
-   - Breadcrumb tracking for debugging context
-   - User identification linked to Supabase auth
-   - Screenshots attached to error reports
 
 ## 🐛 Troubleshooting
 

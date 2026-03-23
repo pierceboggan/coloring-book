@@ -143,7 +143,6 @@ The following are intentionally excluded from coverage:
 - **Configuration files** (`*.config.ts`)
 - **Type definitions** (`types/**`)
 - **Build artifacts** (`.next/`, `dist/`)
-- **Instrumentation** (Sentry configuration)
 
 ## CI/CD Integration
 
