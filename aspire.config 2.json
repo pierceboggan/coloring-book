@@ -1,0 +1,10 @@
+{
+  "appHost": {
+    "path": "apphost.cs",
+    "language": "csharp"
+  },
+  "sdk": {
+    "version": "13.3.0-preview.1.26172.1"
+  },
+  "channel": "daily"
+}
