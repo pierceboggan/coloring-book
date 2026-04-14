@@ -1,7 +1,5 @@
 # ColoringBook.AI
 
-> _Updated by Pierce while in Boise for the Micron visit._
-
 **ColoringBook.AI** turns any photo into a printable coloring page using AI. Upload a picture, get back clean black-and-white line art, and build shareable albums or PDF photobooks from the results. It runs on **web**, **iOS**, and **Android** — all backed by the same Supabase database.
 
 ## Screenshots
