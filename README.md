@@ -2,6 +2,8 @@
 
 Transform any photo into a beautiful coloring page with AI-powered technology. Available as a **Next.js web app**, a **native iOS/iPadOS app**, and a **native Android app**. Perfect for family memories, gifts, or creative fun!
 
+> _Last updated by Pierce while in Boise for the Micron visit._
+
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)](https://supabase.com/)
