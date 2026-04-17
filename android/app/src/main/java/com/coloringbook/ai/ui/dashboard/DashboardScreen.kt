@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +22,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,9 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,8 +55,8 @@ fun DashboardScreen(
     onColorClick: (String) -> Unit,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
-    val images by viewModel.images.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val images by viewModel.images.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -78,12 +80,16 @@ fun DashboardScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(images, key = { it.id }) { image ->
+                        val onImageClick = remember(image.id) { { onImageClick(image.id) } }
+                        val onColorClick = remember(image.id) { { onColorClick(image.id) } }
+                        val onFavoriteClick = remember(image.id) { { viewModel.toggleFavorite(image.id) } }
+                        val onDeleteClick = remember(image.id) { { viewModel.deleteImage(image.id) } }
                         ImageCard(
                             image = image,
-                            onClick = { onImageClick(image.id) },
-                            onColorClick = { onColorClick(image.id) },
-                            onFavoriteClick = { viewModel.toggleFavorite(image.id) },
-                            onDeleteClick = { viewModel.deleteImage(image.id) },
+                            onClick = onImageClick,
+                            onColorClick = onColorClick,
+                            onFavoriteClick = onFavoriteClick,
+                            onDeleteClick = onDeleteClick,
                         )
                     }
                 }
@@ -145,12 +151,13 @@ private fun ImageCard(
                 )
 
                 // Action row
-                Box(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(
                         onClick = onFavoriteClick,
-                        modifier = Modifier.align(Alignment.CenterStart).size(32.dp),
+                        modifier = Modifier.size(32.dp),
                     ) {
                         Icon(
                             imageVector = if (image.isFavorite) Icons.Filled.Favorite
@@ -162,10 +169,12 @@ private fun ImageCard(
                         )
                     }
 
+                    Spacer(modifier = Modifier.weight(1f))
+
                     if (image.status == ImageStatus.COMPLETED) {
                         IconButton(
                             onClick = onColorClick,
-                            modifier = Modifier.align(Alignment.Center).size(32.dp),
+                            modifier = Modifier.size(32.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Palette,
@@ -174,11 +183,12 @@ private fun ImageCard(
                                 modifier = Modifier.size(18.dp),
                             )
                         }
+                        Spacer(modifier = Modifier.weight(1f))
                     }
 
                     IconButton(
                         onClick = onDeleteClick,
-                        modifier = Modifier.align(Alignment.CenterEnd).size(32.dp),
+                        modifier = Modifier.size(32.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
@@ -195,11 +205,16 @@ private fun ImageCard(
 
 @Composable
 private fun StatusBadge(status: ImageStatus, modifier: Modifier = Modifier) {
-    val (text, color) = when (status) {
-        ImageStatus.UPLOADING -> "Uploading" to StatusProcessing
-        ImageStatus.PROCESSING -> "Processing" to StatusProcessing
-        ImageStatus.ERROR -> "Error" to StatusError
-        ImageStatus.COMPLETED -> "Ready" to StatusCompleted
+    val text = when (status) {
+        ImageStatus.UPLOADING -> "Uploading"
+        ImageStatus.PROCESSING -> "Processing"
+        ImageStatus.ERROR -> "Error"
+        ImageStatus.COMPLETED -> "Ready"
+    }
+    val color = when (status) {
+        ImageStatus.UPLOADING, ImageStatus.PROCESSING -> StatusProcessing
+        ImageStatus.ERROR -> StatusError
+        ImageStatus.COMPLETED -> StatusCompleted
     }
     Card(
         modifier = modifier,
