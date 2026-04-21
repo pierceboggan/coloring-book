@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { deriveDashboardDisplayData, type DashboardImage } from '@/lib/dashboard-display'
 import { FunBackground } from '@/components/FunBackground'
 import {
   Palette,
@@ -29,34 +30,11 @@ import {
   LayoutGrid,
 } from 'lucide-react'
 
-interface UserImage {
-  id: string
-  name: string
-  original_url: string
-  coloring_page_url?: string
-  status: 'processing' | 'completed' | 'error'
-  created_at: string
-  variant_urls?: string[] | null
-  variant_prompts?: string[] | null
-  archived_at?: string | null
-  is_favorite?: boolean | null
-}
+type UserImage = DashboardImage
 
 type VariantSummary = {
   url: string
   prompt: string
-}
-
-interface ColoringDisplayItem {
-  id: string
-  displayId: string
-  name: string
-  coloringPageUrl: string
-  createdAt: string
-  isVariant: boolean
-  variantPrompt?: string
-  parentImage: UserImage
-  isFavorite: boolean
 }
 
 const getOrdinalSuffix = (day: number) => {
@@ -332,65 +310,17 @@ export default function Dashboard() {
     }
   }, [userId])
 
-  const totalImages = images.length
-  const coloringPages = images.filter(img => img.status === 'completed' && img.coloring_page_url)
-  const uploadsViewImages = images
-  const processingCount = images.filter(img => img.status === 'processing').length
-  const isProcessing = processingCount > 0
-
-  // Flatten coloring pages and their variants into a single display list
-  const coloringDisplayItems: ColoringDisplayItem[] = coloringPages.flatMap((image) => {
-    const mainItem: ColoringDisplayItem = {
-      id: image.id,
-      displayId: image.id,
-      name: image.name,
-      coloringPageUrl: image.coloring_page_url!,
-      createdAt: image.created_at,
-      isVariant: false,
-      parentImage: image,
-      isFavorite: image.is_favorite ?? false,
-    }
-
-    const variantItems: ColoringDisplayItem[] = (image.variant_urls || []).map((url, index) => ({
-      id: image.id,
-      displayId: `${image.id}-variant-${index}`,
-      name: image.name,
-      coloringPageUrl: url,
-      createdAt: image.created_at,
-      isVariant: true,
-      variantPrompt: image.variant_prompts?.[index] || 'Custom variant',
-      parentImage: image,
-      isFavorite: image.is_favorite ?? false,
-    }))
-
-    return [mainItem, ...variantItems]
-  })
-
-  // Sort coloring items: favorites first, then by creation date
-  coloringDisplayItems.sort((a, b) => {
-    if (a.isFavorite !== b.isFavorite) {
-      return a.isFavorite ? -1 : 1
-    }
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  })
-
-  // Sort uploads: favorites first, then by creation date
-  const sortedUploadsViewImages = [...uploadsViewImages].sort((a, b) => {
-    const aFav = a.is_favorite ?? false
-    const bFav = b.is_favorite ?? false
-    if (aFav !== bFav) {
-      return aFav ? -1 : 1
-    }
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  })
-
-  const completedCount = coloringDisplayItems.length
-  const filteredColoringDisplayItems = favoritesOnly
-    ? coloringDisplayItems.filter(item => item.isFavorite)
-    : coloringDisplayItems
-  const filteredUploadsViewImages = favoritesOnly
-    ? sortedUploadsViewImages.filter(image => image.is_favorite ?? false)
-    : sortedUploadsViewImages
+  const {
+    totalImages,
+    processingCount,
+    isProcessing,
+    completedCount,
+    filteredColoringDisplayItems,
+    filteredUploadsViewImages,
+  } = useMemo(
+    () => deriveDashboardDisplayData({ images, favoritesOnly }),
+    [images, favoritesOnly]
+  )
 
   useEffect(() => {
     if (!authLoading && !user) {
