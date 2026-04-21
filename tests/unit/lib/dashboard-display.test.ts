@@ -81,7 +81,6 @@ describe('dashboard-display.ts', () => {
         ...baseImage,
         id: 'img-processing',
         status: 'processing',
-        coloring_page_url: undefined,
       },
       {
         ...baseImage,
@@ -91,7 +90,6 @@ describe('dashboard-display.ts', () => {
         ...baseImage,
         id: 'img-error',
         status: 'error',
-        coloring_page_url: undefined,
       },
     ]
 
