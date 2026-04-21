@@ -1,0 +1,16 @@
+{
+"hooks": {
+"PostToolUse": [
+{
+"type": "vscode-command",
+"commandId": "github.copilot.chat.codeReview.run"
+}
+],
+"SessionStart": [
+{
+"type": "vscode-command",
+"commandId": "workbench.actions.view.problems"
+}
+]
+}
+}
