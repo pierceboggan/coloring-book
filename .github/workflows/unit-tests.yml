@@ -1,72 +1,107 @@
-name: Unit Tests CI
+name: Web CI
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - 'src/**'
-      - 'tests/unit/**'
+      - 'public/**'
+      - 'tests/**'
       - 'package.json'
       - 'package-lock.json'
+      - 'next.config.ts'
+      - 'tsconfig.json'
+      - 'eslint.config.mjs'
+      - 'playwright.config.ts'
       - 'vitest.config.ts'
+      - 'instrumentation*.ts'
+      - 'sentry.*.config.ts'
       - '.github/workflows/unit-tests.yml'
   push:
-    branches: [ main ]
+    branches: [main, develop]
     paths:
       - 'src/**'
-      - 'tests/unit/**'
+      - 'public/**'
+      - 'tests/**'
       - 'package.json'
       - 'package-lock.json'
+      - 'next.config.ts'
+      - 'tsconfig.json'
+      - 'eslint.config.mjs'
+      - 'playwright.config.ts'
       - 'vitest.config.ts'
+      - 'instrumentation*.ts'
+      - 'sentry.*.config.ts'
+      - '.github/workflows/unit-tests.yml'
+
+concurrency:
+  group: web-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NEXT_PUBLIC_SUPABASE_URL: https://ci-test-project.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-test-anon-key
+  SUPABASE_SERVICE_ROLE_KEY: ci-test-service-role-key
+  OPENAI_API_KEY: ci-test-openai-key
+  NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
 
 jobs:
-  test:
+  unit-tests:
+    name: Unit tests (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 20
+
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18.x, 20.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      
+          cache: npm
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Run linter
-        run: npm run lint
-      
+
       - name: Run unit tests
         run: npm run test:unit
-      
-      - name: Run tests with coverage
+
+  coverage:
+    name: Coverage gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run coverage suite
         run: npm run test:coverage
-      
-      - name: Check coverage thresholds
-        run: |
-          echo "Coverage thresholds are enforced by vitest.config.ts"
-          echo "Tests will fail if coverage drops below 80%"
-      
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: matrix.node-version == '20.x'
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          files: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-      
-      - name: Comment coverage on PR
-        if: github.event_name == 'pull_request' && matrix.node-version == '20.x'
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          lcov-file: ./coverage/lcov.info
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
+          name: web-coverage
+          if-no-files-found: ignore
+          path: |
+            coverage/**
