@@ -1,6 +1,7 @@
 # Supabase / Ktor
 -keep class io.github.jan.supabase.** { *; }
 -keep class io.ktor.** { *; }
+-dontwarn java.lang.management.**
 
 # Kotlinx Serialization
 -keepattributes *Annotation*, InnerClasses
