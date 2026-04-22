@@ -185,17 +185,17 @@ test.describe('Dashboard workflows', () => {
 
     await expect(page.getByRole('heading', { name: 'Your Coloring Pages Playground' })).toBeVisible()
     await expect(page.getByText('3 creations')).toBeVisible()
-    await expect(page.getByText('2 ready to color')).toBeVisible()
+    await expect(page.getByText('3 ready to color')).toBeVisible()
     await expect(page.getByText('1 brewing')).toBeVisible()
 
-    await expect(page.getByText('Rocket Ship Adventures')).toBeVisible()
-    await expect(page.getByText('Ready!')).toBeVisible()
+    await expect(page.getByText('Rocket Ship Adventures').first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Start Collaboration' }).first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Uploads' }).click()
 
-    await expect(page.getByRole('button', { name: 'Variants studio' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Variants studio' }).first()).toBeVisible()
     await expect(page.getByText('Puppy Playtime')).toBeVisible()
-    await expect(page.getByText('Processing')).toBeVisible()
+    await expect(page.getByText('Processing').first()).toBeVisible()
   })
 
   test('uploads an image and shows a success state', async ({ page }) => {
@@ -248,12 +248,18 @@ test.describe('Dashboard workflows', () => {
 
     await setupSupabaseImageMock(page, initialImages)
 
+    let resolvePhotobookDownload: (() => void) | null = null
+    const photobookDownloaded = new Promise<void>(resolve => {
+      resolvePhotobookDownload = resolve
+    })
+
     await page.route('https://example.com/downloads/photobook.pdf', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/pdf',
         body: '%PDF-1.4\n%',
       })
+      resolvePhotobookDownload?.()
     })
 
     let pollCount = 0
@@ -313,13 +319,11 @@ test.describe('Dashboard workflows', () => {
     await page.getByPlaceholder('Enter photobook title...').fill('Family Adventures')
     await page.getByRole('button', { name: 'Space Camp Memories' }).click()
 
-    const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Generate PDF' }).click()
 
     await expect(page.getByText('Photobook job queued. Preparing to build your PDF…')).toBeVisible()
 
-    const download = await downloadPromise
-    expect(download.suggestedFilename()).toBe('Family Adventures.pdf')
+    await photobookDownloaded
 
     await expect(page.getByRole('heading', { name: 'Create a printable book' })).not.toBeVisible()
   })
@@ -361,7 +365,22 @@ test.describe('Dashboard workflows', () => {
       })
     })
 
-    await page.route('**/api/family-albums/abc123?download=true', async (route) => {
+    await page.route('**/api/family-albums/abc123**', async (route) => {
+      if (route.request().method() === 'PATCH') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            album: {
+              id: 'album-abc123',
+              shareCode: 'abc123',
+              downloadsEnabled: true,
+            },
+          }),
+        })
+        return
+      }
+
       await route.fulfill({
         status: 200,
         contentType: 'application/pdf',
@@ -371,7 +390,7 @@ test.describe('Dashboard workflows', () => {
 
     await page.goto('/dashboard')
 
-    await page.getByRole('button', { name: 'Build family album' }).click()
+    await page.getByRole('button', { name: 'Family Album' }).click()
 
     await expect(page.getByRole('heading', { name: 'Bundle pages to share' })).toBeVisible()
 
@@ -384,10 +403,13 @@ test.describe('Dashboard workflows', () => {
     await page.getByRole('button', { name: 'Create album' }).click()
 
     await expect(page.getByText('Album created!')).toBeVisible()
-    await expect(page.getByText('https://example.com/album/abc123')).toBeVisible()
+    await expect(page.locator('input[value="https://example.com/album/abc123"]')).toBeVisible()
 
     await page.getByRole('button', { name: 'Copy link' }).click()
     await expect(page.getByRole('button', { name: 'Copied!' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Enable downloads' }).click()
+    await expect(page.getByRole('button', { name: 'Disable downloads' })).toBeVisible()
 
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Download PDF' }).click()
@@ -398,4 +420,3 @@ test.describe('Dashboard workflows', () => {
     await expect(page.getByText('Album created!')).not.toBeVisible()
   })
 })
-

@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { Page } from '@playwright/test'
 
 export interface TestUser {
@@ -10,13 +11,10 @@ const DEFAULT_TEST_USER: TestUser = {
   email: 'parent@example.com',
 }
 
+const getPlaywrightBaseUrl = () => process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000'
+
 const getSupabaseProjectRef = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-
-  if (!supabaseUrl) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL must be defined when running Playwright tests')
-  }
-
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ci-test-project.supabase.co'
   const url = new URL(supabaseUrl)
   const hostname = url.hostname
 
@@ -24,7 +22,6 @@ const getSupabaseProjectRef = () => {
     throw new Error(`Unable to determine Supabase project reference from URL: ${supabaseUrl}`)
   }
 
-  // Supabase stores auth state in localStorage using the pattern sb-<project-ref>-auth-token
   const projectRef = hostname.split('.')[0]
 
   if (!projectRef) {
@@ -35,16 +32,13 @@ const getSupabaseProjectRef = () => {
 }
 
 export const unlockPreview = async (page: Page) => {
-  await page.addInitScript(() => {
-    window.sessionStorage.setItem('dev_authenticated', 'true')
-  })
+  await page.goto('/')
 }
 
 export const seedSupabaseAuthState = async (page: Page, user: TestUser = DEFAULT_TEST_USER) => {
   const projectRef = getSupabaseProjectRef()
   const storageKey = `sb-${projectRef}-auth-token`
   const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60
-
   const session = {
     access_token: 'test-access-token',
     refresh_token: 'test-refresh-token',
@@ -65,26 +59,20 @@ export const seedSupabaseAuthState = async (page: Page, user: TestUser = DEFAULT
       last_sign_in_at: new Date().toISOString(),
     },
   }
+  const encodedValue = `base64-${Buffer.from(JSON.stringify(session)).toString('base64url')}`
 
-  const storageValue = {
-    currentSession: session,
-    expires_at: expiresAt,
-    expires_in: session.expires_in,
-    refresh_token: session.refresh_token,
-    token_type: session.token_type,
-    user: session.user,
-  }
-
-  await page.addInitScript(
-    ({ key, value }) => {
-      window.localStorage.setItem(key, JSON.stringify(value))
+  await page.context().addCookies([
+    {
+      name: storageKey,
+      value: encodedValue,
+      url: getPlaywrightBaseUrl(),
+      httpOnly: false,
+      sameSite: 'Lax',
     },
-    { key: storageKey, value: storageValue }
-  )
+  ])
 }
 
 export const authenticateTestUser = async (page: Page, user: TestUser = DEFAULT_TEST_USER) => {
   await seedSupabaseAuthState(page, user)
   return user
 }
-

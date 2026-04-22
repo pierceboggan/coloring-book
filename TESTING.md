@@ -149,8 +149,9 @@ After running `npm run test:coverage`, coverage reports are available in:
 ## CI/CD Integration
 
 Tests run automatically on:
-- Every push to a PR
-- Before merging to main
+- Web pull requests and pushes via GitHub Actions
+- Android pull requests and pushes when `android/` changes
+- iOS pull requests and pushes when `ios/` changes
 
 The build will fail if:
 - Any test fails

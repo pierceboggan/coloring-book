@@ -114,7 +114,7 @@ class ColoringCanvasViewModel @Inject constructor(
         val stroke = _currentStroke.value
         if (stroke != null && stroke.points.size >= 2) {
             // Push current committed state onto undo stack
-            if (undoStack.size >= 15) undoStack.removeFirst()
+            if (undoStack.size >= 15) undoStack.removeAt(0)
             undoStack.add(_committedPaths.value)
             redoStack.clear()
 
@@ -130,7 +130,7 @@ class ColoringCanvasViewModel @Inject constructor(
     fun undo() {
         if (undoStack.isEmpty()) return
         redoStack.add(_committedPaths.value)
-        _committedPaths.value = undoStack.removeLast()
+        _committedPaths.value = undoStack.removeAt(undoStack.lastIndex)
         updateRenderPaths()
         updateUndoRedoState()
     }
@@ -138,7 +138,7 @@ class ColoringCanvasViewModel @Inject constructor(
     fun redo() {
         if (redoStack.isEmpty()) return
         undoStack.add(_committedPaths.value)
-        _committedPaths.value = redoStack.removeLast()
+        _committedPaths.value = redoStack.removeAt(redoStack.lastIndex)
         updateRenderPaths()
         updateUndoRedoState()
     }
