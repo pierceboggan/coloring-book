@@ -46,21 +46,7 @@ struct MainTabView: View {
                 }
                 .tag(AppTab.settings)
         }
-        .tabBarOnly()
         .tint(Color(hex: "FF6F91"))
-    }
-}
-
-// MARK: - iPad Tab Bar Fix
-
-private extension View {
-    @ViewBuilder
-    func tabBarOnly() -> some View {
-        if #available(iOS 18.0, *) {
-            self.tabViewStyle(.tabBarOnly)
-        } else {
-            self
-        }
     }
 }
 
