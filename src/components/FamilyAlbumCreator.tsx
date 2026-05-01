@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   FileLock2,
 } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface UserImage {
   id: string
@@ -180,7 +181,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
       setCreatedAlbum(result.album)
       setDownloadsEnabled(result.album.downloadsEnabled)
     } catch (error) {
-      console.error('❌ Error creating family album:', error)
+      logger.error('Error creating family album', error)
       alert('Failed to create family album. Please try again.')
     } finally {
       setIsCreating(false)
@@ -195,7 +196,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 2000)
     } catch (error) {
-      console.error('Failed to copy link:', error)
+      logger.error('Failed to copy link', error)
     }
   }
 
@@ -218,7 +219,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
       setResendStatus('success')
       setTimeout(() => setResendStatus('idle'), 2000)
     } catch (error) {
-      console.error('Failed to resend link', error)
+      logger.error('Failed to resend link', error)
       setResendStatus('error')
       setTimeout(() => setResendStatus('idle'), 2500)
     }
@@ -267,7 +268,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
       )
       setDownloadsEnabled(result.album.downloadsEnabled)
     } catch (error) {
-      console.error('Failed to toggle downloads', error)
+      logger.error('Failed to toggle downloads', error)
       alert('Unable to update download preferences. Please try again.')
     } finally {
       setUpdatingDownloads(false)

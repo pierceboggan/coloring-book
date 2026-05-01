@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateColoringPage } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
-  console.log('🔄 API route /api/retry-processing called')
+  logger.info('API route /api/retry-processing called')
   
   try {
     const body = await request.json()
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('🔍 Finding stuck processing images for user:', userId)
+    logger.info('Finding stuck processing images for user', userId)
 
     // Get all images that are stuck in processing status
     const { data: stuckImages, error: fetchError } = await supabase
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
       .is('coloring_page_url', null)
 
     if (fetchError) {
-      console.error('❌ Error fetching stuck images:', fetchError)
+      logger.error('Error fetching stuck images', fetchError)
       throw new Error(`Failed to fetch images: ${fetchError.message}`)
     }
 
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log(`🎨 Found ${stuckImages.length} stuck images, processing...`)
+    logger.info(`Found ${stuckImages.length} stuck images, processing...`)
 
     let successCount = 0
     let errorCount = 0
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     // Process each stuck image
     for (const image of stuckImages) {
       try {
-        console.log(`🎨 Processing image: ${image.name} (${image.id})`)
+        logger.info(`Processing image: ${image.name} (${image.id})`)
         
         // Generate coloring page
         const coloringPageUrl = await generateColoringPage(image.original_url)
@@ -63,15 +64,15 @@ export async function POST(request: NextRequest) {
           .eq('id', image.id)
 
         if (updateError) {
-          console.error(`❌ Failed to update image ${image.id}:`, updateError)
+          logger.error(`Failed to update image ${image.id}`, updateError)
           errorCount++
         } else {
-          console.log(`✅ Successfully processed image: ${image.name}`)
+          logger.info(`Successfully processed image: ${image.name}`)
           successCount++
         }
         
       } catch (imageError) {
-        console.error(`❌ Error processing image ${image.id}:`, imageError)
+        logger.error(`Error processing image ${image.id}`, imageError)
         errorCount++
         
         // Mark as error in database
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`✅ Retry processing complete. Success: ${successCount}, Errors: ${errorCount}`)
+    logger.info(`Retry processing complete. Success: ${successCount}, Errors: ${errorCount}`)
 
     return NextResponse.json({
       success: true,
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Error in retry processing:', error)
+    logger.error('Error in retry processing', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to retry processing',

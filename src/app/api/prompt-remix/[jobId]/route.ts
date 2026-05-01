@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPromptRemixJob } from '@/lib/prompt-remix-jobs'
+import { logger } from '@/lib/logger'
 import * as Sentry from '@sentry/nextjs'
 
 interface PromptRemixJobRouteContext {
@@ -26,7 +27,7 @@ export async function GET(_request: NextRequest, { params }: PromptRemixJobRoute
 
         return NextResponse.json({ success: true, job })
       } catch (error) {
-        console.error('Failed to fetch prompt remix job', error)
+        logger.error('Failed to fetch prompt remix job', { error, jobId: params.jobId })
         Sentry.captureException(error)
         return NextResponse.json(
           { success: false, error: 'Unable to fetch prompt remix job' },

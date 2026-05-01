@@ -1,4 +1,5 @@
 import sharp from 'sharp'
+import { logger } from './logger'
 
 interface WatermarkOptions {
   text: string
@@ -17,7 +18,7 @@ export async function addWatermark(
   }
 ): Promise<Buffer> {
   try {
-    console.log('🏷️ Adding watermark to image...')
+    logger.debug('Adding watermark to image')
     
     // Get image dimensions
     const image = sharp(imageBuffer)
@@ -39,11 +40,11 @@ export async function addWatermark(
       .png()
       .toBuffer()
     
-    console.log('✅ Watermark added successfully')
+    logger.debug('Watermark added successfully')
     return watermarkedImage
     
   } catch (error) {
-    console.error('❌ Error adding watermark:', error)
+    logger.error('Error adding watermark', { error })
     // Return original image if watermarking fails
     return imageBuffer
   }

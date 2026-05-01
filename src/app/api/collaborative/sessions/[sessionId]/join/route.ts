@@ -4,6 +4,7 @@ import {
   COLLABORATIVE_SESSIONS_TABLE,
   COLLABORATIVE_PARTICIPANTS_TABLE 
 } from '@/lib/collaborative'
+import { logger } from '@/lib/logger'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // POST /api/collaborative/sessions/[sessionId]/join - Join a collaborative session
@@ -61,7 +62,7 @@ export async function POST(
         .single()
 
       if (updateError) {
-        console.error('❌ Error updating participant:', updateError)
+        logger.error('Error updating participant', updateError)
         return NextResponse.json(
           { error: 'Failed to update participant status' },
           { status: 500 }
@@ -86,7 +87,7 @@ export async function POST(
         .single()
 
       if (insertError) {
-        console.error('❌ Error adding participant:', insertError)
+        logger.error('Error adding participant', insertError)
         return NextResponse.json(
           { error: 'Failed to join session' },
           { status: 500 }
@@ -104,10 +105,10 @@ export async function POST(
       .eq('is_online', true)
 
     if (participantsError) {
-      console.error('❌ Error fetching participants:', participantsError)
+      logger.error('Error fetching participants', participantsError)
     }
 
-    console.log('✅ User joined session:', { sessionId, userId, userName })
+    logger.info('User joined session', { sessionId, userId, userName })
 
     return NextResponse.json({
       session,
@@ -117,7 +118,7 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('💥 Error in POST /api/collaborative/sessions/[sessionId]/join:', error)
+    logger.error('Error in POST /api/collaborative/sessions/[sessionId]/join', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -152,19 +153,19 @@ export async function DELETE(
       .eq('user_id', userId)
 
     if (updateError) {
-      console.error('❌ Error updating participant status:', updateError)
+      logger.error('Error updating participant status', updateError)
       return NextResponse.json(
         { error: 'Failed to leave session' },
         { status: 500 }
       )
     }
 
-    console.log('✅ User left session:', { sessionId, userId })
+    logger.info('User left session', { sessionId, userId })
 
     return NextResponse.json({ success: true })
 
   } catch (error) {
-    console.error('💥 Error in DELETE /api/collaborative/sessions/[sessionId]/join:', error)
+    logger.error('Error in DELETE /api/collaborative/sessions/[sessionId]/join', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

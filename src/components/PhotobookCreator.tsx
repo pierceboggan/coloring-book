@@ -5,6 +5,7 @@ import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Book, Plus, X } from 'lucide-react'
 import type { PhotobookJobStatus } from '@/lib/photobook/types'
+import { logger } from '@/lib/logger'
 
 interface UserImage {
   id: string
@@ -94,7 +95,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
         setSavedOrders(parsed)
       }
     } catch (error) {
-      console.error('❌ Failed to load saved photobook orders:', error)
+      logger.error('Failed to load saved photobook orders', error)
     }
   }, [])
 
@@ -227,7 +228,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
         setJobError(data.error ?? 'Photobook generation failed. Please try again.')
       }
     } catch (error) {
-      console.error('❌ Failed to poll photobook job:', error)
+      logger.error('Failed to poll photobook job', error)
       stopPolling()
       expectedTotalRef.current = 0
       setIsGenerating(false)
@@ -390,7 +391,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
 
       beginPolling(jobId, pollUrl, expectedTotal)
     } catch (error) {
-      console.error('❌ Error generating photobook:', error)
+      logger.error('Error generating photobook', error)
       setIsGenerating(false)
       setJobStatus('failed')
       setJobError('Failed to start photobook generation. Please try again.')
@@ -469,7 +470,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
                             alt={image.name}
                             className="h-28 w-full object-cover"
                             onError={(e) => {
-                              console.error('🖼️ Failed to load image:', image.name, image.coloring_page_url)
+                              logger.error('Failed to load image', image.name, image.coloring_page_url)
                               e.currentTarget.src = image.original_url
                             }}
                           />

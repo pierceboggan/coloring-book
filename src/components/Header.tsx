@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthModal } from './AuthModal'
+import { logger } from '@/lib/logger'
 
 export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
   const { user, signOut, deleteAccount, loading } = useAuth()
 
-  console.log('📊 Header render - User state:', user ? `Logged in as ${user.email}` : 'Not logged in')
+  logger.info('Header render - User state', user ? `Logged in as ${user.email}` : 'Not logged in')
 
   if (loading) {
     return (

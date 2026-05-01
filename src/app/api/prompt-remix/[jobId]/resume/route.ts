@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { processPromptRemixJob } from '@/lib/prompt-remix-jobs'
+import { logger } from '@/lib/logger'
 import * as Sentry from '@sentry/nextjs'
 
 interface PromptRemixResumeContext {
@@ -26,7 +27,7 @@ export async function POST(_request: NextRequest, { params }: PromptRemixResumeC
 
         return NextResponse.json({ success: true, job })
       } catch (error) {
-        console.error('Failed to resume prompt remix job', error)
+        logger.error('Failed to resume prompt remix job', { error, jobId: params.jobId })
         Sentry.captureException(error)
         return NextResponse.json(
           { success: false, error: 'Unable to resume prompt remix job' },

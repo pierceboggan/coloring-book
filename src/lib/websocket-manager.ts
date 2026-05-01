@@ -2,6 +2,7 @@ import {
   WebSocketMessage, 
   ConnectionStatus,
 } from './collaborative'
+import { logger } from './logger'
 
 type EventCallback = (data: unknown) => void
 
@@ -36,7 +37,7 @@ export class WebSocketManager {
         this.ws = new WebSocket(wsUrlWithParams)
 
         this.ws.onopen = () => {
-          console.log('🚀 WebSocket connected')
+          logger.info('WebSocket connected', { sessionId, userId })
           this.status = ConnectionStatus.CONNECTED
           this.reconnectAttempts = 0
           this.startHeartbeat()
@@ -50,12 +51,12 @@ export class WebSocketManager {
             const message: WebSocketMessage = JSON.parse(event.data)
             this.handleMessage(message)
           } catch (error) {
-            console.error('❌ Error parsing WebSocket message:', error)
+            logger.error('Error parsing WebSocket message', { error })
           }
         }
 
         this.ws.onclose = (event) => {
-          console.log('🔌 WebSocket disconnected:', event.code, event.reason)
+          logger.info('WebSocket disconnected', { code: event.code, reason: event.reason })
           this.status = ConnectionStatus.DISCONNECTED
           this.stopHeartbeat()
           this.emit('disconnected', { code: event.code, reason: event.reason })
@@ -66,7 +67,7 @@ export class WebSocketManager {
         }
 
         this.ws.onerror = (error) => {
-          console.error('❌ WebSocket error:', error)
+          logger.error('WebSocket error', { error })
           this.status = ConnectionStatus.ERROR
           this.emit('error', error)
           reject(error)
@@ -99,7 +100,7 @@ export class WebSocketManager {
       this.ws.send(JSON.stringify(fullMessage))
     } else {
       this.messageQueue.push(fullMessage)
-      console.warn('⚠️ WebSocket not connected, message queued')
+      logger.warn('WebSocket not connected, message queued', { type: message.type })
     }
   }
 
@@ -120,7 +121,7 @@ export class WebSocketManager {
         this.emit('cursorMove', message.data)
         break
       default:
-        console.warn('⚠️ Unknown message type:', message.type)
+        logger.warn('Unknown message type', { type: message.type })
     }
   }
 
@@ -174,12 +175,15 @@ export class WebSocketManager {
     this.reconnectAttempts++
     
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1)
-    console.log(`🔄 Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`)
+    logger.info('Scheduling WebSocket reconnect', {
+      attempt: this.reconnectAttempts,
+      delayMs: delay,
+    })
     
     setTimeout(() => {
       if (this.sessionId && this.userId) {
         this.connect(this.sessionId, this.userId).catch(error => {
-          console.error('❌ Reconnect failed:', error)
+          logger.error('WebSocket reconnect failed', { error, attempt: this.reconnectAttempts })
         })
       }
     }, delay)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data })
   } catch (error) {
-    console.error('📱 Mobile images fetch failed', error)
+    logger.error('Mobile images fetch failed', error)
     return NextResponse.json(
       {
         error:

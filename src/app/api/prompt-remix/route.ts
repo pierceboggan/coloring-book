@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ImageGenerationProvider, isImageGenerationProvider } from '@/lib/openai'
 import { createPromptRemixJob, processPromptRemixJob } from '@/lib/prompt-remix-jobs'
+import { logger } from '@/lib/logger'
 import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
         span.setAttribute('jobId', job.id)
 
         void processPromptRemixJob(job.id).catch((error) => {
-          console.error('Prompt remix job processing failed', error)
+          logger.error('Prompt remix job processing failed', { error, jobId: job.id })
           Sentry.captureException(error)
         })
 
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
         })
       } catch (error) {
         Sentry.captureException(error)
-        console.error('Prompt remix error:', error)
+        logger.error('Prompt remix error', { error })
         return NextResponse.json(
           {
             success: false,

@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { CollabSession, UserImage } from '@/components/Dashboard/types'
+import { logger } from '@/lib/logger'
 
 interface UseCollaborativeSessionResult {
   collabSession: CollabSession
@@ -21,7 +22,7 @@ export function useCollaborativeSession(): UseCollaborativeSessionResult {
 
   const startCollaborativeSession = useCallback(async (image: UserImage) => {
     if (!image.coloring_page_url) {
-      console.error('No coloring page URL found for image')
+      logger.error('No coloring page URL found for image')
       return
     }
 
@@ -59,13 +60,13 @@ export function useCollaborativeSession(): UseCollaborativeSessionResult {
 
       const data = await res.json()
       if (!res.ok) {
-        console.error('Failed to create session:', data.error)
+        logger.error('Failed to create session', data.error)
         return
       }
 
       setCollabSession({ sessionId: data.session.id, userId })
     } catch (e) {
-      console.error('Failed to start collaborative session:', e)
+      logger.error('Failed to start collaborative session', e)
     }
   }, [router])
 

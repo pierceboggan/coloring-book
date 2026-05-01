@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 type ImageRow = Database['public']['Tables']['images']['Row']
 type AlbumImageRow = { images: ImageRow }
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { searchParams } = new URL(request.url)
   const downloadPdf = searchParams.get('download') === 'true'
 
-  console.log('🔗 Fetching shared album:', shareCode, downloadPdf ? '(PDF download)' : '')
+  logger.info('Fetching shared album', shareCode, downloadPdf ? '(PDF download)' : '')
 
   try {
     // Fetch album with images
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .single()
 
     if (error || !album) {
-      console.error('❌ Album not found:', error)
+      logger.error('Album not found', error)
       return NextResponse.json(
         { error: 'Album not found' },
         { status: 404 }
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     if (isExpired(album.expires_at)) {
-      console.warn('⏰ Album link expired:', shareCode)
+      logger.warn('⏰ Album link expired', shareCode)
       return NextResponse.json(
         { error: 'Album link has expired' },
         { status: 410 }
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     if (downloadPdf && album.downloads_enabled === false) {
-      console.warn('⛔ PDF download blocked for album:', shareCode)
+      logger.warn('PDF download blocked for album', shareCode)
       return NextResponse.json(
         { error: 'Downloads are disabled for this album' },
         { status: 403 }
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     if (downloadPdf) {
       // Generate and return PDF
-      console.log('📄 Generating PDF for shared album...')
+      logger.info('Generating PDF for shared album...')
       
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -112,7 +113,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       // Add each coloring page
       for (let i = 0; i < completedImages.length; i++) {
         const image = completedImages[i]
-        console.log(`🖼️ Adding image ${i + 1}/${completedImages.length}: ${image.name}`)
+        logger.info(`Adding image ${i + 1}/${completedImages.length}: ${image.name}`)
         
         try {
           pdf.addPage()
@@ -145,7 +146,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           pdf.text(image.name, pageWidth / 2, pageHeight - 15, { align: 'center' })
 
         } catch (imageError) {
-          console.error(`❌ Error processing image ${image.name}:`, imageError)
+          logger.error(`Error processing image ${image.name}`, imageError)
         }
       }
 
@@ -178,7 +179,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
   } catch (error) {
-    console.error('💥 Error fetching shared album:', error)
+    logger.error('Error fetching shared album', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to fetch album',
@@ -216,7 +217,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .single()
 
     if (error || !album) {
-      console.error('❌ Album not found during update:', error)
+      logger.error('Album not found during update', error)
       return NextResponse.json(
         { error: 'Album not found' },
         { status: 404 }
@@ -277,7 +278,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .single()
 
     if (updateError || !updatedAlbum) {
-      console.error('❌ Failed to update album options:', updateError)
+      logger.error('Failed to update album options', updateError)
       return NextResponse.json(
         { error: 'Failed to update album settings' },
         { status: 500 }
@@ -294,7 +295,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
     })
   } catch (error) {
-    console.error('💥 Error updating shared album settings:', error)
+    logger.error('Error updating shared album settings', error)
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to update album settings',

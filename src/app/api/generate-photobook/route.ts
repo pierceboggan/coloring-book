@@ -6,6 +6,7 @@ import {
   processPhotobookQueue,
 } from '@/lib/photobook/queue'
 import type { PhotobookImage, PhotobookJobPayload } from '@/lib/photobook/types'
+import { logger } from '@/lib/logger'
 
 interface PhotobookRequest {
   images: PhotobookImage[]
@@ -20,11 +21,11 @@ export async function POST(request: NextRequest) {
       name: 'POST /api/generate-photobook',
     },
     async (span) => {
-      console.log('📖 API route /api/generate-photobook called')
+      logger.info('API route /api/generate-photobook called')
 
       try {
         const body: PhotobookRequest = await request.json()
-        console.log('📥 Request body parsed:', {
+        logger.debug('Generate photobook request body parsed', {
           imageCount: body.images.length,
           title: body.title,
           userId: body.userId,
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
           try {
             await processPhotobookQueue()
           } catch (workerError) {
-            console.error('💥 Photobook worker failed:', workerError)
+            logger.error('Photobook worker failed', { error: workerError, jobId: job.id })
             Sentry.captureException(workerError)
           }
         })
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
         })
       } catch (error) {
         span.setStatus({ code: 2, message: 'internal_error' })
-        console.error('💥 Error generating photobook:', error)
+        logger.error('Error generating photobook', { error })
         Sentry.captureException(error)
         return NextResponse.json(
           {

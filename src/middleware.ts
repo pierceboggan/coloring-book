@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { logger } from '@/lib/logger'
 
 type MiddlewareCookieOptions = {
   domain?: string
@@ -25,7 +26,7 @@ export async function middleware(req: NextRequest) {
       req.cookies.get('dev-auth-bypass')?.value === 'true')
 
   if (devBypassEnabled) {
-    console.log('🛠️ Dev auth bypass active, skipping Supabase session enforcement')
+    logger.debug('Dev auth bypass active, skipping Supabase session enforcement')
     return responses
   }
 
@@ -75,13 +76,13 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  console.log('🔒 Middleware checking auth for:', req.nextUrl.pathname)
+  logger.debug('Middleware checking auth', { pathname: req.nextUrl.pathname })
 
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
-  console.log('🔍 Session check result:', session ? 'Authenticated' : 'Not authenticated')
+  logger.debug('Session check result', { authenticated: Boolean(session) })
 
   const protectedApiPrefixes = [
     '/api/regenerate-coloring-page',
@@ -91,23 +92,27 @@ export async function middleware(req: NextRequest) {
 
   if (protectedApiPrefixes.some(path => req.nextUrl.pathname.startsWith(path))) {
     if (!session) {
-      console.log('❌ Blocking unauthenticated request to protected API')
+      logger.warn('Blocking unauthenticated request to protected API', {
+        pathname: req.nextUrl.pathname,
+      })
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       )
     }
-    console.log('✅ Allowing authenticated request to protected API')
+    logger.debug('Allowing authenticated request to protected API', {
+      pathname: req.nextUrl.pathname,
+    })
   }
 
   if (req.nextUrl.pathname.startsWith('/dashboard')) {
     if (!session) {
-      console.log('❌ Redirecting unauthenticated user from dashboard')
+      logger.debug('Redirecting unauthenticated user from dashboard')
       const redirectUrl = req.nextUrl.clone()
       redirectUrl.pathname = '/'
       return NextResponse.redirect(redirectUrl)
     }
-    console.log('✅ Authenticated access to dashboard')
+    logger.debug('Authenticated access to dashboard')
   }
 
   return responses

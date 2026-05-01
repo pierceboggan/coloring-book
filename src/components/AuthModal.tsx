@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Apple, Chrome, Facebook, Loader2, Sparkles, Wand2 } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 type OAuthProvider = 'google' | 'facebook' | 'apple'
 
@@ -38,29 +39,29 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setLoading(true)
     setError(null)
 
-    console.log('🔐 Authentication attempt:', { isLogin, email })
+    logger.info('Authentication attempt', { isLogin, email })
 
     try {
       const { error } = isLogin ? await signIn(email, password) : await signUp(email, password)
 
       if (error) {
-        console.error('❌ Authentication error:', error)
+        logger.error('Authentication error', error)
         setError(error.message)
       } else {
-        console.log('✅ Authentication successful:', isLogin ? 'Sign In' : 'Sign Up')
+        logger.info('Authentication successful', isLogin ? 'Sign In' : 'Sign Up')
         if (isLogin) {
-          console.log('🚀 Redirecting to dashboard after successful login')
+          logger.info('Redirecting to dashboard after successful login')
           onClose()
           setEmail('')
           setPassword('')
           router.push('/dashboard')
         } else {
-          console.log('📧 Sign up successful, check email for confirmation')
+          logger.info('Sign up successful, check email for confirmation')
           setShowEmailConfirmation(true)
         }
       }
     } catch (err) {
-      console.error('💥 Authentication exception:', err)
+      logger.error('Authentication exception', err)
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -75,19 +76,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       const { data, error } = await signInWithProvider(provider)
 
       if (error) {
-        console.error('❌ OAuth authentication error:', provider, error)
+        logger.error('OAuth authentication error', provider, error)
         setError(error.message)
       } else if (data?.url) {
-        console.log('🌐 Redirecting to OAuth provider:', provider)
+        logger.info('Redirecting to OAuth provider', provider)
         if (typeof window !== 'undefined') {
           window.location.assign(data.url)
         }
       } else {
-        console.warn('⚠️ OAuth provider did not return a redirect URL:', provider)
+        logger.warn('OAuth provider did not return a redirect URL', provider)
         setError('Unable to redirect to the selected provider. Please try again.')
       }
     } catch (err) {
-      console.error('💥 OAuth authentication exception:', err)
+      logger.error('OAuth authentication exception', err)
       setError('An unexpected error occurred while connecting to the provider')
     } finally {
       setOauthLoading(null)
