@@ -98,6 +98,7 @@ Open `android/` in Android Studio. Add your Supabase credentials to `local.prope
 npm run test:unit       # unit tests (Vitest)
 npm run test:coverage   # with coverage report
 npm run test:e2e        # end-to-end (Playwright)
+npm run test:e2e:performance # web load-time budgets
 npm run lint            # ESLint
 ```
 
