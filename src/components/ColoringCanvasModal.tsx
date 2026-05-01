@@ -104,6 +104,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
 
     const channel = supabase.channel(`collab:${collaboration.sessionId}`)
     collabChannelRef.current = channel
+    const remoteDrawing = remoteDrawingRef.current
 
     const updatePresenceCount = () => {
       const state = channel.presenceState() as Record<string, Array<{ userId?: string }>>
@@ -192,7 +193,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
       })
 
     return () => {
-      remoteDrawingRef.current.clear()
+      remoteDrawing.clear()
       setCollabParticipantCount(null)
       collabChannelRef.current?.unsubscribe()
       collabChannelRef.current = null

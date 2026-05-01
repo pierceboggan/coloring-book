@@ -1,8 +1,9 @@
 import { 
   WebSocketMessage, 
   ConnectionStatus,
-  User
 } from './collaborative'
+
+type EventCallback = (data: unknown) => void
 
 export class WebSocketManager {
   private ws: WebSocket | null = null
@@ -11,7 +12,7 @@ export class WebSocketManager {
   private reconnectDelay = 1000
   private heartbeatInterval: NodeJS.Timeout | null = null
   private messageQueue: WebSocketMessage[] = []
-  private eventListeners: Map<string, ((data: any) => void)[]> = new Map()
+  private eventListeners: Map<string, EventCallback[]> = new Map()
   
   public status: ConnectionStatus = ConnectionStatus.DISCONNECTED
   public sessionId: string | null = null
@@ -123,14 +124,14 @@ export class WebSocketManager {
     }
   }
 
-  on(event: string, callback: (data: any) => void): void {
+  on(event: string, callback: EventCallback): void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, [])
     }
     this.eventListeners.get(event)!.push(callback)
   }
 
-  off(event: string, callback: (data: any) => void): void {
+  off(event: string, callback: EventCallback): void {
     const listeners = this.eventListeners.get(event)
     if (listeners) {
       const index = listeners.indexOf(callback)
@@ -140,7 +141,7 @@ export class WebSocketManager {
     }
   }
 
-  private emit(event: string, data: any): void {
+  private emit(event: string, data: unknown): void {
     const listeners = this.eventListeners.get(event)
     if (listeners) {
       listeners.forEach(callback => callback(data))

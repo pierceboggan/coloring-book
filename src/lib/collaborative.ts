@@ -46,7 +46,7 @@ export interface WebSocketMessage {
   type: 'join' | 'leave' | 'stroke_start' | 'stroke_continue' | 'stroke_end' | 'cursor_move' | 'user_list' | 'session_state' | 'heartbeat'
   sessionId: string
   userId: string
-  data: any
+  data: unknown
   timestamp: number
 }
 
@@ -70,7 +70,7 @@ export interface SyncEvent {
   type: 'user_joined' | 'user_left' | 'stroke_added' | 'stroke_modified' | 'cursor_moved' | 'session_updated'
   userId: string
   sessionId: string
-  data: any
+  data: unknown
   timestamp: number
 }
 

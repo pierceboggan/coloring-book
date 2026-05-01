@@ -242,7 +242,7 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'coloring' | 'uploads'>('coloring')
   const [layoutMode, setLayoutMode] = useState<'expanded' | 'compact'>('compact')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
-  const [collabSession, setCollabSession] = useState<any>(null)
+  const [collabSession, setCollabSession] = useState<{ sessionId: string; userId: string } | null>(null)
 
   const startCollaborativeSession = async (imageId: string, imageName: string) => {
     try {
