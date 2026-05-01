@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05385031C85AD72A9B9E6E63 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2BB6B83E8548F990B2FDA6 /* AppStateTests.swift */; };
 		0A5FE3AE5F2184CFE73813F6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5365555A24E4602D81955F /* SettingsView.swift */; };
 		12495C46E5578B84584298AB /* ColoringBookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A366D4D711DC3C105658123 /* ColoringBookApp.swift */; };
 		28D1DB469C6A9A90D95F9AB4 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98F0010079CD6B472B6B5CEC /* Models.swift */; };
@@ -14,6 +15,7 @@
 		2AF310B132BE958FFE58B939 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B9529DDD64E29EFE76F803 /* AuthView.swift */; };
 		2E899558A49C154065C76410 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */; };
 		3D67D7C9B9C68F6DE6DABEED /* AppNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */; };
+		43CBD227A177A01D88176A12 /* ColorHexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA3B8B0402F6BCAD1BAEFB4 /* ColorHexTests.swift */; };
 		4966800B8387ED163273AB7E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893D38EE01009E98924FFD33 /* ContentView.swift */; };
 		4C049ACD61419CA338ED7736 /* KidModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935A1C40FA4E384D1A8042C8 /* KidModeView.swift */; };
 		4FDD355E238195450D4C66C2 /* ColoringCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */; };
@@ -25,9 +27,11 @@
 		61E603888004BC54EB989E70 /* ColoringImageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */; };
 		661E857787B095DCC5A433DD /* ColoringBookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */; };
 		6DAEAA001B9A3D2330431E21 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 212D9F80AA1BC042E7CC1639 /* SupabaseService.swift */; };
+		7264BA3323E1BFB1A92C792E /* ColoringImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ACFFE0F9F2C41E3644F756 /* ColoringImageTests.swift */; };
+		77ECEB97B51600F7BC12B812 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBD7664E41B3F165F85B89AF /* Assets.xcassets */; };
 		7F124AC96F310DC59BB02770 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5A6F1B5FCD8EA83A5BCEBA1A /* Sentry */; };
+		97857B5BF10AC82F63B46046 /* KidModePageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C3EC46C68398A98BD6C2D7 /* KidModePageTests.swift */; };
 		9D3E6B4E1CB0E755D639862F /* SentryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC2EF52811D50E2574B290B /* SentryService.swift */; };
-		AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */; };
 		B293881C6A3FD2CCC2B4BFB6 /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF1A2B2BDD1E5E79069515E /* AlbumsView.swift */; };
 		B50ECB2C20ADB58FE885D5F3 /* ColoringCanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */; };
 		C0FEF51DBE5FB1D7FFE8AF8D /* OfflinePersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAF8D988C7F4FD5EDFE2FB /* OfflinePersistence.swift */; };
@@ -69,7 +73,9 @@
 		5D5365555A24E4602D81955F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5E2BEA76BB9F72F09A0A4391 /* ColoringCanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringCanvasViewModel.swift; sourceTree = "<group>"; };
 		64FBD586FA14CD5F35C3056F /* KidModeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeViewModel.swift; sourceTree = "<group>"; };
+		73C3EC46C68398A98BD6C2D7 /* KidModePageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModePageTests.swift; sourceTree = "<group>"; };
 		7F5A78BC1C43BD0FCCB643BD /* ColoringBookUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		83ACFFE0F9F2C41E3644F756 /* ColoringImageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringImageTests.swift; sourceTree = "<group>"; };
 		893D38EE01009E98924FFD33 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		896FB34A01CCA876D52E7A0E /* ColoringBookUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookUITests.swift; sourceTree = "<group>"; };
 		90BC6960926AE280B707B43A /* ARGalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGalleryViewModel.swift; sourceTree = "<group>"; };
@@ -78,17 +84,19 @@
 		98F0010079CD6B472B6B5CEC /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		9A366D4D711DC3C105658123 /* ColoringBookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookApp.swift; sourceTree = "<group>"; };
 		9CB1B4B17B3B4CA1A918B119 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringBookTests.swift; sourceTree = "<group>"; };
 		AD2A5ABC8F1299EAAF26B7CA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		AF2BC3A6953161437A124CF7 /* ARGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARGalleryView.swift; sourceTree = "<group>"; };
 		B12EAB4003F992E782627CA6 /* ColoringBookTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ColoringBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3AFDB9022F978DCCD077F54 /* WebAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAPIService.swift; sourceTree = "<group>"; };
+		BBD7664E41B3F165F85B89AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BFBD25DF664C0E24EFAE64C6 /* ColoringImageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringImageDetailView.swift; sourceTree = "<group>"; };
 		C8F1C112F07C3F29EC5F7BA9 /* AppNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotifications.swift; sourceTree = "<group>"; };
 		CA37E2F192D9ABFC1E7460AD /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		CB315EAE2DE7DE343F272B41 /* ImageUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadView.swift; sourceTree = "<group>"; };
 		DCC2EF52811D50E2574B290B /* SentryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryService.swift; sourceTree = "<group>"; };
+		DF2BB6B83E8548F990B2FDA6 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
 		E9B300F36E7A7E10794783C5 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		EAA3B8B0402F6BCAD1BAEFB4 /* ColorHexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHexTests.swift; sourceTree = "<group>"; };
 		EB86B2B2582C0A673ADE5D40 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		F14FC2AE01FBC1FB0746C556 /* ColoringCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColoringCanvasView.swift; sourceTree = "<group>"; };
 		F33CA13ED3683D17B125FA22 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -137,7 +145,10 @@
 		901366828E3A2653EB661A8B /* ColoringBookTests */ = {
 			isa = PBXGroup;
 			children = (
-				A07FB18CA4BA068CD607456F /* ColoringBookTests.swift */,
+				DF2BB6B83E8548F990B2FDA6 /* AppStateTests.swift */,
+				EAA3B8B0402F6BCAD1BAEFB4 /* ColorHexTests.swift */,
+				83ACFFE0F9F2C41E3644F756 /* ColoringImageTests.swift */,
+				73C3EC46C68398A98BD6C2D7 /* KidModePageTests.swift */,
 			);
 			path = ColoringBookTests;
 			sourceTree = "<group>";
@@ -177,6 +188,7 @@
 		B4ADED5A6918871B4B9D000A /* ColoringBook */ = {
 			isa = PBXGroup;
 			children = (
+				BBD7664E41B3F165F85B89AF /* Assets.xcassets */,
 				9A366D4D711DC3C105658123 /* ColoringBookApp.swift */,
 				893D38EE01009E98924FFD33 /* ContentView.swift */,
 				9CB1B4B17B3B4CA1A918B119 /* Info.plist */,
@@ -246,6 +258,7 @@
 			buildConfigurationList = A1B42E3673E66254D097410A /* Build configuration list for PBXNativeTarget "ColoringBook" */;
 			buildPhases = (
 				957DF7F8450368FFD2E176A1 /* Sources */,
+				C8E6D799C96459DA1D50B676 /* Resources */,
 				4F1BE6720DDBAF4707016B91 /* Frameworks */,
 			);
 			buildRules = (
@@ -322,12 +335,26 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		C8E6D799C96459DA1D50B676 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				77ECEB97B51600F7BC12B812 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		366C87E76FFCAE6601682929 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD31E05CB105DD94796DBB63 /* ColoringBookTests.swift in Sources */,
+				05385031C85AD72A9B9E6E63 /* AppStateTests.swift in Sources */,
+				43CBD227A177A01D88176A12 /* ColorHexTests.swift in Sources */,
+				7264BA3323E1BFB1A92C792E /* ColoringImageTests.swift in Sources */,
+				97857B5BF10AC82F63B46046 /* KidModePageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
