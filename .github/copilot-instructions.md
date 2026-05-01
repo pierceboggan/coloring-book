@@ -27,7 +27,7 @@ images: {
 ```
 
 ### Authentication Pattern
-- **Development**: Password protection (`parkcityutah`) via `PasswordProtection` component
+- **Development**: Dev auth bypass — set `NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS=true` (or the `dev-auth-bypass=true` cookie). `src/middleware.ts` short-circuits Supabase session checks and `src/contexts/AuthContext.tsx` mints a synthetic dev user.
 - **Production**: Supabase Auth with React Context (`src/contexts/AuthContext.tsx`)
 - **Middleware**: Server-side auth handling with cookie management
 

@@ -67,7 +67,7 @@ Both platforms share common architectural patterns:
 
 ## Testing and Quality Gates
 - Run `npm run lint` before submitting changes that touch application logic. Resolve all lint warnings.
-- End-to-end tests live in `tests/e2e` and run with Playwright via `npm run test:e2e`. These tests assume the password-protected dev flow (`parkcityutah`) and exercise the album sharing workflows.
+- End-to-end tests live in `tests/e2e` and run with Playwright via `npm run test:e2e`. These tests rely on the dev auth bypass — set `NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS=true` in `.env.local` (or set the `dev-auth-bypass=true` cookie in your browser) so `src/middleware.ts` and `src/contexts/AuthContext.tsx` mint a synthetic session — and exercise the album sharing workflows.
 - Add unit or integration tests alongside the features you modify. Prefer colocating tests near the relevant modules when possible, or expand the Playwright suite for full user flows.
 
 ## Repository Structure Overview

@@ -40,13 +40,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         const jobId = params.id
 
         if (!jobId) {
-          span.setStatus('invalid_argument')
+          span.setStatus({ code: 2, message: 'invalid_argument' })
           return NextResponse.json({ error: 'Job ID required' }, { status: 400 })
         }
 
         const userId = await getAuthenticatedUserId(request)
         if (!userId) {
-          span.setStatus('unauthenticated')
+          span.setStatus({ code: 2, message: 'unauthenticated' })
           return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
         }
 
@@ -61,13 +61,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           .maybeSingle()
 
         if (error) {
-          span.setStatus('internal_error')
+          span.setStatus({ code: 2, message: 'internal_error' })
           console.error('❌ Failed to fetch photobook job:', error)
           throw error
         }
 
         if (!job) {
-          span.setStatus('not_found')
+          span.setStatus({ code: 2, message: 'not_found' })
           return NextResponse.json({ error: 'Photobook job not found' }, { status: 404 })
         }
 
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           completedAt: job.completed_at,
         })
       } catch (error) {
-        span.setStatus('internal_error')
+        span.setStatus({ code: 2, message: 'internal_error' })
         console.error('💥 Error fetching photobook job status:', error)
         Sentry.captureException(error)
         return NextResponse.json(

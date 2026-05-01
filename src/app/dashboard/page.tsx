@@ -149,6 +149,10 @@ type ColoringCanvasModalProps = {
   imageUrl: string
   imageName: string
   onClose: () => void
+  collaboration?: {
+    sessionId: string
+    userId: string
+  }
 }
 
 type PromptRemixModalProps = {
@@ -447,7 +451,7 @@ export default function Dashboard() {
             .select('status')
             .eq('user_id', userId)
 
-          const hasProcessingImages = data?.some(img => img.status === 'processing')
+          const hasProcessingImages = data?.some((img: { status: string }) => img.status === 'processing')
 
           // Poll more frequently if real-time isn't working or there are processing images
           if (!isRealTimeWorking || hasProcessingImages) {

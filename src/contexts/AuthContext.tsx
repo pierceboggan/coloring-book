@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import * as amplitude from '@amplitude/analytics-browser'
-import { User, Session, AuthError } from '@supabase/supabase-js'
+import { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 type OAuthProvider = 'google' | 'facebook' | 'apple'
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: new Date().toISOString(),
         email_confirmed_at: new Date().toISOString(),
         phone: '',
-        phone_confirmed_at: null,
+        phone_confirmed_at: undefined,
         app_metadata: { provider: 'email', providers: ['email'] },
         user_metadata: {},
         identities: [],
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       console.log('🔍 Initial session check:', session ? 'User logged in' : 'No user')
       setSession(session)
       setUser(session?.user ?? null)
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       console.log('🔄 Auth state changed:', event, session ? 'User logged in' : 'No user')
       setSession(session)
       setUser(session?.user ?? null)

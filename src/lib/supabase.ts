@@ -1,4 +1,5 @@
-import { createBrowserClient, type SupabaseClient } from '@supabase/ssr'
+import { createBrowserClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type Json =
   | string
@@ -196,19 +197,24 @@ export type Database = {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-let _supabaseClient: SupabaseClient<Database> | null = null
+// Note: Until the generated Database types are regenerated to match the latest
+// @supabase/postgrest-js shape (Relationships, Views, Functions, etc.), the
+// browser client is exposed as SupabaseClient<any> to preserve pre-existing
+// runtime behavior across the app's table queries. The Database type above is
+// still useful as documentation for downstream consumers.
+let _supabaseClient: SupabaseClient | null = null
 
-function getSupabaseClient(): SupabaseClient<Database> {
+function getSupabaseClient(): SupabaseClient {
   if (!_supabaseClient) {
     if (!supabaseUrl || !supabaseAnonKey) {
       throw new Error('Missing Supabase environment variables')
     }
-    _supabaseClient = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+    _supabaseClient = createBrowserClient(supabaseUrl, supabaseAnonKey) as unknown as SupabaseClient
   }
   return _supabaseClient
 }
 
-export const supabase = new Proxy({} as SupabaseClient<Database>, {
+export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
     return (getSupabaseClient() as unknown as Record<string | symbol, unknown>)[prop]
   }
