@@ -10,6 +10,9 @@ This project uses **Vitest** as the test runner with **React Testing Library** f
 # Run all unit tests once
 npm run test:unit
 
+# Run only web load-time performance checks
+npm run test:e2e:performance
+
 # Run tests in watch mode
 npm test
 
@@ -28,6 +31,20 @@ We aim for **80%+ code coverage** across all testable code. Current coverage tar
 - **Branches**: 80%+
 - **Functions**: 80%+
 - **Lines**: 80%+
+
+## Web Performance Checks
+
+The Playwright performance suite warms each measured route once, then asserts that primary content, `DOMContentLoaded`, and the browser `load` event stay within route-specific budgets. This keeps tests focused on application load time instead of first-request Next.js dev compilation.
+
+```bash
+npm run test:e2e:performance
+
+# Optional local/CI overrides, in milliseconds
+PERF_READY_BUDGET_MS=3000 \
+PERF_DOM_CONTENT_LOADED_BUDGET_MS=2200 \
+PERF_LOAD_EVENT_BUDGET_MS=3000 \
+npm run test:e2e:performance
+```
 
 ## Test Structure
 

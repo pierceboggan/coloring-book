@@ -11,7 +11,8 @@
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:performance": "playwright test tests/e2e/performance.spec.ts"
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.11.4",
