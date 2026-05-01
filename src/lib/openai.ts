@@ -248,7 +248,7 @@ export async function generateColoringPageWithCustomPromptDetailed(
     const { supabase } = await import('./supabase')
     const { addWatermark } = await import('./imageProcessor')
 
-    let buffer = Buffer.from(providerResult.base64, 'base64')
+    let buffer: Buffer = Buffer.from(providerResult.base64, 'base64')
     const imageBytes = buffer.length
 
     console.log('🏷️ Adding watermark to coloring page...')

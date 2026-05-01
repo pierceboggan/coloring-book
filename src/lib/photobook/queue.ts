@@ -423,39 +423,40 @@ async function generatePhotobookPdf(job: PhotobookJobRow, payload: PhotobookJobP
       upsert: false,
     })
 
-  const span = Sentry.startSpan({
-    op: 'photobook.build_pdf',
-    name: 'Build photobook PDF',
-    attributes: {
-      'photobook.job_id': job.id,
-      'photobook.page_count': payload.images.length + 1,
+  return Sentry.startSpan(
+    {
+      op: 'photobook.build_pdf',
+      name: 'Build photobook PDF',
+      attributes: {
+        'photobook.job_id': job.id,
+        'photobook.page_count': payload.images.length + 1,
+      },
     },
-  })
+    async () => {
+      try {
+        const { catalogId } = await writePhotobookPdf(job, payload, writer)
+        writer.finalize(catalogId)
 
-  try {
-    const { catalogId } = await writePhotobookPdf(job, payload, writer)
-    writer.finalize(catalogId)
+        const { data, error } = await uploadPromise
+        if (error) {
+          throw error
+        }
 
-    const { data, error } = await uploadPromise
-    if (error) {
-      throw error
+        const publicUrlResult = supabaseAdmin.storage
+          .from(STORAGE_BUCKET)
+          .getPublicUrl(filePath)
+
+        const publicUrl = publicUrlResult.data.publicUrl
+
+        await insertPhotobookRecord(payload, publicUrl)
+        await markJobCompleted(job.id, data?.path ?? filePath, publicUrl, payload.images.length)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown photobook failure'
+        await markJobFailed(job.id, message)
+        throw error
+      }
     }
-
-    const publicUrlResult = supabaseAdmin.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(filePath)
-
-    const publicUrl = publicUrlResult.data.publicUrl
-
-    await insertPhotobookRecord(payload, publicUrl)
-    await markJobCompleted(job.id, data?.path ?? filePath, publicUrl, payload.images.length)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown photobook failure'
-    await markJobFailed(job.id, message)
-    throw error
-  } finally {
-    span.end()
-  }
+  )
 }
 
 export async function enqueuePhotobookJob(payload: PhotobookJobPayload) {
@@ -503,7 +504,7 @@ async function processSingleJob(job: PhotobookJobRow) {
 
         await generatePhotobookPdf(job, payload)
       } catch (error) {
-        span.setStatus('internal_error')
+        span.setStatus({ code: 2, message: 'internal_error' })
         const message = error instanceof Error ? error.message : 'Unknown photobook job error'
         console.error('💥 Photobook job failed:', message)
         Sentry.captureException(error)

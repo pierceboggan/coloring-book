@@ -117,8 +117,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         try {
           pdf.addPage()
           
+          const coloringPageUrl = image.coloring_page_url
+          if (!coloringPageUrl) continue
+
           // Fetch image data
-          const imageResponse = await fetch(image.coloring_page_url)
+          const imageResponse = await fetch(coloringPageUrl)
           if (!imageResponse.ok) continue
           
           const imageBuffer = await imageResponse.arrayBuffer()

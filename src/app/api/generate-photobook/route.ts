@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse, unstable_after as after } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { after } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import {
   enqueuePhotobookJob,
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
         span.setAttribute('photobook.userId', userId)
 
         if (!images || images.length === 0) {
-          span.setStatus('invalid_argument')
+          span.setStatus({ code: 2, message: 'invalid_argument' })
           return NextResponse.json(
             { error: 'No images provided' },
             { status: 400 }
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!userId) {
-          span.setStatus('invalid_argument')
+          span.setStatus({ code: 2, message: 'invalid_argument' })
           return NextResponse.json(
             { error: 'User ID required' },
             { status: 400 }
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
           totalCount: images.length,
         })
       } catch (error) {
-        span.setStatus('internal_error')
+        span.setStatus({ code: 2, message: 'internal_error' })
         console.error('💥 Error generating photobook:', error)
         Sentry.captureException(error)
         return NextResponse.json(
