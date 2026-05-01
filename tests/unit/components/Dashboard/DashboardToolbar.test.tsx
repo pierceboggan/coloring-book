@@ -46,4 +46,24 @@ describe('DashboardToolbar', () => {
     fireEvent.click(screen.getByTitle('Expanded view'))
     expect(onLayoutModeChange).toHaveBeenCalledWith('expanded')
   })
+
+  it('invokes the layout mode handler when clicking compact view', () => {
+    const onLayoutModeChange = vi.fn()
+    render(<DashboardToolbar {...baseProps} layoutMode="expanded" onLayoutModeChange={onLayoutModeChange} />)
+    fireEvent.click(screen.getByTitle('Compact view'))
+    expect(onLayoutModeChange).toHaveBeenCalledWith('compact')
+  })
+
+  it('invokes the view mode handler when clicking Coloring pages from uploads view', () => {
+    const onViewModeChange = vi.fn()
+    render(<DashboardToolbar {...baseProps} viewMode="uploads" onViewModeChange={onViewModeChange} />)
+    fireEvent.click(screen.getByText('Coloring pages'))
+    expect(onViewModeChange).toHaveBeenCalledWith('coloring')
+  })
+
+  it('renders the favorites button in active state when favoritesOnly is true', () => {
+    render(<DashboardToolbar {...baseProps} favoritesOnly={true} />)
+    const button = screen.getByText('Favorites').closest('button')
+    expect(button?.getAttribute('title')).toBe('Show all items')
+  })
 })

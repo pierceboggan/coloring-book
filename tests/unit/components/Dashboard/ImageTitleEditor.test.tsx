@@ -48,4 +48,47 @@ describe('ImageTitleEditor', () => {
     fireEvent.click(screen.getByTitle('Rename'))
     expect(screen.getByText('Saving')).toBeInTheDocument()
   })
+
+  it('alerts and does not call onSave when the trimmed value is empty', async () => {
+    const onSave = vi.fn()
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    render(<ImageTitleEditor image={image} isSaving={false} onSave={onSave} />)
+    fireEvent.click(screen.getByTitle('Rename'))
+    const input = screen.getByLabelText('Image name')
+    fireEvent.change(input, { target: { value: '   ' } })
+    fireEvent.click(screen.getByText('Save'))
+    expect(alertSpy).toHaveBeenCalled()
+    expect(onSave).not.toHaveBeenCalled()
+    alertSpy.mockRestore()
+  })
+
+  it('cancels editing when the value is unchanged', () => {
+    const onSave = vi.fn()
+    render(<ImageTitleEditor image={image} isSaving={false} onSave={onSave} />)
+    fireEvent.click(screen.getByTitle('Rename'))
+    fireEvent.click(screen.getByText('Save'))
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.getByText('Sunset')).toBeInTheDocument()
+  })
+
+  it('submits when pressing Enter in the input', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined)
+    render(<ImageTitleEditor image={image} isSaving={false} onSave={onSave} />)
+    fireEvent.click(screen.getByTitle('Rename'))
+    const input = screen.getByLabelText('Image name')
+    fireEvent.change(input, { target: { value: 'Beach' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith('Beach'))
+  })
+
+  it('stays in edit mode when onSave throws', async () => {
+    const onSave = vi.fn().mockRejectedValue(new Error('boom'))
+    render(<ImageTitleEditor image={image} isSaving={false} onSave={onSave} />)
+    fireEvent.click(screen.getByTitle('Rename'))
+    const input = screen.getByLabelText('Image name')
+    fireEvent.change(input, { target: { value: 'Beach' } })
+    fireEvent.click(screen.getByText('Save'))
+    await waitFor(() => expect(onSave).toHaveBeenCalled())
+    expect(screen.getByLabelText('Image name')).toBeInTheDocument()
+  })
 })
