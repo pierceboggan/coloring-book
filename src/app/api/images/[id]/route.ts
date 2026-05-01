@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -25,7 +26,7 @@ async function getAuthenticatedUserId(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (error) {
-    console.error('❌ Failed to verify Supabase session:', error)
+    logger.error('Failed to verify Supabase session', error)
     return null
   }
 
@@ -55,7 +56,7 @@ export async function DELETE(
       )
     }
 
-    console.log('🗑️ API: Deleting image:', imageId)
+    logger.info('API: Deleting image', imageId)
 
     // First, get the image to verify it exists
     const { data: existingImage, error: fetchError } = await supabaseAdmin
@@ -65,7 +66,7 @@ export async function DELETE(
       .single<ImageRow>()
 
     if (fetchError) {
-      console.error('❌ Image not found:', fetchError)
+      logger.error('Image not found', fetchError)
       return NextResponse.json(
         { error: 'Image not found' },
         { status: 404 }
@@ -73,7 +74,7 @@ export async function DELETE(
     }
 
     if (existingImage.user_id !== userId) {
-      console.warn('🚫 User attempted to delete image they do not own', {
+      logger.warn('User attempted to delete image they do not own', {
         imageId,
         ownerId: existingImage.user_id,
         requesterId: userId,
@@ -84,7 +85,7 @@ export async function DELETE(
       )
     }
 
-    console.log('📋 Found image to delete:', {
+    logger.info('Found image to delete', {
       id: existingImage.id,
       user_id: existingImage.user_id,
       name: existingImage.name
@@ -99,14 +100,14 @@ export async function DELETE(
       .select()
 
     if (deleteError) {
-      console.error('❌ Delete operation failed:', deleteError)
+      logger.error('Delete operation failed', deleteError)
       return NextResponse.json(
         { error: `Delete failed: ${deleteError.message}` },
         { status: 500 }
       )
     }
 
-    console.log('✅ Image deleted successfully:', deleteData)
+    logger.info('Image deleted successfully', deleteData)
 
     return NextResponse.json({
       success: true,
@@ -114,7 +115,7 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('💥 Delete API Error:', error)
+    logger.error('Delete API Error', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to delete image',
@@ -162,7 +163,7 @@ export async function PATCH(
       .single<ImageRow>()
 
     if (fetchError) {
-      console.error('❌ Image not found for update:', fetchError)
+      logger.error('Image not found for update', fetchError)
       return NextResponse.json(
         { error: 'Image not found' },
         { status: 404 }
@@ -170,7 +171,7 @@ export async function PATCH(
     }
 
     if (existingImage.user_id !== userId) {
-      console.warn('🚫 User attempted to modify image they do not own', {
+      logger.warn('User attempted to modify image they do not own', {
         imageId,
         ownerId: existingImage.user_id,
         requesterId: userId,
@@ -183,7 +184,7 @@ export async function PATCH(
 
     if (action === 'archive' || action === 'restore') {
       const archivedAt = action === 'archive' ? new Date().toISOString() : null
-      console.log('🗂️ API: Updating archive status', { imageId, action })
+      logger.info('API: Updating archive status', { imageId, action })
 
       const { data: updatedImage, error: archiveError } = await supabaseAdmin
         .from('images')
@@ -194,14 +195,14 @@ export async function PATCH(
         .single<ImageRow>()
 
       if (archiveError) {
-        console.error('❌ Archive operation failed:', archiveError)
+        logger.error('Archive operation failed', archiveError)
         return NextResponse.json(
           { error: `Archive failed: ${archiveError.message}` },
           { status: 500 }
         )
       }
 
-      console.log('✅ Archive status updated successfully:', {
+      logger.info('Archive status updated successfully', {
         id: updatedImage.id,
         archived_at: updatedImage.archived_at,
       })
@@ -214,7 +215,7 @@ export async function PATCH(
 
     if (action === 'favorite' || action === 'unfavorite') {
       const isFavorite = action === 'favorite'
-      console.log('⭐ API: Updating favorite status', { imageId, action })
+      logger.info('⭐ API: Updating favorite status', { imageId, action })
 
       const { data: updatedImage, error: favoriteError } = await supabaseAdmin
         .from('images')
@@ -225,14 +226,14 @@ export async function PATCH(
         .single<ImageRow>()
 
       if (favoriteError) {
-        console.error('❌ Favorite operation failed:', favoriteError)
+        logger.error('Favorite operation failed', favoriteError)
         return NextResponse.json(
           { error: `Favorite failed: ${favoriteError.message}` },
           { status: 500 }
         )
       }
 
-      console.log('✅ Favorite status updated successfully:', {
+      logger.info('Favorite status updated successfully', {
         id: updatedImage.id,
         is_favorite: updatedImage.is_favorite,
       })
@@ -252,7 +253,7 @@ export async function PATCH(
       )
     }
 
-    console.log('✏️ API: Renaming image', { imageId, newName })
+    logger.info('API: Renaming image', { imageId, newName })
 
     const { data: updatedImage, error: updateError } = await supabaseAdmin
       .from('images')
@@ -263,21 +264,21 @@ export async function PATCH(
       .single<ImageRow>()
 
     if (updateError) {
-      console.error('❌ Rename operation failed:', updateError)
+      logger.error('Rename operation failed', updateError)
       return NextResponse.json(
         { error: `Rename failed: ${updateError.message}` },
         { status: 500 }
       )
     }
 
-    console.log('✅ Image renamed successfully:', { id: updatedImage.id, name: updatedImage.name })
+    logger.info('Image renamed successfully', { id: updatedImage.id, name: updatedImage.name })
 
     return NextResponse.json({
       success: true,
       data: updatedImage
     })
   } catch (error) {
-    console.error('💥 PATCH API Error:', error)
+    logger.error('PATCH API Error', error)
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Failed to update image',

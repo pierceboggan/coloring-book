@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import * as amplitude from '@amplitude/analytics-browser'
 import { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 type OAuthProvider = 'google' | 'facebook' | 'apple'
 type SignInWithOAuthResult = Awaited<
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user: devUser,
       }
 
-      console.log('🛠️ Dev auth bypass session applied')
+      logger.debug('Dev auth bypass session applied')
       setSession(devSession)
       setUser(devUser)
       setLoading(false)
@@ -88,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      console.log('🔍 Initial session check:', session ? 'User logged in' : 'No user')
+      logger.debug('Initial session check', { authenticated: Boolean(session) })
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -98,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      console.log('🔄 Auth state changed:', event, session ? 'User logged in' : 'No user')
+      logger.debug('Auth state changed', { event, authenticated: Boolean(session) })
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -108,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    console.log('🔐 Attempting sign in for:', email)
+    logger.info('Attempting sign in', { email })
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -118,15 +119,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       result: error ? 'error' : 'success',
     })
     if (error) {
-      console.error('❌ Sign in failed:', error)
+      logger.error('Sign in failed', { error, email })
     } else {
-      console.log('✅ Sign in successful')
+      logger.info('Sign in successful', { email })
     }
     return { error }
   }
 
   const signUp = async (email: string, password: string) => {
-    console.log('📝 Attempting sign up for:', email)
+    logger.info('Attempting sign up', { email })
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -136,9 +137,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       result: error ? 'error' : 'success',
     })
     if (error) {
-      console.error('❌ Sign up failed:', error)
+      logger.error('Sign up failed', { error, email })
     } else {
-      console.log('✅ Sign up successful')
+      logger.info('Sign up successful', { email })
     }
     return { error }
   }
@@ -146,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithProvider = async (
     provider: OAuthProvider
   ): Promise<SignInWithOAuthResult> => {
-    console.log('🔑 Attempting OAuth sign in with provider:', provider)
+    logger.info('Attempting OAuth sign in', { provider })
 
     const redirectTo =
       typeof window !== 'undefined'
@@ -164,24 +165,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (result.error) {
-      console.error('❌ OAuth sign in failed:', provider, result.error)
+      logger.error('OAuth sign in failed', { error: result.error, provider })
     } else if (result.data?.url) {
-      console.log('🌍 OAuth provider returned redirect URL:', provider)
+      logger.info('OAuth provider returned redirect URL', { provider })
     }
 
     return result
   }
 
   const signOut = async () => {
-    console.log('🚪 Signing out user')
+    logger.info('Signing out user')
     await supabase.auth.signOut()
     amplitude.track('auth_sign_out_completed')
     amplitude.reset()
-    console.log('✅ Sign out complete')
+    logger.info('Sign out complete')
   }
 
   const deleteAccount = async () => {
-    console.log('🗑️ Initiating account deletion flow')
+    logger.info('Initiating account deletion flow')
 
     amplitude.track('account_deletion_started')
 
@@ -194,7 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const accessToken = currentSession?.access_token
 
       if (!accessToken) {
-        console.error('❌ Account deletion failed: no active session token found')
+        logger.error('Account deletion failed: no active session token found')
         amplitude.track('account_deletion_completed', {
           result: 'error',
           reason: 'missing_session',
@@ -213,7 +214,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         responseBody = await response.json()
       } catch (parseError) {
-        console.warn('⚠️ No JSON response body received after account deletion request', parseError)
+        logger.warn('No JSON response body after account deletion request', {
+          error: parseError,
+        })
         responseBody = null
       }
 
@@ -226,7 +229,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const errorMessage = hasErrorMessage
           ? String((responseBody as { error?: unknown }).error ?? 'Failed to delete account')
           : 'Failed to delete account'
-        console.error('❌ Account deletion request failed:', errorMessage)
+        logger.error('Account deletion request failed', {
+          status: response.status,
+          errorMessage,
+        })
         amplitude.track('account_deletion_completed', {
           result: 'error',
           reason: 'request_failed',
@@ -238,13 +244,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setSession(null)
 
-      console.log('✅ Account deleted and user signed out locally')
+      logger.info('Account deleted and user signed out locally')
       amplitude.track('account_deletion_completed', {
         result: 'success',
       })
       return { error: null }
     } catch (error) {
-      console.error('💥 Unexpected error during account deletion:', error)
+      logger.error('Unexpected error during account deletion', { error })
       amplitude.track('account_deletion_completed', {
         result: 'error',
         reason: 'unexpected_error',

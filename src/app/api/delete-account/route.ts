@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { logger } from '@/lib/logger'
 
 function extractStoragePath(url: string | null): string | null {
   if (!url) {
@@ -18,7 +19,7 @@ function extractStoragePath(url: string | null): string | null {
     const objectPath = pathSegments.slice(publicIndex + 2).join('/')
     return objectPath || null
   } catch (error) {
-    console.error('❌ Failed to parse storage path from URL:', { url, error })
+    logger.error('Failed to parse storage path from URL', { url, error })
     return null
   }
 }
@@ -43,13 +44,13 @@ export async function DELETE(request: NextRequest) {
     } = await supabaseAdmin.auth.getUser(accessToken)
 
     if (userError || !user) {
-      console.error('❌ Failed to verify user before account deletion:', userError)
+      logger.error('Failed to verify user before account deletion', { error: userError })
       return NextResponse.json({ error: 'Unable to verify user session' }, { status: 401 })
     }
 
     const userId = user.id
 
-    console.log('🗑️ Deleting account for user:', { userId, email: user.email })
+    logger.info('Deleting account for user', { userId, email: user.email })
 
     const { data: userImages, error: fetchImagesError } = await supabaseAdmin
       .from('images')
@@ -57,7 +58,7 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', userId)
 
     if (fetchImagesError) {
-      console.error('❌ Failed to fetch user images before deletion:', fetchImagesError)
+      logger.error('Failed to fetch user images before deletion', { error: fetchImagesError, userId })
       return NextResponse.json({ error: 'Unable to fetch user assets' }, { status: 500 })
     }
 
@@ -72,7 +73,7 @@ export async function DELETE(request: NextRequest) {
     if (storagePaths.length > 0) {
       const { error: storageRemoveError } = await supabaseAdmin.storage.from('images').remove(storagePaths)
       if (storageRemoveError) {
-        console.error('❌ Failed to remove storage assets during account deletion:', storageRemoveError)
+        logger.error('Failed to remove storage assets during account deletion', { error: storageRemoveError, userId })
         return NextResponse.json({ error: 'Unable to remove stored images' }, { status: 500 })
       }
     }
@@ -80,22 +81,22 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteImagesError } = await supabaseAdmin.from('images').delete().eq('user_id', userId)
 
     if (deleteImagesError) {
-      console.error('❌ Failed to delete database records during account deletion:', deleteImagesError)
+      logger.error('Failed to delete database records during account deletion', { error: deleteImagesError, userId })
       return NextResponse.json({ error: 'Unable to remove image records' }, { status: 500 })
     }
 
     const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
     if (deleteUserError) {
-      console.error('❌ Failed to delete auth user during account deletion:', deleteUserError)
+      logger.error('Failed to delete auth user during account deletion', { error: deleteUserError, userId })
       return NextResponse.json({ error: 'Unable to delete user account' }, { status: 500 })
     }
 
-    console.log('✅ Account deletion completed successfully for user:', userId)
+    logger.info('Account deletion completed successfully', { userId })
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('💥 Account deletion failed with unexpected error:', error)
+    logger.error('Account deletion failed with unexpected error', { error })
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to delete account' },
       { status: 500 }

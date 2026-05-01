@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import * as Sentry from '@sentry/nextjs'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -22,7 +23,7 @@ async function getAuthenticatedUserId(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   if (error) {
-    console.error('❌ Failed to verify Supabase session:', error)
+    logger.error('Failed to verify Supabase session', { error })
     return null
   }
 
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
         if (error) {
           span.setStatus({ code: 2, message: 'internal_error' })
-          console.error('❌ Failed to fetch photobook job:', error)
+          logger.error('Failed to fetch photobook job', { error, jobId, userId })
           throw error
         }
 
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         })
       } catch (error) {
         span.setStatus({ code: 2, message: 'internal_error' })
-        console.error('💥 Error fetching photobook job status:', error)
+        logger.error('Error fetching photobook job status', { error, jobId: params.id })
         Sentry.captureException(error)
         return NextResponse.json(
           {

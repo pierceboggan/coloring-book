@@ -5,6 +5,7 @@ import {
   COLLABORATIVE_SESSIONS_TABLE,
   COLLABORATIVE_PARTICIPANTS_TABLE 
 } from '@/lib/collaborative'
+import { logger } from '@/lib/logger'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(request: NextRequest) {
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (sessionError) {
-      console.error('❌ Error creating session:', sessionError)
+      logger.error('Error creating session', sessionError)
       return NextResponse.json(
         { error: 'Failed to create session' },
         { status: 500 }
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (participantError) {
-      console.error('❌ Error adding participant:', participantError)
+      logger.error('Error adding participant', participantError)
       // Rollback session creation
       await supabaseAdmin
         .from(COLLABORATIVE_SESSIONS_TABLE)
@@ -110,10 +111,10 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (fetchError) {
-      console.error('❌ Error fetching full session:', fetchError)
+      logger.error('Error fetching full session', fetchError)
     }
 
-    console.log('✅ Created collaborative session:', { sessionId: session.id, shareCode })
+    logger.info('Created collaborative session', { sessionId: session.id, shareCode })
     
     return NextResponse.json({
       session: fullSession || session,
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Error in POST /api/collaborative/sessions:', error)
+    logger.error('Error in POST /api/collaborative/sessions', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -163,7 +164,7 @@ export async function GET(request: NextRequest) {
             { status: 404 }
           )
         }
-        console.error('❌ Error fetching session by share code:', error)
+        logger.error('Error fetching session by share code', error)
         return NextResponse.json(
           { error: 'Failed to fetch session' },
           { status: 500 }
@@ -200,7 +201,7 @@ export async function GET(request: NextRequest) {
       .order('updated_at', { ascending: false })
 
     if (error) {
-      console.error('❌ Error fetching user sessions:', error)
+      logger.error('Error fetching user sessions', error)
       return NextResponse.json(
         { error: 'Failed to fetch sessions' },
         { status: 500 }
@@ -210,7 +211,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ sessions })
 
   } catch (error) {
-    console.error('💥 Error in GET /api/collaborative/sessions:', error)
+    logger.error('Error in GET /api/collaborative/sessions', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -7,6 +7,7 @@ import {
   evaluateImageProviders,
   isImageGenerationProvider,
 } from '@/lib/openai'
+import { logger } from '@/lib/logger'
 
 interface EvaluationRequestBody {
   imageUrl?: string
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
         })
       } catch (error) {
         Sentry.captureException(error)
-        console.error('Evaluation error:', error)
+        logger.error('Evaluation error', error)
         return NextResponse.json(
           {
             success: false,

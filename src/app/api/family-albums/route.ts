@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
-  console.log('📁 API route /api/family-albums called')
+  logger.info('API route /api/family-albums called')
   
   try {
     const body = await request.json()
-    console.log('📥 Request body parsed:', body)
+    logger.info('Request body parsed', body)
     
     const {
       title,
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Generate unique share code
     const shareCode = generateShareCode()
 
-    console.log('💾 Creating family album in database...')
+    logger.info('Creating family album in database...')
 
     // Create the family album
     const { data: albumData, error: albumError } = await supabase
@@ -58,11 +59,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (albumError) {
-      console.error('❌ Failed to create album:', albumError)
+      logger.error('Failed to create album', albumError)
       throw new Error(`Failed to create album: ${albumError.message}`)
     }
 
-    console.log('🖼️ Adding images to album...')
+    logger.info('Adding images to album...')
     
     // Add images to the album
     const albumImageInserts = imageIds.map((imageId: string) => ({
@@ -76,11 +77,11 @@ export async function POST(request: NextRequest) {
       .insert(albumImageInserts)
 
     if (imageError) {
-      console.error('❌ Failed to add images to album:', imageError)
+      logger.error('Failed to add images to album', imageError)
       throw new Error(`Failed to add images to album: ${imageError.message}`)
     }
 
-    console.log('✅ Family album created successfully')
+    logger.info('Family album created successfully')
 
     return NextResponse.json({
       success: true,
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Error creating family album:', error)
+    logger.error('Error creating family album', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to create family album',
@@ -121,7 +122,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('📋 Fetching family albums for user:', userId)
+    logger.info('Fetching family albums for user', userId)
     
     const { data: albums, error } = await supabase
       .from('family_albums')
@@ -141,11 +142,11 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('❌ Failed to fetch albums:', error)
+      logger.error('Failed to fetch albums', error)
       throw new Error(`Failed to fetch albums: ${error.message}`)
     }
 
-    console.log('✅ Fetched albums:', albums?.length || 0)
+    logger.info('Fetched albums', albums?.length || 0)
 
     return NextResponse.json({
       success: true,
@@ -153,7 +154,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Error fetching family albums:', error)
+    logger.error('Error fetching family albums', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to fetch family albums',

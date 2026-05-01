@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { logger } from './logger'
 
 export type ImageDetailLevel = 'low' | 'auto' | 'high'
 
@@ -81,7 +82,7 @@ function parseEnvNumber(name: string): number | undefined {
     return parsed
   }
 
-  console.warn(`⚠️ Environment variable ${name} is not a valid number: ${rawValue}`)
+  logger.warn('Environment variable is not a valid number', { name, rawValue })
   return undefined
 }
 
@@ -218,13 +219,15 @@ export async function generateColoringPageWithCustomPromptDetailed(
   const detailLevel = options.detail ?? 'high'
 
   try {
-    console.log('🎨 Starting coloring page generation for image:', imageUrl)
-    console.log('📝 Using prompt:', customPrompt)
-    console.log('⚙️ Selected provider:', provider)
+    logger.info('Starting coloring page generation', {
+      imageUrl,
+      provider,
+      promptLength: customPrompt.length,
+    })
 
-    console.log('📥 Converting image to base64...')
+    logger.debug('Converting image to base64')
     const { base64: base64Image, mimeType } = await imageUrlToBase64(imageUrl)
-    console.log('✅ Image converted to base64, length:', base64Image.length)
+    logger.debug('Image converted to base64', { base64Length: base64Image.length })
 
     const startTime = Date.now()
 
@@ -238,10 +241,10 @@ export async function generateColoringPageWithCustomPromptDetailed(
 
     const latencyMs = Date.now() - startTime
 
-    console.log('✅ Image generated successfully via', provider)
+    logger.info('Image generated successfully', { provider })
 
     if (!providerResult.base64) {
-      console.error('❌ Generated image data is empty')
+      logger.error('Generated image data is empty', { provider })
       throw new Error('Generated image data is empty')
     }
 
@@ -251,13 +254,13 @@ export async function generateColoringPageWithCustomPromptDetailed(
     let buffer: Buffer = Buffer.from(providerResult.base64, 'base64')
     const imageBytes = buffer.length
 
-    console.log('🏷️ Adding watermark to coloring page...')
+    logger.debug('Adding watermark to coloring page')
     buffer = await addWatermark(buffer)
 
     const fileName = `coloring-page-${provider}-${Date.now()}.png`
     const filePath = `coloring-pages/${fileName}`
 
-    console.log('📤 Uploading coloring page to Supabase storage...')
+    logger.debug('Uploading coloring page to Supabase storage', { filePath })
     const { error: uploadError } = await supabase.storage
       .from('images')
       .upload(filePath, buffer, {
@@ -265,7 +268,7 @@ export async function generateColoringPageWithCustomPromptDetailed(
       })
 
     if (uploadError) {
-      console.error('❌ Failed to upload coloring page:', uploadError)
+      logger.error('Failed to upload coloring page', { error: uploadError, filePath })
       throw new Error(`Storage upload failed: ${uploadError.message}`)
     }
 
@@ -273,7 +276,7 @@ export async function generateColoringPageWithCustomPromptDetailed(
       .from('images')
       .getPublicUrl(filePath)
 
-    console.log('✅ Coloring page uploaded successfully:', publicUrl)
+    logger.info('Coloring page uploaded successfully', { publicUrl, provider })
 
     const metadata: ImageGenerationMetadata = {
       provider,
@@ -294,16 +297,19 @@ export async function generateColoringPageWithCustomPromptDetailed(
       metadata,
     }
   } catch (error) {
-    console.error('💥 Error generating coloring page:', error)
+    logger.error('Error generating coloring page', {
+      error,
+      provider,
+      ...(error instanceof Error
+        ? {
+            errorName: error.name,
+            errorMessage: error.message,
+            errorStack: error.stack?.substring(0, 500),
+          }
+        : {}),
+    })
 
     if (error instanceof Error) {
-      console.error('🔍 Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack?.substring(0, 500),
-        provider,
-      })
-
       if (provider === 'openai') {
         throw new Error(`OpenAI API error: ${error.message}`)
       }
@@ -387,7 +393,7 @@ async function generateWithOpenAI({
   detailLevel: ImageDetailLevel
   mimeType: string
 }): Promise<ProviderGenerationResult> {
-  console.log('🤖 Calling OpenAI Responses API...')
+  logger.debug('Calling OpenAI Responses API')
   const response = await getOpenAIClient().responses.create({
     model: 'gpt-4o',
     input: [
@@ -409,19 +415,21 @@ async function generateWithOpenAI({
     tools: [{ type: 'image_generation' }],
   })
 
-  console.log('📡 Received response from OpenAI')
-  console.log('📊 Response output count:', response.output.length)
-  console.log('📋 Response output types:', response.output.map((output) => output.type))
+  logger.debug('Received response from OpenAI', {
+    outputCount: response.output.length,
+    outputTypes: response.output.map((output) => output.type),
+  })
 
   const imageData = response.output
     .filter((output) => output.type === 'image_generation_call')
     .map((output) => output.result)
 
-  console.log('🖼️ Image generation calls found:', imageData.length)
+  logger.debug('Image generation calls found', { count: imageData.length })
 
   if (imageData.length === 0 || !imageData[0]) {
-    console.error('❌ No image data found in OpenAI response')
-    console.log('🔍 Full response output:', JSON.stringify(response.output, null, 2))
+    logger.error('No image data found in OpenAI response', {
+      output: JSON.stringify(response.output).substring(0, 1000),
+    })
     throw new Error('No image generated in response')
   }
 
@@ -445,7 +453,7 @@ async function generateWithGemini({
   prompt: string
   mimeType: string
 }): Promise<ProviderGenerationResult> {
-  console.log('🌟 Calling Gemini image model...')
+  logger.debug('Calling Gemini image model')
   const apiKey = process.env.GOOGLE_API_KEY
 
   if (!apiKey) {
@@ -476,7 +484,7 @@ async function generateWithGemini({
 
   if (!response.ok) {
     const errorPayload = await response.text()
-    console.error('❌ Gemini API responded with an error:', {
+    logger.error('Gemini API responded with an error', {
       status: response.status,
       statusText: response.statusText,
       body: errorPayload,
@@ -514,7 +522,7 @@ async function generateWithGemini({
   }
 
   if (!imageBase64) {
-    console.error('❌ No image data returned from Gemini')
+    logger.error('No image data returned from Gemini')
     throw new Error('Gemini did not return image data')
   }
 

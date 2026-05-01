@@ -10,6 +10,7 @@ import {
   Download,
   Wand2,
 } from 'lucide-react'
+import { logger } from '@/lib/logger'
 import {
   VARIANT_PACKS,
   VARIANT_THEMES,
@@ -267,7 +268,7 @@ export function VariantsModal({
         setError(null)
       }
     } catch (err) {
-      console.error('Variant generation failed:', err)
+      logger.error('Variant generation failed', err)
       setError(err instanceof Error ? err.message : 'Unable to generate variants right now.')
       setGenerationAttempts([])
     } finally {
@@ -281,7 +282,7 @@ export function VariantsModal({
       setApplyInProgress(variantUrl)
       await onUseVariant(variantUrl)
     } catch (err) {
-      console.error('Failed to apply variant:', err)
+      logger.error('Failed to apply variant', err)
       setError(err instanceof Error ? err.message : 'Failed to update the coloring page with this variant.')
     } finally {
       setApplyInProgress(null)

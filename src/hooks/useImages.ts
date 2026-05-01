@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { UserImage } from '@/components/Dashboard/types'
+import { logger } from '@/lib/logger'
 
 interface UseImagesResult {
   images: UserImage[]
@@ -37,7 +38,7 @@ export function useImages(userId: string | null): UseImagesResult {
       }
 
       if (!userId) {
-        console.error('❌ No user ID available for fetching images')
+        logger.error('No user ID available for fetching images')
         return
       }
 
@@ -48,7 +49,7 @@ export function useImages(userId: string | null): UseImagesResult {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('❌ Error fetching images:', error)
+        logger.error('Error fetching images', error)
         throw error
       }
 
@@ -56,7 +57,7 @@ export function useImages(userId: string | null): UseImagesResult {
       const nonArchivedImages = userImages.filter(img => !img.archived_at)
       setImages(nonArchivedImages)
     } catch (error) {
-      console.error('💥 Failed to fetch images:', error)
+      logger.error('Failed to fetch images', error)
     } finally {
       setLoading(false)
     }
@@ -91,12 +92,12 @@ export function useImages(userId: string | null): UseImagesResult {
           if (status === 'SUBSCRIBED') {
             isRealTimeWorking = true
           } else if (status === 'CHANNEL_ERROR') {
-            console.warn('⚠️ Real-time subscription failed, using polling instead')
+            logger.warn('Real-time subscription failed, using polling instead')
             isRealTimeWorking = false
           }
         })
     } catch (error) {
-      console.warn('⚠️ Real-time setup failed, using polling only:', error)
+      logger.warn('Real-time setup failed, using polling only', error)
       isRealTimeWorking = false
     }
 
@@ -119,7 +120,7 @@ export function useImages(userId: string | null): UseImagesResult {
           const nextInterval = hasProcessingImages ? 3000 : (isRealTimeWorking ? 15000 : 5000)
           pollInterval = setTimeout(poll, nextInterval)
         } catch (error) {
-          console.error('❌ Polling error:', error)
+          logger.error('Polling error', error)
           pollInterval = setTimeout(poll, 5000)
         }
       }

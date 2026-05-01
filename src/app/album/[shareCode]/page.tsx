@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { FunBackground } from '@/components/FunBackground'
+import { logger } from '@/lib/logger'
 
 interface SharedImage {
   id: string
@@ -69,7 +70,7 @@ export default function SharedAlbumPage() {
 
   const fetchAlbum = useCallback(async () => {
     try {
-      console.log('🔗 Fetching shared album:', shareCode)
+      logger.info('Fetching shared album', shareCode)
 
       const response = await fetch(`/api/family-albums/${shareCode}`)
       
@@ -91,10 +92,10 @@ export default function SharedAlbumPage() {
         downloadsEnabled: result.album.downloadsEnabled !== false,
       }
       setAlbum(normalizedAlbum)
-      console.log('✅ Loaded shared album:', result.album.title)
+      logger.info('Loaded shared album', result.album.title)
       
     } catch (err) {
-      console.error('❌ Error fetching album:', err)
+      logger.error('Error fetching album', err)
       setError('Failed to load album')
     } finally {
       setLoading(false)
@@ -121,7 +122,7 @@ export default function SharedAlbumPage() {
         }
       }
     } catch (err) {
-      console.warn('⚠️ Unable to load saved album comments', err)
+      logger.warn('Unable to load saved album comments', err)
     }
   }, [storageKey])
 
@@ -130,7 +131,7 @@ export default function SharedAlbumPage() {
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(comments))
     } catch (err) {
-      console.warn('⚠️ Unable to persist album comments', err)
+      logger.warn('Unable to persist album comments', err)
     }
   }, [comments, storageKey])
 
@@ -143,7 +144,7 @@ export default function SharedAlbumPage() {
     }
 
     setDownloadingPdf(true)
-    console.log('📄 Downloading PDF for album:', shareCode)
+    logger.info('Downloading PDF for album', shareCode)
 
     try {
       const response = await fetch(`/api/family-albums/${shareCode}?download=true`)
@@ -166,10 +167,10 @@ export default function SharedAlbumPage() {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
       
-      console.log('✅ PDF downloaded successfully')
+      logger.info('PDF downloaded successfully')
       
     } catch (err) {
-      console.error('❌ Error downloading PDF:', err)
+      logger.error('Error downloading PDF', err)
       alert('Failed to download PDF. Please try again.')
     } finally {
       setDownloadingPdf(false)

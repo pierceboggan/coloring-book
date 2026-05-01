@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import * as Sentry from '@sentry/nextjs'
 import { VARIANT_THEMES } from '@/lib/variants'
+import { logger } from '@/lib/logger'
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'error'
 
@@ -91,7 +92,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
           validFiles.push(file)
         }
 
-        console.log(`📸 Uploading ${validFiles.length} images...`)
+        logger.info(`Uploading ${validFiles.length} images...`)
         setError('')
         await uploadMultipleImages(validFiles, targetAge)
       }
@@ -151,7 +152,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
   const uploadSingleImage = async (file: File, age: number): Promise<void> => {
     try {
-      console.log(`📤 Uploading ${file.name}...`)
+      logger.info(`Uploading ${file.name}...`)
 
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
@@ -199,13 +200,13 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
           }
           return next
         })
-        console.log(`✅ Completed processing ${file.name}`)
+        logger.info(`Completed processing ${file.name}`)
       }).catch(err => {
-        console.error(`❌ Failed to process ${file.name}:`, err)
+        logger.error(`Failed to process ${file.name}`, err)
       })
 
     } catch (err) {
-      console.error(`Upload error for ${file.name}:`, err)
+      logger.error(`Upload error for ${file.name}`, err)
       throw err
     }
   }
@@ -247,7 +248,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
       )
       
     } catch (err) {
-      console.error('Generation error:', err)
+      logger.error('Generation error', err)
       throw err
     }
   }

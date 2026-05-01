@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +24,7 @@ export async function GET(
       .single()
 
     if (fetchError || !image) {
-      console.error('❌ Image not found:', fetchError)
+      logger.error('Image not found', fetchError)
       return NextResponse.json(
         { error: 'Image not found' },
         { status: 404 }
@@ -57,7 +58,7 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('💥 Download API Error:', error)
+    logger.error('Download API Error', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to download image',

@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { X, Sparkles, Loader2, Download, Image as ImageIcon } from 'lucide-react'
 import type { PromptRemixJob } from '@/types/prompt-remix'
+import { logger } from '@/lib/logger'
 
 interface PromptRemixModalProps {
   isOpen: boolean
@@ -156,7 +157,7 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
         setError(null)
       }
     } catch (err) {
-      console.error('Prompt remix failed:', err)
+      logger.error('Prompt remix failed', err)
       setError(err instanceof Error ? err.message : 'Something went wrong while remixing the prompt.')
     } finally {
       setIsGenerating(false)

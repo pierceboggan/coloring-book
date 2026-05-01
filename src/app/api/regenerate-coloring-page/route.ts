@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isImageGenerationProvider } from '@/lib/openai'
 import type { ImageGenerationProvider } from '@/lib/openai'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
-  console.log('🔄 API route /api/regenerate-coloring-page called')
+  logger.info('API route /api/regenerate-coloring-page called')
   
   try {
     const body = await request.json()
-    console.log('📥 Request body parsed:', body)
+    logger.info('Request body parsed', body)
     
     const { imageId, feedback, userId } = body
 
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
-      console.error('❌ Error checking regeneration history:', checkError)
+      logger.error('Error checking regeneration history', checkError)
       throw new Error('Failed to check regeneration history')
     }
 
@@ -52,20 +53,20 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (imageError || !imageData) {
-      console.error('❌ Image not found:', imageError)
+      logger.error('Image not found', imageError)
       return NextResponse.json(
         { error: 'Image not found' },
         { status: 404 }
       )
     }
 
-    console.log('🎨 Regenerating coloring page with feedback:', feedback)
+    logger.info('Regenerating coloring page with feedback', feedback)
 
     // Generate new coloring page with enhanced prompt based on feedback
     const enhancedPrompt = createEnhancedPrompt(feedback)
     const regeneratedColoringPageUrl = await generateColoringPageWithFeedback(imageData.original_url, enhancedPrompt, provider)
 
-    console.log('💾 Saving regeneration data...')
+    logger.info('Saving regeneration data...')
 
     // Store the regeneration record
     const { error: regenerationError } = await supabase
@@ -80,11 +81,11 @@ export async function POST(request: NextRequest) {
       })
 
     if (regenerationError) {
-      console.error('❌ Failed to save regeneration:', regenerationError)
+      logger.error('Failed to save regeneration', regenerationError)
       throw new Error('Failed to save regeneration data')
     }
 
-    console.log('✅ Coloring page regenerated successfully')
+    logger.info('Coloring page regenerated successfully')
 
     return NextResponse.json({
       success: true,
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Error regenerating coloring page:', error)
+    logger.error('Error regenerating coloring page', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to regenerate coloring page',

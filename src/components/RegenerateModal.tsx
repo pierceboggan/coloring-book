@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, RefreshCw, Loader2, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface RegenerateModalProps {
   isOpen: boolean
@@ -51,7 +52,7 @@ export function RegenerateModal({
       const result = await response.json()
       setRegeneratedUrl(result.regeneratedColoringPageUrl)
     } catch (err) {
-      console.error('❌ Error regenerating coloring page:', err)
+      logger.error('Error regenerating coloring page', err)
       setError(err instanceof Error ? err.message : 'Failed to regenerate coloring page')
     } finally {
       setIsRegenerating(false)

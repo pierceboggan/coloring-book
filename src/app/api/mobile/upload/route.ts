@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import path from 'path'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { logger } from '@/lib/logger'
 
 export const runtime = 'nodejs'
 
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: insertedImage })
   } catch (error) {
-    console.error('📱 Mobile upload failed', error)
+    logger.error('Mobile upload failed', error)
     return NextResponse.json(
       {
         error:

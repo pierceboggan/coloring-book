@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Users, Palette } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 interface CollaborativeSessionRow {
   id: string
@@ -60,7 +61,7 @@ export default function CollaborativeJoinPage() {
 
         setImage(imgData)
       } catch (e) {
-        console.error('Failed to load session:', e)
+        logger.error('Failed to load session', e)
         setError('Failed to load session')
       } finally {
         setLoading(false)
@@ -107,7 +108,7 @@ export default function CollaborativeJoinPage() {
 
       setJoinedSession({ sessionId: session.id, userId })
     } catch (e) {
-      console.error('Join error:', e)
+      logger.error('Join error', e)
       setError('Failed to join session')
     } finally {
       setJoining(false)

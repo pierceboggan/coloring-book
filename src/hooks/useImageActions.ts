@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { UserImage } from '@/components/Dashboard/types'
+import { logger } from '@/lib/logger'
 
 interface UseImageActionsArgs {
   userId: string | null
@@ -46,7 +47,7 @@ export function useImageActions({ userId, setImages, refetch }: UseImageActionsA
 
       setImages(prev => prev.filter(img => img.id !== imageId))
     } catch (error) {
-      console.error('❌ Failed to archive image:', error)
+      logger.error('Failed to archive image', error)
       alert(`Failed to archive image: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }, [setImages])
@@ -74,7 +75,7 @@ export function useImageActions({ userId, setImages, refetch }: UseImageActionsA
         )
       )
     } catch (error) {
-      console.error('❌ Failed to toggle favorite:', error)
+      logger.error('Failed to toggle favorite', error)
       alert(`Failed to update favorite: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }, [setImages])
@@ -103,7 +104,7 @@ export function useImageActions({ userId, setImages, refetch }: UseImageActionsA
         alert(result.message || 'No images needed processing')
       }
     } catch (error) {
-      console.error('❌ Error retrying processing:', error)
+      logger.error('Error retrying processing', error)
       alert('Failed to retry processing. Please try again.')
     } finally {
       setRetryingProcessing(false)
@@ -134,7 +135,7 @@ export function useImageActions({ userId, setImages, refetch }: UseImageActionsA
         )
       )
     } catch (error) {
-      console.error('❌ Failed to rename image:', error)
+      logger.error('Failed to rename image', error)
       alert(`Failed to rename image: ${error instanceof Error ? error.message : 'Unknown error'}`)
       throw error
     } finally {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateColoringPage, ImageGenerationProvider, isImageGenerationProvider } from '@/lib/openai'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { logger } from '@/lib/logger'
 import * as Sentry from '@sentry/nextjs'
 
 function extractBearerToken(request: NextRequest): string | null {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
       name: 'POST /api/generate-coloring-page',
     },
     async (span) => {
-      console.log('🚀 API route /api/generate-coloring-page called')
+      logger.info('API route /api/generate-coloring-page called')
 
       let body: {
         imageId?: string
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
         } = await supabaseAdmin.auth.getUser(accessToken)
 
         if (userError || !user) {
-          console.error('❌ Failed to verify access token:', userError)
+          logger.error('Failed to verify access token', { error: userError })
           return NextResponse.json(
             { error: 'Unable to verify user session' },
             { status: 401 }
@@ -57,9 +58,9 @@ export async function POST(request: NextRequest) {
 
         authenticatedUserId = user.id
 
-        console.log('📥 Parsing request body...')
+        logger.debug('Parsing request body')
         body = await request.json()
-        console.log('✅ Request body parsed successfully:', body)
+        logger.debug('Request body parsed', { body })
 
         const imageId = body?.imageId
         const imageUrl = body?.imageUrl
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
         span.setAttribute('imageProvider', provider ?? 'default')
 
         if (!imageId) {
-          console.error('❌ Missing required field: imageId')
+          logger.error('Missing required field: imageId')
           return NextResponse.json(
             { error: 'Missing imageId' },
             { status: 400 }
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (fetchError || !existingRecord) {
-          console.error('❌ Failed to fetch existing record:', fetchError)
+          logger.error('Failed to fetch existing record', { error: fetchError, imageId })
           return NextResponse.json(
             { error: 'Image record not found' },
             { status: 404 }
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (existingRecord.user_id !== authenticatedUserId) {
-          console.error('❌ User attempted to process image they do not own', {
+          logger.error('User attempted to process image they do not own', {
             imageId,
             requestUserId: authenticatedUserId,
             ownerUserId: existingRecord.user_id,
@@ -125,16 +126,16 @@ export async function POST(request: NextRequest) {
           )
         }
 
-        console.log('🎨 About to call generateColoringPage with URL:', effectiveImageUrl, 'age:', clampedAge)
+        logger.info('About to call generateColoringPage', { url: effectiveImageUrl, age: clampedAge })
         const coloringPageUrl = await generateColoringPage(effectiveImageUrl, { age: clampedAge, provider })
-        console.log('✅ generateColoringPage completed, result:', coloringPageUrl.substring(0, 50) + '...')
+        logger.info('generateColoringPage completed', { resultPreview: coloringPageUrl.substring(0, 50) + '...' })
 
         if (!coloringPageUrl) {
-          console.error('❌ generateColoringPage returned null/undefined')
+          logger.error('generateColoringPage returned null/undefined')
           throw new Error('Failed to generate coloring page: No URL returned')
         }
 
-        console.log('💾 Updating database with result...')
+        logger.debug('Updating database with result')
 
         const updatePayload = {
           coloring_page_url: coloringPageUrl,
@@ -150,19 +151,18 @@ export async function POST(request: NextRequest) {
           .select()
 
         if (updateError) {
-          console.error('❌ Database update failed:', updateError)
+          logger.error('Database update failed', { error: updateError, imageId })
           throw new Error(`Database update failed: ${updateError.message}`)
         }
 
-        console.log('✅ Database updated successfully')
-        console.log('📊 Updated record:', updateData)
+        logger.info('Database updated successfully', { imageId, updateData })
 
         return NextResponse.json({
           success: true,
           coloringPageUrl,
         })
       } catch (error) {
-        console.error('💥 API Error caught:', error)
+        logger.error('API Error caught', { error })
         Sentry.captureException(error)
 
         const imageId = body?.imageId
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
               .eq('id', imageId)
               .eq('user_id', authenticatedUserId)
           } catch (dbError) {
-            console.error('Database error:', dbError)
+            logger.error('Database error', { error: dbError })
           }
         }
 

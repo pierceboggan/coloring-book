@@ -3,6 +3,7 @@ import sharp from 'sharp'
 import { PassThrough, Readable } from 'stream'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 import {
   parsePayload,
   serializePayload,
@@ -307,7 +308,10 @@ async function writePhotobookPdf(job: PhotobookJobRow, payload: PhotobookJobPayl
       .eq('id', job.id)
 
     if (progressUpdate.error) {
-      console.error('❌ Failed to update photobook job progress:', progressUpdate.error)
+      logger.error('Failed to update photobook job progress', {
+        error: progressUpdate.error,
+        jobId: job.id,
+      })
     }
   }
 
@@ -326,7 +330,7 @@ async function claimNextJob() {
     .maybeSingle<PhotobookJobRow>()
 
   if (error) {
-    console.error('❌ Failed to find queued photobook job:', error)
+    logger.error('Failed to find queued photobook job', { error })
     return null
   }
 
@@ -346,7 +350,7 @@ async function claimNextJob() {
 
   if (claimError) {
     if (claimError.code !== 'PGRST116') {
-      console.warn('⚠️ Unable to claim photobook job:', claimError)
+      logger.warn('Unable to claim photobook job', { error: claimError, jobId: job.id })
     }
     return null
   }
@@ -367,7 +371,7 @@ async function markJobFailed(jobId: string, message: string) {
     .eq('id', jobId)
 
   if (error) {
-    console.error('❌ Failed to mark photobook job as failed:', error)
+    logger.error('Failed to mark photobook job as failed', { error, jobId })
   }
 }
 
@@ -387,7 +391,7 @@ async function markJobCompleted(jobId: string, pdfPath: string, pdfUrl: string, 
     .eq('id', jobId)
 
   if (error) {
-    console.error('❌ Failed to mark photobook job as completed:', error)
+    logger.error('Failed to mark photobook job as completed', { error, jobId })
   }
 }
 
@@ -404,7 +408,7 @@ async function insertPhotobookRecord(payload: PhotobookJobPayload, pdfUrl: strin
     })
 
   if (error) {
-    console.error('❌ Failed to insert photobook record:', error)
+    logger.error('Failed to insert photobook record', { error, userId: payload.userId })
   }
 }
 
@@ -506,7 +510,7 @@ async function processSingleJob(job: PhotobookJobRow) {
       } catch (error) {
         span.setStatus({ code: 2, message: 'internal_error' })
         const message = error instanceof Error ? error.message : 'Unknown photobook job error'
-        console.error('💥 Photobook job failed:', message)
+        logger.error('Photobook job failed', { error, jobId: job.id, message })
         Sentry.captureException(error)
         await markJobFailed(job.id, message)
       }
@@ -531,7 +535,7 @@ export async function processPhotobookQueue() {
       try {
         await processSingleJob(job)
       } catch (error) {
-        console.error('💥 Error while processing photobook job:', error)
+        logger.error('Error while processing photobook job', { error, jobId: job.id })
       }
     }
   } finally {
