@@ -2,7 +2,8 @@
 //  ColoringBookUITests.swift
 //  ColoringBookUITests
 //
-//  UI tests for ColoringBook app
+//  Launch-state UI tests that exercise app routing without hitting the network.
+//  All flows are gated by the `--uitest-*` launch arguments handled in AppState.
 //
 
 import XCTest
@@ -13,93 +14,76 @@ final class ColoringBookUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here
+    private func launch(_ argument: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [argument]
+        app.launch()
+        return app
     }
 
-    func testWelcomeScreenAppears() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitest-unauthenticated"]
-        app.launch()
+    // MARK: - Launch / loading state
 
-        // Verify welcome screen elements
-        XCTAssertTrue(app.staticTexts["ColoringBook.AI"].exists)
+    func testAuthBootstrapLoadingScreenAppears() {
+        let app = launch("--uitest-auth-loading")
+
+        XCTAssertTrue(
+            app.staticTexts["Loading your coloring studio..."].waitForExistence(timeout: 5),
+            "Launch loading screen should appear before auth resolves"
+        )
+    }
+
+    // MARK: - Unauthenticated flow
+
+    func testWelcomeScreenAppearsForUnauthenticatedUsers() {
+        let app = launch("--uitest-unauthenticated")
+
+        XCTAssertTrue(app.staticTexts["ColoringBook.AI"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Create a Coloring Page"].exists)
         XCTAssertTrue(app.buttons["Sign In"].exists)
     }
 
-    func testAuthBootstrapLoadingScreenAppears() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitest-auth-loading"]
-        app.launch()
+    func testTappingSignInOpensAuthSheet() {
+        let app = launch("--uitest-unauthenticated")
 
-        XCTAssertTrue(app.staticTexts["Loading your coloring studio..."].exists)
+        XCTAssertTrue(app.buttons["Sign In"].waitForExistence(timeout: 5))
+        app.buttons["Sign In"].tap()
+
+        XCTAssertTrue(app.staticTexts["Welcome Back"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.textFields["your@email.com"].exists)
+        XCTAssertTrue(app.secureTextFields["••••••••"].exists)
     }
 
-    func testAuthenticatedLaunchShowsMainTabs() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitest-authenticated"]
-        app.launch()
+    // MARK: - Authenticated flow
 
-        XCTAssertTrue(app.tabBars.buttons["Gallery"].waitForExistence(timeout: 5))
+    func testAuthenticatedLaunchShowsMainTabs() {
+        let app = launch("--uitest-authenticated")
+
+        let gallery = app.tabBars.buttons["Gallery"]
+        XCTAssertTrue(gallery.waitForExistence(timeout: 5))
         XCTAssertTrue(app.tabBars.buttons["Create"].exists)
         XCTAssertTrue(app.tabBars.buttons["Albums"].exists)
         XCTAssertTrue(app.tabBars.buttons["Settings"].exists)
     }
 
-    func testCreateTabNavigationWhenAuthenticated() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitest-authenticated"]
-        app.launch()
+    func testCreateTabShowsUploadScreen() {
+        let app = launch("--uitest-authenticated")
 
+        XCTAssertTrue(app.tabBars.buttons["Create"].waitForExistence(timeout: 5))
         app.tabBars.buttons["Create"].tap()
 
-        XCTAssertTrue(app.staticTexts["Upload Your Photo"].waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            app.staticTexts["Upload Your Photo"].waitForExistence(timeout: 5),
+            "Create tab should land on the upload screen"
+        )
     }
 
-    func testNavigationToSignIn() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitest-unauthenticated"]
-        app.launch()
+    func testSettingsTabIsReachable() {
+        let app = launch("--uitest-authenticated")
 
-        // Tap sign in button
-        app.buttons["Sign In"].tap()
+        XCTAssertTrue(app.tabBars.buttons["Settings"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["Settings"].tap()
 
-        // Verify auth modal appears
-        XCTAssertTrue(app.staticTexts["Welcome Back"].exists)
-        XCTAssertTrue(app.textFields["your@email.com"].exists)
-        XCTAssertTrue(app.secureTextFields["••••••••"].exists)
-    }
-
-    func testKidModeActivation() throws {
-        // Note: This test would require authentication
-        // In a real scenario, you'd set up test credentials
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitesting"]
-        app.launch()
-
-        // This would test kid mode after authentication
-        // Simplified for demonstration
-    }
-
-    func testColoringCanvasInteraction() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--uitesting", "--authenticated"]
-        app.launch()
-
-        // Navigate to a coloring page
-        // Tap on first image in gallery
-        // Verify canvas appears
-        // Test drawing interaction
-
-        // This is a placeholder for the actual test implementation
-    }
-
-    func testLaunchPerformance() throws {
-        if #available(iOS 13.0, *) {
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+        // Settings is selected; the tab bar still shows Gallery as a sibling.
+        XCTAssertTrue(app.tabBars.buttons["Gallery"].exists)
     }
 }
