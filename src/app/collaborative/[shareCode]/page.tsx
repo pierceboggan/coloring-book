@@ -6,17 +6,33 @@ import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Users, Palette } from 'lucide-react'
 
+interface CollaborativeSessionRow {
+  id: string
+  image_id: string
+  name: string
+}
+
+interface CollaborativeImage {
+  coloring_page_url: string
+  name: string
+}
+
+interface JoinedSession {
+  sessionId: string
+  userId: string
+}
+
 export default function CollaborativeJoinPage() {
   const params = useParams()
   const router = useRouter()
   const shareCode = params.shareCode as string
 
-  const [session, setSession] = useState<any>(null)
-  const [image, setImage] = useState<any>(null)
+  const [session, setSession] = useState<CollaborativeSessionRow | null>(null)
+  const [image, setImage] = useState<CollaborativeImage | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [joining, setJoining] = useState(false)
-  const [joinedSession, setJoinedSession] = useState<any>(null)
+  const [joinedSession, setJoinedSession] = useState<JoinedSession | null>(null)
 
   useEffect(() => {
     if (!shareCode) return
@@ -148,7 +164,7 @@ export default function CollaborativeJoinPage() {
             <Palette className="h-12 w-12 text-[#1DB9B3]" />
           </div>
           <h1 className="mt-4 text-2xl font-extrabold text-[#3A2E39]">Join Collaborative Session</h1>
-          <p className="mt-2 text-[#AA6A00]">You've been invited to color together!</p>
+          <p className="mt-2 text-[#AA6A00]">You&apos;ve been invited to color together!</p>
         </div>
 
         <div className="rounded-[2rem] border-4 border-[#FFD166] bg-[#FFF3BF] p-6 shadow-[8px_8px_0_0_#FFB84C]">

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { Book, Plus, X, Sparkles } from 'lucide-react'
+import { Book, Plus, X } from 'lucide-react'
 import type { PhotobookJobStatus } from '@/lib/photobook/types'
 
 interface UserImage {
