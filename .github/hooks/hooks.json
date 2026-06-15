@@ -10,6 +10,7 @@
 				"type": "command",
 				"command": ".github/hooks/notify-on-stop.sh",
 				"osx": ".github/hooks/notify-on-stop.sh"
+				
 			}
 		]
 	}

@@ -19,6 +19,8 @@ class NetworkMonitor: ObservableObject {
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "com.coloringbook.networkmonitor")
 
+    private let hello = 
+
     private init() {
         startMonitoring()
     }
