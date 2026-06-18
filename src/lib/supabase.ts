@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { hasSupabasePublicConfig } from '@/lib/devAuth'
 
 export type Json =
   | string
@@ -206,7 +207,7 @@ let _supabaseClient: SupabaseClient | null = null
 
 function getSupabaseClient(): SupabaseClient {
   if (!_supabaseClient) {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!hasSupabasePublicConfig()) {
       throw new Error('Missing Supabase environment variables')
     }
     _supabaseClient = createBrowserClient(supabaseUrl, supabaseAnonKey) as unknown as SupabaseClient

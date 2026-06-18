@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ColoringCanvasModal } from '@/components/ColoringCanvasModal'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Users, Palette } from 'lucide-react'
+import { hasDevAuthBypassCookie, isDevAuthBypassActive } from '@/lib/devAuth'
 import { logger } from '@/lib/logger'
 
 interface CollaborativeSessionRow {
@@ -40,6 +41,12 @@ export default function CollaborativeJoinPage() {
 
     async function loadSession() {
       try {
+        if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+          setError('Collaborative sessions require Supabase configuration')
+          setLoading(false)
+          return
+        }
+
         const res = await fetch(`/api/collaborative/sessions?shareCode=${shareCode}`)
         const data = await res.json()
 
@@ -77,8 +84,7 @@ export default function CollaborativeJoinPage() {
     setJoining(true)
     try {
       const devBypassActive =
-        process.env.NODE_ENV !== 'production' &&
-        process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
+        isDevAuthBypassActive(hasDevAuthBypassCookie())
 
       let userId, userName
       if (devBypassActive) {

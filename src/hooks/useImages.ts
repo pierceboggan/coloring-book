@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { UserImage } from '@/components/Dashboard/types'
+import { hasDevAuthBypassCookie, isDevAuthBypassActive } from '@/lib/devAuth'
 import { logger } from '@/lib/logger'
 
 interface UseImagesResult {
@@ -28,8 +29,7 @@ export function useImages(userId: string | null): UseImagesResult {
   const fetchUserImages = useCallback(async () => {
     try {
       const devBypassActive =
-        process.env.NODE_ENV !== 'production' &&
-        process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
+        isDevAuthBypassActive(hasDevAuthBypassCookie())
 
       if (devBypassActive) {
         setImages([])
@@ -72,6 +72,11 @@ export function useImages(userId: string | null): UseImagesResult {
 
     let subscription: RealtimeChannel | null = null
     let isRealTimeWorking = false
+
+    if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+      setLoading(false)
+      return
+    }
 
     try {
       subscription = supabase

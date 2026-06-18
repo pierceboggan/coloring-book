@@ -4,6 +4,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import * as amplitude from '@amplitude/analytics-browser'
 import { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import {
+  hasDevAuthBypassCookie,
+  isDevAuthBypassActive,
+  setDevAuthBypassCookie,
+} from '@/lib/devAuth'
 import { logger } from '@/lib/logger'
 
 type OAuthProvider = 'google' | 'facebook' | 'apple'
@@ -44,13 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user?.id])
 
   useEffect(() => {
-    const allowDevBypassFlag = process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
-    const hasDevBypass =
-      typeof window !== 'undefined' &&
-      process.env.NODE_ENV !== 'production' &&
-      (document.cookie.split(';').some(cookie => cookie.trim().startsWith('dev-auth-bypass=true')) || allowDevBypassFlag)
+    const hasDevBypass = isDevAuthBypassActive(hasDevAuthBypassCookie())
 
     if (hasDevBypass) {
+      setDevAuthBypassCookie()
+
       const devUser: User = {
         id: 'dev-user',
         email: 'dev@coloringbook.ai',
@@ -109,6 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+      return { error: null }
+    }
+
     logger.info('Attempting sign in', { email })
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -127,6 +134,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string) => {
+    if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+      return { error: null }
+    }
+
     logger.info('Attempting sign up', { email })
     const { error } = await supabase.auth.signUp({
       email,
@@ -147,6 +158,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithProvider = async (
     provider: OAuthProvider
   ): Promise<SignInWithOAuthResult> => {
+    if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+      return { data: { provider, url: '' }, error: null }
+    }
+
     logger.info('Attempting OAuth sign in', { provider })
 
     const redirectTo =
@@ -174,6 +189,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+      setUser(null)
+      setSession(null)
+      setLoading(false)
+      amplitude.reset()
+      return
+    }
+
     logger.info('Signing out user')
     await supabase.auth.signOut()
     amplitude.track('auth_sign_out_completed')
@@ -182,6 +205,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const deleteAccount = async () => {
+    if (isDevAuthBypassActive(hasDevAuthBypassCookie())) {
+      setUser(null)
+      setSession(null)
+      setLoading(false)
+      amplitude.reset()
+      return { error: null }
+    }
+
     logger.info('Initiating account deletion flow')
 
     amplitude.track('account_deletion_started')

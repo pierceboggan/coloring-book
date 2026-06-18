@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { CollabSession, UserImage } from '@/components/Dashboard/types'
+import { hasDevAuthBypassCookie, isDevAuthBypassActive } from '@/lib/devAuth'
 import { logger } from '@/lib/logger'
 
 interface UseCollaborativeSessionResult {
@@ -28,8 +29,7 @@ export function useCollaborativeSession(): UseCollaborativeSessionResult {
 
     try {
       const devBypassActive =
-        process.env.NODE_ENV !== 'production' &&
-        process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS === 'true'
+        isDevAuthBypassActive(hasDevAuthBypassCookie())
 
       let userId: string
       let userName: string
