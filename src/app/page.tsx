@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import ImageUploader from '@/components/ImageUploader'
 import { AuthModal } from '@/components/AuthModal'
 import { useAuth } from '@/contexts/AuthContext'
+import { FOOTER_CREDIT } from '@/lib/site'
 import { Palette, Sparkles, Download, Heart, Star, ArrowRight } from 'lucide-react'
 
 const PaintSplotches = () => (
@@ -297,7 +298,7 @@ export default function Home() {
             <span className="text-2xl font-extrabold text-[#3A2E39]">ColoringBook.AI</span>
           </div>
           <p className="text-lg font-semibold">
-            © 2024 ColoringBook.AI. Made with ❤️ for creative families everywhere.
+            © 2024 ColoringBook.AI. {FOOTER_CREDIT}.
           </p>
         </div>
       </footer>

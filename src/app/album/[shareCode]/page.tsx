@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { FunBackground } from '@/components/FunBackground'
 import { logger } from '@/lib/logger'
+import { FOOTER_CREDIT } from '@/lib/site'
 
 interface SharedImage {
   id: string
@@ -524,6 +525,7 @@ export default function SharedAlbumPage() {
             ColoringBook.AI
           </Link>
           <p className="mt-3 text-sm font-medium text-[#594144]">Transform your photos into whimsical coloring pages with our friendly AI crayons.</p>
+          <p className="mt-2 text-sm font-semibold text-[#594144]">{FOOTER_CREDIT}</p>
         </footer>
       </main>
     </div>

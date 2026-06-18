@@ -24,6 +24,7 @@ import {
 } from '@/components/Dashboard/dynamicModals'
 import type { UserImage } from '@/components/Dashboard/types'
 import { buildColoringDisplayItems, getVariantSummaries, sortUploads } from '@/components/Dashboard/utils'
+import { FOOTER_CREDIT } from '@/lib/site'
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth()
@@ -162,7 +163,7 @@ export default function Dashboard() {
         </section>
 
         <footer className="mt-6 pb-2 text-center text-xs font-semibold text-[#594144]/70">
-          made with love by pierceboggan
+          {FOOTER_CREDIT}
         </footer>
       </main>
 
