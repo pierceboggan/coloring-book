@@ -299,6 +299,9 @@ export default function Home() {
           <p className="text-lg font-semibold">
             © 2024 ColoringBook.AI. Made with ❤️ for creative families everywhere.
           </p>
+          <p className="mt-3 text-base font-semibold text-[#594144]">
+            Made with ❤️ in Park City, Utah
+          </p>
         </div>
       </footer>
 
