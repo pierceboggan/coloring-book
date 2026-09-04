@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test'
 test.describe('Home page workflows', () => {
+  test('footer displays the Park City attribution', async ({ page }) => {
+    await page.goto('/')
+
+    await expect(
+      page.getByRole('contentinfo').getByText('Made in Park City, UT', { exact: true })
+    ).toBeVisible()
+  })
+
   test('hero CTA drives visitors into the uploader flow', async ({ page }) => {
     await page.goto('/')
 
