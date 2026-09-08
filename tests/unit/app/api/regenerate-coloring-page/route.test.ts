@@ -61,13 +61,17 @@ vi.mock('@/lib/logger', () => ({
 import { POST } from '@/app/api/regenerate-coloring-page/route'
 
 function createRequest(body: Record<string, unknown>) {
+  return createRawRequest(JSON.stringify(body))
+}
+
+function createRawRequest(body: string) {
   return new NextRequest('http://localhost/api/regenerate-coloring-page', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Cookie: 'sb-access-token=session-token',
     },
-    body: JSON.stringify(body),
+    body,
   })
 }
 
@@ -112,7 +116,6 @@ describe('POST /api/regenerate-coloring-page', () => {
     const response = await POST(createRequest({
       imageId: 'image-1',
       feedback: 'Use thicker lines',
-      userId: 'spoofed-user',
     }))
 
     expect(response.status).toBe(200)
@@ -156,5 +159,28 @@ describe('POST /api/regenerate-coloring-page', () => {
     expect(mocks.regenerationSingle).not.toHaveBeenCalled()
     expect(mocks.generateColoringPageWithCustomPrompt).not.toHaveBeenCalled()
     expect(mocks.regenerationInsert).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 for malformed JSON', async () => {
+    const response = await POST(createRawRequest('{'))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Request body must be valid JSON',
+    })
+    expect(mocks.authGetUser).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 for an invalid request shape', async () => {
+    const response = await POST(createRequest({
+      imageId: 'image-1',
+      feedback: 42,
+    }))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: 'A valid imageId and optional feedback string are required',
+    })
+    expect(mocks.authGetUser).not.toHaveBeenCalled()
   })
 })

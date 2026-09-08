@@ -9,6 +9,25 @@ import { logger } from '@/lib/logger'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+type RegenerationRequestBody = {
+  imageId: string
+  feedback?: string
+  provider?: string
+}
+
+function isRegenerationRequestBody(value: unknown): value is RegenerationRequestBody {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const body = value as Record<string, unknown>
+
+  return typeof body.imageId === 'string'
+    && body.imageId.trim() !== ''
+    && (body.feedback === undefined || typeof body.feedback === 'string')
+    && (body.provider === undefined || typeof body.provider === 'string')
+}
+
 async function getAuthenticatedUserId(request: NextRequest) {
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -35,7 +54,27 @@ export async function POST(request: NextRequest) {
   logger.info('API route /api/regenerate-coloring-page called')
   
   try {
-    const body = await request.json()
+    let body: RegenerationRequestBody
+
+    try {
+      const parsedBody: unknown = await request.json()
+
+      if (!isRegenerationRequestBody(parsedBody)) {
+        return NextResponse.json(
+          { error: 'A valid imageId and optional feedback string are required' },
+          { status: 400 }
+        )
+      }
+
+      body = parsedBody
+    } catch (error) {
+      logger.warn('Failed to parse regeneration request body', { error })
+      return NextResponse.json(
+        { error: 'Request body must be valid JSON' },
+        { status: 400 }
+      )
+    }
+
     logger.info('Request body parsed')
     
     const { imageId, feedback } = body
@@ -43,13 +82,6 @@ export async function POST(request: NextRequest) {
     const provider = isImageGenerationProvider(body?.provider)
       ? (body.provider as ImageGenerationProvider)
       : undefined
-
-    if (!imageId) {
-      return NextResponse.json(
-        { error: 'imageId is required' },
-        { status: 400 }
-      )
-    }
 
     const userId = await getAuthenticatedUserId(request)
 
