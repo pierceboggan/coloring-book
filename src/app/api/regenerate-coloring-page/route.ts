@@ -1,31 +1,93 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 import { isImageGenerationProvider } from '@/lib/openai'
 import type { ImageGenerationProvider } from '@/lib/openai'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import type { Database } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+async function getAuthenticatedUserId(request: NextRequest) {
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll().map(({ name, value }) => ({ name, value }))
+      },
+    },
+  })
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error) {
+    logger.error('Failed to verify Supabase session', { error })
+    return null
+  }
+
+  return user?.id ?? null
+}
 
 export async function POST(request: NextRequest) {
   logger.info('API route /api/regenerate-coloring-page called')
   
   try {
     const body = await request.json()
-    logger.info('Request body parsed', body)
+    logger.info('Request body parsed')
     
-    const { imageId, feedback, userId } = body
+    const { imageId, feedback } = body
 
     const provider = isImageGenerationProvider(body?.provider)
       ? (body.provider as ImageGenerationProvider)
       : undefined
 
-    if (!imageId || !userId) {
+    if (!imageId) {
       return NextResponse.json(
-        { error: 'imageId and userId are required' },
+        { error: 'imageId is required' },
         { status: 400 }
       )
     }
 
+    const userId = await getAuthenticatedUserId(request)
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    const { data: imageData, error: imageError } = await supabaseAdmin
+      .from('images')
+      .select('*')
+      .eq('id', imageId)
+      .single()
+
+    if (imageError || !imageData) {
+      logger.error('Image not found', imageError)
+      return NextResponse.json(
+        { error: 'Image not found' },
+        { status: 404 }
+      )
+    }
+
+    if (imageData.user_id !== userId) {
+      logger.warn('User attempted to regenerate an image they do not own', {
+        imageId,
+        ownerId: imageData.user_id,
+        requesterId: userId,
+      })
+      return NextResponse.json(
+        { error: 'You do not have permission to regenerate this image' },
+        { status: 403 }
+      )
+    }
+
     // Check if user has already regenerated this image
-    const { data: existingRegeneration, error: checkError } = await supabase
+    const { data: existingRegeneration, error: checkError } = await supabaseAdmin
       .from('image_regenerations')
       .select('*')
       .eq('image_id', imageId)
@@ -44,22 +106,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the original image data
-    const { data: imageData, error: imageError } = await supabase
-      .from('images')
-      .select('*')
-      .eq('id', imageId)
-      .eq('user_id', userId)
-      .single()
-
-    if (imageError || !imageData) {
-      logger.error('Image not found', imageError)
-      return NextResponse.json(
-        { error: 'Image not found' },
-        { status: 404 }
-      )
-    }
-
     logger.info('Regenerating coloring page with feedback', feedback)
 
     // Generate new coloring page with enhanced prompt based on feedback
@@ -69,7 +115,7 @@ export async function POST(request: NextRequest) {
     logger.info('Saving regeneration data...')
 
     // Store the regeneration record
-    const { error: regenerationError } = await supabase
+    const { error: regenerationError } = await supabaseAdmin
       .from('image_regenerations')
       .insert({
         image_id: imageId,
