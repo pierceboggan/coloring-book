@@ -38,6 +38,15 @@ CREATE POLICY "Anyone can upload images" ON storage.objects FOR INSERT WITH CHEC
 CREATE POLICY "Anyone can view images" ON storage.objects FOR SELECT USING (bucket_id = 'images');
 ```
 
+### Existing family-album installations
+
+Before deploying the updated `/api/family-albums` route, run
+[`supabase/migrations/20260909000000_create_family_album.sql`](supabase/migrations/20260909000000_create_family_album.sql)
+in the Supabase SQL editor against the existing `images`, `family_albums`, and
+`album_images` tables. This function creates an album and its image links in one
+transaction. It validates image ownership and preserves the caller's table
+permissions and row-level security policies through `SECURITY INVOKER`.
+
 ## 2. OpenAI Setup
 
 1. Get your OpenAI API key from [platform.openai.com](https://platform.openai.com)
