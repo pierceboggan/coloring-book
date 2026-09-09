@@ -203,6 +203,7 @@ describe('family album creation with PostgreSQL', () => {
   ].map(imageIds => ({ imageIds })))('rejects invalid image IDs before calling the database: $imageIds', async ({ imageIds }) => {
     const response = await createAlbum({ imageIds })
     expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({ success: false, error: expect.any(String) })
     expect(rpc).not.toHaveBeenCalled()
     expect(await albumCounts()).toEqual({ albums: 0, links: 0 })
   })
@@ -211,6 +212,36 @@ describe('family album creation with PostgreSQL', () => {
     const response = await createAlbum({ imageIds: [firstImage, missingImage] })
     expect(response.status).toBe(400)
     expect(await albumCounts()).toEqual({ albums: 0, links: 0 })
+  })
+
+  it.each(['title', 'userId', 'imageIds'])('returns a consistent error for missing %s', async field => {
+    const response = await createAlbum({ [field]: undefined })
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: 'Title, imageIds, and userId are required',
+    })
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
+  it.each(['not-a-uuid', '', 0, 123, false, true, {}, [], [firstImage]].map(coverImageId => ({ coverImageId })))(
+    'rejects an invalid cover before calling the database: $coverImageId',
+    async ({ coverImageId }) => {
+      const response = await createAlbum({ coverImageId })
+      expect(response.status).toBe(400)
+      expect(await response.json()).toEqual({
+        success: false,
+        error: 'coverImageId must be a UUID or null',
+      })
+      expect(rpc).not.toHaveBeenCalled()
+      expect(await albumCounts()).toEqual({ albums: 0, links: 0 })
+    }
+  )
+
+  it('accepts an explicit null cover', async () => {
+    const response = await createAlbum({ coverImageId: null })
+    expect(response.status).toBe(200)
+    expect((await response.json()).album.coverImageId).toBeNull()
   })
 
   it('rejects images belonging to another user', async () => {
@@ -228,6 +259,7 @@ describe('family album creation with PostgreSQL', () => {
   it('rejects invalid expiration dates before calling the database', async () => {
     const response = await createAlbum({ expiresAt: 'invalid-date' })
     expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ success: false, error: 'Invalid expiration date' })
     expect(rpc).not.toHaveBeenCalled()
   })
 

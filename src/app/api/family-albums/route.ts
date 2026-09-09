@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (!title || !imageIds || !userId) {
       return NextResponse.json(
-        { error: 'Title, imageIds, and userId are required' },
+        { error: 'Title, imageIds, and userId are required', success: false },
         { status: 400 }
       )
     }
@@ -36,7 +36,17 @@ export async function POST(request: NextRequest) {
       new Set(imageIds.map((id: string) => id.toLowerCase())).size !== imageIds.length
     ) {
       return NextResponse.json(
-        { error: 'imageIds must be a non-empty array of unique UUIDs' },
+        { error: 'imageIds must be a non-empty array of unique UUIDs', success: false },
+        { status: 400 }
+      )
+    }
+
+    if (
+      coverImageId != null &&
+      (typeof coverImageId !== 'string' || !UUID_PATTERN.test(coverImageId))
+    ) {
+      return NextResponse.json(
+        { error: 'coverImageId must be a UUID or null', success: false },
         { status: 400 }
       )
     }
@@ -45,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     if (parsedExpiresAt && Number.isNaN(parsedExpiresAt.getTime())) {
       return NextResponse.json(
-        { error: 'Invalid expiration date' },
+        { error: 'Invalid expiration date', success: false },
         { status: 400 }
       )
     }
@@ -63,7 +73,7 @@ export async function POST(request: NextRequest) {
           description: description || '',
           user_id: userId,
           share_code: shareCode,
-          cover_image_id: coverImageId || null,
+          cover_image_id: coverImageId ?? null,
           expires_at: parsedExpiresAt ? parsedExpiresAt.toISOString() : null,
           comments_enabled: commentsEnabled ?? true,
           downloads_enabled: downloadsEnabled ?? true,
