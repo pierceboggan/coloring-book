@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.1",
+    "@electric-sql/pglite": "^0.5.8",
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.48.0",
     "@tailwindcss/postcss": "^4",

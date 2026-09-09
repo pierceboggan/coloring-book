@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, type Database } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function POST(request: NextRequest) {
   logger.info('API route /api/family-albums called')
@@ -22,7 +24,29 @@ export async function POST(request: NextRequest) {
 
     if (!title || !imageIds || !userId) {
       return NextResponse.json(
-        { error: 'Title, imageIds, and userId are required' },
+        { error: 'Title, imageIds, and userId are required', success: false },
+        { status: 400 }
+      )
+    }
+
+    if (
+      !Array.isArray(imageIds) ||
+      imageIds.length === 0 ||
+      !imageIds.every((id: unknown) => typeof id === 'string' && UUID_PATTERN.test(id)) ||
+      new Set(imageIds.map((id: string) => id.toLowerCase())).size !== imageIds.length
+    ) {
+      return NextResponse.json(
+        { error: 'imageIds must be a non-empty array of unique UUIDs', success: false },
+        { status: 400 }
+      )
+    }
+
+    if (
+      coverImageId != null &&
+      (typeof coverImageId !== 'string' || !UUID_PATTERN.test(coverImageId))
+    ) {
+      return NextResponse.json(
+        { error: 'coverImageId must be a UUID or null', success: false },
         { status: 400 }
       )
     }
@@ -31,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     if (parsedExpiresAt && Number.isNaN(parsedExpiresAt.getTime())) {
       return NextResponse.json(
-        { error: 'Invalid expiration date' },
+        { error: 'Invalid expiration date', success: false },
         { status: 400 }
       )
     }
@@ -41,44 +65,32 @@ export async function POST(request: NextRequest) {
 
     logger.info('Creating family album in database...')
 
-    // Create the family album
+    // Both inserts run in the same database transaction.
     const { data: albumData, error: albumError } = await supabase
-      .from('family_albums')
-      .insert({
-        title,
-        description: description || '',
-        user_id: userId,
-        share_code: shareCode,
-        created_at: new Date().toISOString(),
-        cover_image_id: coverImageId || null,
-        expires_at: parsedExpiresAt ? parsedExpiresAt.toISOString() : null,
-        comments_enabled: commentsEnabled ?? true,
-        downloads_enabled: downloadsEnabled ?? true,
+      .rpc('create_family_album', {
+        p_album: {
+          title,
+          description: description || '',
+          user_id: userId,
+          share_code: shareCode,
+          cover_image_id: coverImageId ?? null,
+          expires_at: parsedExpiresAt ? parsedExpiresAt.toISOString() : null,
+          comments_enabled: commentsEnabled ?? true,
+          downloads_enabled: downloadsEnabled ?? true,
+        },
+        p_image_ids: imageIds,
       })
-      .select()
-      .single()
+      .single<Database['public']['Tables']['family_albums']['Row']>()
 
     if (albumError) {
       logger.error('Failed to create album', albumError)
+      if (albumError.code === '22023') {
+        return NextResponse.json(
+          { error: albumError.message, success: false },
+          { status: 400 }
+        )
+      }
       throw new Error(`Failed to create album: ${albumError.message}`)
-    }
-
-    logger.info('Adding images to album...')
-    
-    // Add images to the album
-    const albumImageInserts = imageIds.map((imageId: string) => ({
-      album_id: albumData.id,
-      image_id: imageId,
-      created_at: new Date().toISOString()
-    }))
-
-    const { error: imageError } = await supabase
-      .from('album_images')
-      .insert(albumImageInserts)
-
-    if (imageError) {
-      logger.error('Failed to add images to album', imageError)
-      throw new Error(`Failed to add images to album: ${imageError.message}`)
     }
 
     logger.info('Family album created successfully')
