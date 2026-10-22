@@ -55,6 +55,8 @@ cp .env.local.example .env.local   # fill in your keys
 npm run dev                         # http://localhost:3000
 ```
 
+Open [http://localhost:3000](http://localhost:3000) in your browser after the development server starts.
+
 Dev auth bypass: set `NEXT_PUBLIC_ENABLE_DEV_AUTH_BYPASS=true` in `.env.local` (or set the `dev-auth-bypass=true` cookie in your browser) to skip Supabase auth in non-production builds. Wired through `src/middleware.ts` and `src/contexts/AuthContext.tsx`.
 
 Required env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`, `NEXT_PUBLIC_APP_URL`
