@@ -105,12 +105,7 @@ fun ColoringCanvasScreen(
                         fontWeight = FontWeight.Bold,
                         color = HeaderPink,
                     ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics {
-                            contentDescription = "Brush size"
-                            stateDescription = "${strokeWidth.toInt()} pixels"
-                        },
+                    modifier = Modifier.weight(1f),
                 )
                 IconButton(
                     onClick = { viewModel.undo() },
@@ -254,7 +249,12 @@ fun ColoringCanvasScreen(
                         value = strokeWidth,
                         onValueChange = { viewModel.setStrokeWidth(it) },
                         valueRange = 2f..30f,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .semantics {
+                                contentDescription = "Brush size"
+                                stateDescription = "${strokeWidth.toInt()} pixels"
+                            },
                         colors = SliderDefaults.colors(
                             thumbColor = AccentTeal,
                             activeTrackColor = AccentTeal,
