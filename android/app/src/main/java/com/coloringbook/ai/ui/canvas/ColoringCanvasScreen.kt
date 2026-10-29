@@ -51,6 +51,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Path as ComposePath
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -246,7 +249,12 @@ fun ColoringCanvasScreen(
                         value = strokeWidth,
                         onValueChange = { viewModel.setStrokeWidth(it) },
                         valueRange = 2f..30f,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .semantics {
+                                contentDescription = "Brush size"
+                                stateDescription = "${strokeWidth.toInt()} pixels"
+                            },
                         colors = SliderDefaults.colors(
                             thumbColor = AccentTeal,
                             activeTrackColor = AccentTeal,
