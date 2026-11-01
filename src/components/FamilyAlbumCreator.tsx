@@ -609,6 +609,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
                       <button
                         key={image.id}
                         type="button"
+                        aria-pressed={isSelected}
                         onClick={() => toggleImageSelection(image)}
                         className={`group relative overflow-hidden rounded-[1.5rem] border-4 border-dashed px-2 pb-3 pt-2 transition-transform hover:-translate-y-0.5 ${
                           isSelected

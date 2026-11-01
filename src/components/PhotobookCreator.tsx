@@ -457,6 +457,7 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
                       <button
                         key={image.id}
                         type="button"
+                        aria-pressed={isSelected}
                         onClick={() => toggleImageSelection(image)}
                         className={`group relative overflow-hidden rounded-xl border-2 border-dashed px-2 pb-2 pt-1.5 transition-transform hover:-translate-y-0.5 ${
                           isSelected
