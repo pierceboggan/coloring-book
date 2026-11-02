@@ -425,8 +425,9 @@ export function PhotobookCreator({ images, onClose }: PhotobookCreatorProps) {
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-3 border-b-2 border-dashed border-[#FFB3BA] bg-[#FFE6EB]/70 px-5 py-4">
               <div className="rounded-xl border-2 border-dashed border-[#FFB3BA] bg-white/80 p-4">
-                <label className="text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
+                <label htmlFor="photobook-title" className="text-xs font-semibold uppercase tracking-widest text-[#FF6F91]">Photobook title</label>
                 <input
+                  id="photobook-title"
                   type="text"
                   value={photobookTitle}
                   onChange={(e) => setPhotobookTitle(e.target.value)}

@@ -316,7 +316,9 @@ test.describe('Dashboard workflows', () => {
 
     await expect(page.getByRole('heading', { name: 'Create a printable book' })).toBeVisible()
 
-    await page.getByPlaceholder('Enter photobook title...').fill('Family Adventures')
+    await page.getByText('Photobook title', { exact: true }).click()
+    await expect(page.getByRole('textbox', { name: 'Photobook title', exact: true })).toBeFocused()
+    await page.getByRole('textbox', { name: 'Photobook title', exact: true }).fill('Family Adventures')
     await page.getByRole('button', { name: 'Space Camp Memories' }).click()
 
     await page.getByRole('button', { name: 'Generate PDF' }).click()
