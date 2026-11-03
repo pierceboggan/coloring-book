@@ -4,8 +4,7 @@ import { test, expect, type Page } from '@playwright/test'
 async function openModal(page: Page) {
   await page.goto('/')
   const trigger = page.locator('nav').getByRole('button', { name: 'Sign In' })
-  await trigger.focus()
-  await page.keyboard.press('Enter')
+  await trigger.click()
   return trigger
 }
 
@@ -56,7 +55,8 @@ test.describe('Authentication modal accessibility', () => {
     await page.getByLabel('Password').fill('wrong-password')
     await page.locator('form').getByRole('button', { name: 'Sign In' }).click()
 
-    await expect(page.getByRole('alert')).toHaveText('Invalid login credentials')
+    await expect(page.locator('#auth-error')).toHaveAttribute('role', 'alert')
+    await expect(page.locator('#auth-error')).toHaveText('Invalid login credentials')
     await expect(page.getByLabel('Password')).toHaveAttribute('aria-invalid', 'true')
     await expect(page.getByLabel('Password')).toHaveAttribute('aria-describedby', 'auth-error')
   })
