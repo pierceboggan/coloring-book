@@ -269,6 +269,8 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
       collabChannelRef.current?.unsubscribe()
       collabChannelRef.current = null
     }
+    // Helpers only touch refs and stable state setters
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collaboration?.sessionId, collaboration?.userId, isCanvasReady])
 
   // Flush progress if the modal closes mid-stroke
