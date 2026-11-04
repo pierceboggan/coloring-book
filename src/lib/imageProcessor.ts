@@ -78,13 +78,10 @@ function createSVGWatermark(text: string, imageWidth: number, imageHeight: numbe
       break
   }
   
-  // Strip generously covers the text (width estimate is approximate), clamped to the image
+  // Keep the full width so approximate glyph widths cannot clip the watermark.
   const stripHeight = Math.min(imageHeight, Math.ceil(fontSize * 2) + padding * 2)
-  const stripWidth = Math.min(imageWidth, Math.ceil(textWidth * 1.5) + padding * 2)
-  const left =
-    options.position === 'bottom-left' ? 0
-    : options.position === 'bottom-center' ? Math.max(0, Math.floor((imageWidth - stripWidth) / 2))
-    : imageWidth - stripWidth
+  const stripWidth = imageWidth
+  const left = 0
   const top = imageHeight - stripHeight
 
   const svg = `
