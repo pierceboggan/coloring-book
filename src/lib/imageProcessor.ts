@@ -92,8 +92,8 @@ function createSVGWatermark(text: string, imageWidth: number, imageHeight: numbe
         </filter>
       </defs>
       <text 
-        x="${x - left}" 
-        y="${y - top}" 
+        x="${x - left}"
+        y="${y - top}"
         font-family="Arial, sans-serif" 
         font-size="${fontSize}" 
         fill="rgba(0,0,0,${options.opacity})" 
