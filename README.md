@@ -18,6 +18,10 @@
 
 You can then download individual pages, remix them with different prompts, or bundle them into photobooks and family albums with shareable links.
 
+### Choosing a Photo
+
+Start with a well-lit photo where the subject stands out from the background. A simple scene gives you more room to color, especially when printing pages for younger children.
+
 ## Platforms
 
 | | Web | iOS | Android |
