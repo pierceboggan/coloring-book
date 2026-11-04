@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('Request body parsed')
     
-    const { imageId, feedback } = body
+    const { imageId, feedback = '' } = body
 
     const provider = isImageGenerationProvider(body?.provider)
       ? (body.provider as ImageGenerationProvider)
