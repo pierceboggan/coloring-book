@@ -39,8 +39,7 @@ export function RegenerateModal({
         },
         body: JSON.stringify({
           imageId,
-          feedback: feedback.trim(),
-          userId: 'current-user-id'
+          feedback: feedback.trim()
         }),
       })
 
