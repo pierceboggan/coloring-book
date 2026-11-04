@@ -29,13 +29,15 @@ export async function addWatermark(
     }
     
     // Create SVG watermark
-    const svgWatermark = createSVGWatermark(options.text, width, height, options)
+    // Render the SVG only over the strip the text occupies, not the full image
+    const { svg: svgWatermark, left, top } = createSVGWatermark(options.text, width, height, options)
     
     // Composite the watermark onto the image
     const watermarkedImage = await image
       .composite([{
         input: Buffer.from(svgWatermark),
-        gravity: getGravityFromPosition(options.position),
+        left,
+        top,
       }])
       .png()
       .toBuffer()
@@ -50,7 +52,7 @@ export async function addWatermark(
   }
 }
 
-function createSVGWatermark(text: string, imageWidth: number, imageHeight: number, options: WatermarkOptions): string {
+function createSVGWatermark(text: string, imageWidth: number, imageHeight: number, options: WatermarkOptions): { svg: string; left: number; top: number } {
   const padding = 20
   const fontSize = Math.max(16, Math.min(options.fontSize, imageWidth / 20)) // Responsive font size
   
@@ -76,16 +78,22 @@ function createSVGWatermark(text: string, imageWidth: number, imageHeight: numbe
       break
   }
   
-  return `
-    <svg width="${imageWidth}" height="${imageHeight}" xmlns="http://www.w3.org/2000/svg">
+  // Keep the full width so approximate glyph widths cannot clip the watermark.
+  const stripHeight = Math.min(imageHeight, Math.ceil(fontSize * 2) + padding * 2)
+  const stripWidth = imageWidth
+  const left = 0
+  const top = imageHeight - stripHeight
+
+  const svg = `
+    <svg width="${stripWidth}" height="${stripHeight}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="white" flood-opacity="0.8"/>
         </filter>
       </defs>
       <text 
-        x="${x}" 
-        y="${y}" 
+        x="${x - left}"
+        y="${y - top}"
         font-family="Arial, sans-serif" 
         font-size="${fontSize}" 
         fill="rgba(0,0,0,${options.opacity})" 
@@ -94,16 +102,5 @@ function createSVGWatermark(text: string, imageWidth: number, imageHeight: numbe
       >${text}</text>
     </svg>
   `
-}
-
-function getGravityFromPosition(position: string): string {
-  switch (position) {
-    case 'bottom-left':
-      return 'southwest'
-    case 'bottom-center':
-      return 'south'
-    case 'bottom-right':
-    default:
-      return 'southeast'
-  }
+  return { svg, left, top }
 }
