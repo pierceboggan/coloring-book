@@ -1,9 +1,21 @@
 'use client'
 
 import React, { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { X, Undo2, Trash2, Download, Droplet, Sparkles } from 'lucide-react'
+import { X, Undo2, Redo2, Trash2, Download, Droplet, Sparkles, Check } from 'lucide-react'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import {
+  appendPoint,
+  canUndo,
+  createStroke,
+  getStorageKey,
+  loadStrokes,
+  redoStroke,
+  replayStrokes,
+  saveStrokes,
+  undoStroke,
+  type Stroke,
+} from '@/lib/coloringStrokes'
 
 interface ColoringCanvasModalProps {
   imageUrl: string
@@ -35,7 +47,15 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
   const [isDrawing, setIsDrawing] = useState(false)
   const [brushColor, setBrushColor] = useState('#ef4444')
   const [brushSize, setBrushSize] = useState(6)
-  const [history, setHistory] = useState<string[]>([])
+  const strokesRef = useRef<Stroke[]>([])
+  const redoRef = useRef<Stroke[]>([])
+  const currentStrokeRef = useRef<Stroke | null>(null)
+  const remoteStrokesRef = useRef(new Map<string, Stroke>())
+  const [historyFlags, setHistoryFlags] = useState({ canUndo: false, canRedo: false, hasStrokes: false })
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'unavailable'>('idle')
+  const storageKey = getStorageKey(imageUrl, collaboration?.sessionId)
+  const storageKeyRef = useRef(storageKey)
+  storageKeyRef.current = storageKey
   const [isImageLoaded, setIsImageLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [canvasStyle, setCanvasStyle] = useState<React.CSSProperties>({})
@@ -46,6 +66,38 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
     new Map<string, { color: string; size: number; isDrawing: boolean }>()
   )
   const [collabParticipantCount, setCollabParticipantCount] = useState<number | null>(null)
+
+  const getStorage = () => {
+    try {
+      return typeof window === 'undefined' ? null : window.localStorage
+    } catch {
+      return null
+    }
+  }
+
+  const syncHistoryFlags = () => {
+    setHistoryFlags({
+      canUndo: canUndo(strokesRef.current),
+      canRedo: redoRef.current.length > 0,
+      hasStrokes: strokesRef.current.length > 0,
+    })
+  }
+
+  const persistStrokes = () => {
+    const ok = saveStrokes(getStorage(), storageKeyRef.current, strokesRef.current)
+    setSaveStatus(ok ? 'saved' : 'unavailable')
+  }
+
+  const redrawCanvas = () => {
+    const canvas = canvasRef.current
+    const context = contextRef.current
+    if (!canvas || !context || !imageRef.current) {
+      return
+    }
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(imageRef.current, 0, 0, canvas.width, canvas.height)
+    replayStrokes(context, strokesRef.current)
+  }
 
   // Load the coloring page image onto the canvas when the modal opens
   useEffect(() => {
@@ -85,11 +137,18 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
       setCanvasStyle({ width: `${Math.round(displayW)}px`, height: `${Math.round(displayH)}px` })
 
       context.clearRect(0, 0, canvas.width, canvas.height)
-      context.drawImage(coloringImage, 0, 0, canvas.width, canvas.height)
       context.lineCap = 'round'
       context.lineJoin = 'round'
+
+      // Resume saved progress for this image by replaying its strokes
+      strokesRef.current = loadStrokes(getStorage(), storageKeyRef.current)
+      redoRef.current = []
+      currentStrokeRef.current = null
+      remoteStrokesRef.current.clear()
+      redrawCanvas()
+      setSaveStatus(strokesRef.current.length > 0 ? 'saved' : 'idle')
+      syncHistoryFlags()
       setIsImageLoaded(true)
-      setHistory([])
     }
 
     coloringImage.onerror = () => {
@@ -166,6 +225,10 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
             contextRef.current.moveTo(incoming.x, incoming.y)
             contextRef.current.strokeStyle = remoteState.color
             contextRef.current.lineWidth = remoteState.size
+
+            const remoteStroke = createStroke(remoteState.color, remoteState.size, incoming.x, incoming.y, incoming.userId)
+            remoteStrokesRef.current.set(incoming.userId, remoteStroke)
+            strokesRef.current.push(remoteStroke)
             return
           }
 
@@ -175,6 +238,10 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
             contextRef.current.lineTo(incoming.x, incoming.y)
             contextRef.current.stroke()
             remoteDrawingRef.current.set(incoming.userId, remoteState)
+            const remoteStroke = remoteStrokesRef.current.get(incoming.userId)
+            if (remoteStroke) {
+              appendPoint(remoteStroke, incoming.x, incoming.y)
+            }
             return
           }
 
@@ -182,6 +249,10 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
             remoteState.isDrawing = false
             remoteDrawingRef.current.set(incoming.userId, remoteState)
             contextRef.current.closePath()
+            if (remoteStrokesRef.current.delete(incoming.userId)) {
+              syncHistoryFlags()
+              persistStrokes()
+            }
           }
         }
       )
@@ -198,7 +269,18 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
       collabChannelRef.current?.unsubscribe()
       collabChannelRef.current = null
     }
+    // Helpers only touch refs and stable state setters
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collaboration?.sessionId, collaboration?.userId, isCanvasReady])
+
+  // Flush progress if the modal closes mid-stroke
+  useEffect(() => {
+    return () => {
+      if (strokesRef.current.length > 0) {
+        saveStrokes(getStorage(), storageKeyRef.current, strokesRef.current)
+      }
+    }
+  }, [])
 
   // Handle window resizing to keep the modal scroll position at top when opened
   useEffect(() => {
@@ -237,17 +319,13 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
       return
     }
 
-    setHistory(prev => {
-      const snapshot = canvasRef.current?.toDataURL()
-      if (!snapshot) {
-        return prev
-      }
-
-      const next = [...prev, snapshot]
-      return next.length > 15 ? next.slice(next.length - 15) : next
-    })
-
     const { x, y } = getCanvasCoordinates(event)
+
+    const stroke = createStroke(brushColor, brushSize, x, y)
+    currentStrokeRef.current = stroke
+    strokesRef.current.push(stroke)
+    redoRef.current = []
+    syncHistoryFlags()
 
     contextRef.current.beginPath()
     contextRef.current.moveTo(x, y)
@@ -281,6 +359,9 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
     const { x, y } = getCanvasCoordinates(event)
     contextRef.current.lineTo(x, y)
     contextRef.current.stroke()
+    if (currentStrokeRef.current) {
+      appendPoint(currentStrokeRef.current, x, y)
+    }
 
     if (collaboration?.sessionId && collaboration.userId) {
       collabChannelRef.current?.send({
@@ -303,6 +384,11 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
 
     contextRef.current.closePath()
     setIsDrawing(false)
+    if (currentStrokeRef.current) {
+      // A click without movement is replayed as a dot
+      currentStrokeRef.current = null
+      persistStrokes()
+    }
     if (event && canvasRef.current) {
       canvasRef.current.releasePointerCapture(event.pointerId)
     }
@@ -319,36 +405,39 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
     }
   }
 
-  const handleUndo = () => {
-    setHistory(prev => {
-      if (prev.length === 0 || !contextRef.current || !canvasRef.current) {
-        return prev
-      }
-
-      const previousState = prev[prev.length - 1]
-      const img = new Image()
-      img.onload = () => {
-        if (!contextRef.current || !canvasRef.current) {
-          return
-        }
-
-        contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-        contextRef.current.drawImage(img, 0, 0)
-      }
-      img.src = previousState
-
-      return prev.slice(0, prev.length - 1)
-    })
+  const applyHistory = (next: { strokes: Stroke[]; redo: Stroke[] }) => {
+    strokesRef.current = next.strokes
+    redoRef.current = next.redo
+    redrawCanvas()
+    syncHistoryFlags()
+    persistStrokes()
   }
 
-  const handleClear = () => {
-    if (!contextRef.current || !canvasRef.current || !imageRef.current || !isCanvasReady) {
+  const handleUndo = () => {
+    if (!isCanvasReady || isDrawing) {
       return
     }
+    applyHistory(undoStroke({ strokes: strokesRef.current, redo: redoRef.current }))
+  }
 
-    contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-    contextRef.current.drawImage(imageRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height)
-    setHistory([])
+  const handleRedo = () => {
+    if (!isCanvasReady || isDrawing) {
+      return
+    }
+    applyHistory(redoStroke({ strokes: strokesRef.current, redo: redoRef.current }))
+  }
+
+  const handleStartOver = () => {
+    if (!isCanvasReady || !imageRef.current) {
+      return
+    }
+    if (typeof window !== 'undefined' && !window.confirm('Start over? This erases all your coloring on this page.')) {
+      return
+    }
+    currentStrokeRef.current = null
+    setIsDrawing(false)
+    applyHistory({ strokes: [], redo: [] })
+    setSaveStatus('idle')
   }
 
   const handleDownload = () => {
@@ -377,6 +466,21 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
               </div>
               <h2 className="mt-1 text-xl font-extrabold text-[#3A2E39]">Color your page</h2>
             </div>
+            {saveStatus !== 'idle' && (
+              <div
+                role="status"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3]"
+              >
+                {saveStatus === 'saved' ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Progress saved
+                  </>
+                ) : (
+                  <span className="text-[#AA6A00]">Couldn&apos;t save progress</span>
+                )}
+              </div>
+            )}
             {collaboration?.sessionId && collabParticipantCount !== null && (
               <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#A0E7E5] bg-[#E0F7FA] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#1DB9B3] shadow-[4px_4px_0_0_#55C6C0]">
                 {collabParticipantCount} artists online
@@ -472,7 +576,7 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
                 <button
                   type="button"
                   onClick={handleUndo}
-                  disabled={history.length === 0 || !isCanvasReady}
+                  disabled={!historyFlags.canUndo || !isCanvasReady}
                   className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-3 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
                 >
                   <Undo2 className="h-4 w-4" />
@@ -480,12 +584,21 @@ export function ColoringCanvasModal({ imageUrl, imageName, onClose, collaboratio
                 </button>
                 <button
                   type="button"
-                  onClick={handleClear}
-                  disabled={!isCanvasReady}
+                  onClick={handleRedo}
+                  disabled={!historyFlags.canRedo || !isCanvasReady}
+                  className="flex items-center justify-center gap-2 rounded-full border-4 border-[#A0E7E5] bg-white px-4 py-3 text-sm font-semibold text-[#1DB9B3] shadow-[6px_6px_0_0_#55C6C0] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+                >
+                  <Redo2 className="h-4 w-4" />
+                  Redo stroke
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStartOver}
+                  disabled={!historyFlags.hasStrokes || !isCanvasReady}
                   className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFD166] bg-[#FFF3BF] px-4 py-3 text-sm font-semibold text-[#AA6A00] shadow-[6px_6px_0_0_#FFB84C] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Clear canvas
+                  Start over
                 </button>
                 <button
                   type="button"
