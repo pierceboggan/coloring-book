@@ -48,7 +48,7 @@ test.describe('Image uploader accessibility', () => {
     await page
       .locator('input[type="file"]')
       .setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') })
-    await expect(page.getByRole('alert')).toHaveText('notes.txt is not an image file')
+    await expect(page.locator('[data-testid="image-uploader"]').getByRole('alert')).toHaveText('notes.txt is not an image file')
   })
 
   test('exposes a polite status live region that is present before updates', async ({ page }) => {

@@ -266,6 +266,19 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
     event.preventDefault()
   }
 
+  const statusMessage =
+    status === 'uploading'
+      ? `Uploading ${processingCount} ${processingCount === 1 ? 'image' : 'images'}`
+      : status === 'processing'
+        ? `Creating your coloring pages. Completed ${completedCount} of ${processingCount}`
+        : status === 'completed'
+          ? processingCount === 1
+            ? 'Coloring page created'
+            : `${processingCount} coloring pages created`
+          : status === 'error'
+            ? 'Something went wrong'
+            : ''
+
   const resetUploader = () => {
     setStatus('idle')
     setUploadedImages([])
@@ -281,8 +294,8 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
   return (
     <div className="w-full" data-testid="image-uploader">
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div role="alert" className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700 text-sm">{error}</p>
         </div>
       )}
 
@@ -298,6 +311,10 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
         onDragOver={handleDragOver}
         onClick={() => status === 'idle' && user && fileInputRef.current?.click()}
       >
+        <div role="status" aria-live="polite" className="sr-only">
+          {statusMessage}
+        </div>
+
         <input
           ref={fileInputRef}
           type="file"
@@ -306,12 +323,27 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
           onChange={handleFileSelect}
           className="hidden"
           disabled={status !== 'idle'}
+          tabIndex={-1}
+          aria-hidden="true"
         />
+
+        {status === 'idle' && user && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              fileInputRef.current?.click()
+            }}
+            className="sr-only focus:not-sr-only focus:mb-4 focus:inline-block focus:rounded-full focus:bg-[#3A2E39] focus:px-5 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-[#6C63FF]"
+          >
+            Browse for images to upload
+          </button>
+        )}
 
         {status === 'idle' && (
           <>
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FF6F91] text-white shadow-inner">
-              <Upload className="h-10 w-10" />
+              <Upload aria-hidden="true" className="h-10 w-10" />
             </div>
             <h3 className="mb-3 text-2xl font-extrabold text-[#3A2E39]">
               {user ? 'Drop your images here or click to browse' : 'Sign in to upload images'}
@@ -329,7 +361,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
               >
                 Age focus
               </label>
-              <div className="mb-3 flex justify-between text-[11px] font-semibold text-[#9B6A6C]">
+              <div className="mb-3 flex justify-between text-[11px] font-semibold text-[#7A5254]">
                 <span>Toddlers ({MIN_AGE})</span>
                 <span>Big kids ({MAX_AGE})</span>
               </div>
@@ -360,11 +392,11 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
             <div className="mx-auto mt-8 w-full max-w-2xl rounded-[1.75rem] border-2 border-[#C3B5FF] bg-[#F6F3FF]/80 p-5 text-left shadow-[8px_8px_0_0_#A599E9]">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C3B5FF] text-white shadow-inner">
-                  <Sparkles className="h-5 w-5" />
+                  <Sparkles aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-bold uppercase tracking-wide text-[#6C63FF]">Scene prompt ideas</h4>
-                  <p className="text-xs font-semibold text-[#594144]/70">
+                  <h4 className="text-sm font-bold uppercase tracking-wide text-[#4F46E5]">Scene prompt ideas</h4>
+                  <p className="text-xs font-semibold text-[#594144]">
                     Save these for later—after upload, head to the Uploads view to remix your photo with our favorite adventures.
                   </p>
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -374,9 +406,9 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
                         className="rounded-xl border-2 border-[#E5E0FF] bg-white/90 p-3"
                       >
                         <p className="text-sm font-semibold text-[#3A2E39]">{idea.title}</p>
-                        <p className="mt-1 text-xs font-medium text-[#6C63FF]">{idea.description}</p>
+                        <p className="mt-1 text-xs font-medium text-[#4F46E5]">{idea.description}</p>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          <span className="rounded-full border border-[#E5E0FF] bg-[#F6F3FF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6C63FF]">
+                          <span className="rounded-full border border-[#E5E0FF] bg-[#F6F3FF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4F46E5]">
                             {idea.packTitle}
                           </span>
                           {idea.packType === 'seasonal' && (
@@ -390,7 +422,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
                             </span>
                           )}
                           {idea.tags?.[0] && (
-                            <span className="rounded-full border border-[#FFB3BA] bg-[#FFE5EC] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF6F91]">
+                            <span className="rounded-full border border-[#FFB3BA] bg-[#FFE5EC] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#B91C4B]">
                               {idea.tags[0]}
                             </span>
                           )}
@@ -412,7 +444,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
         {(status === 'uploading' || status === 'processing') && (
           <>
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#FFD166] text-white shadow-inner">
-              <Loader2 className="h-10 w-10 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-10 w-10 motion-safe:animate-spin" />
             </div>
             <h3 className="mb-3 text-2xl font-extrabold text-[#3A2E39]">
               {status === 'uploading' ? 'Uploading your images...' : 'Creating your coloring pages...'}
@@ -427,7 +459,14 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
               Crafted with an age {targetAge} focus — {describeAgeStyle(targetAge)}
             </p>
             {processingCount > 1 && (
-              <div className="mx-auto h-2 w-full max-w-xs rounded-full bg-white/60">
+              <div
+                role="progressbar"
+                aria-label="Coloring pages completed"
+                aria-valuemin={0}
+                aria-valuemax={processingCount}
+                aria-valuenow={completedCount}
+                className="mx-auto h-2 w-full max-w-xs rounded-full bg-white/60"
+              >
                 <div
                   className="h-2 rounded-full bg-[#FF6F91] transition-all duration-300"
                   style={{ width: `${(completedCount / processingCount) * 100}%` }}
@@ -440,7 +479,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
         {status === 'completed' && (
           <>
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#55C6C0] text-white shadow-inner">
-              <ImageIcon className="h-10 w-10" />
+              <ImageIcon aria-hidden="true" className="h-10 w-10" />
             </div>
             <h3 className="mb-3 text-2xl font-extrabold text-[#3A2E39]">
               {processingCount === 1 ? 'Coloring page created!' : `${processingCount} coloring pages created!`}
@@ -448,12 +487,12 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
             <p className="mb-6 text-base font-semibold text-[#594144]">
               Your images have been processed and are now available in your dashboard
             </p>
-            <p className="mb-6 text-sm font-semibold text-[#6C63FF]">
+            <p className="mb-6 text-sm font-semibold text-[#4F46E5]">
               Tip: switch to the Uploads tab to try scene prompts or generate variants from your new photo.
             </p>
             <button
               onClick={resetUploader}
-              className="rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-6 py-3 font-semibold text-white shadow-[8px_8px_0_0_#f2557b] transition-transform hover:translate-y-[-2px]"
+              className="rounded-full border-4 border-[#FFB3BA] bg-[#D4325C] px-6 py-3 font-semibold text-white shadow-[8px_8px_0_0_#f2557b] transition-transform hover:translate-y-[-2px]"
             >
               Upload More Images
             </button>
@@ -463,14 +502,14 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
         {status === 'error' && (
           <>
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-red-400 text-white shadow-inner">
-              <Upload className="h-10 w-10" />
+              <Upload aria-hidden="true" className="h-10 w-10" />
             </div>
             <h3 className="mb-3 text-2xl font-extrabold text-red-600">
               Something went wrong
             </h3>
             <button
               onClick={resetUploader}
-              className="text-lg font-semibold text-[#FF6F91] underline-offset-4 hover:underline"
+              className="text-lg font-semibold text-[#B91C4B] underline-offset-4 hover:underline"
             >
               Try again
             </button>
