@@ -40,28 +40,30 @@ export default function Home() {
       <div className="relative min-h-screen overflow-hidden bg-[#FFF5D6]">
         <PaintSplotches />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\\'120\\' height=\\'120\\' viewBox=\\'0 0 120 120\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cg fill=\\'%23ffe9a8\\' fill-opacity=\\'0.35\\'%3E%3Ccircle cx=\\'20\\' cy=\\'20\\' r=\\'8\\'/%3E%3Ccircle cx=\\'80\\' cy=\\'50\\' r=\\'6\\'/%3E%3Ccircle cx=\\'60\\' cy=\\'100\\' r=\\'10\\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden="true" />
-        <div className="relative z-10 container mx-auto px-4 py-12">
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white/90 backdrop-blur border-4 border-dashed border-[#FFB3BA] rounded-[2.5rem] shadow-[12px_12px_0_0_#FF8A80] p-10">
-              <div className="text-center mb-10">
-                <button
-                  onClick={() => setShowUploader(false)}
-                  className="text-[#FF6F91] hover:text-[#f2557b] mb-6 flex items-center mx-auto font-semibold"
-                >
-                  ← Back to the playground
-                </button>
-                <h1 className="text-4xl font-extrabold text-[#3A2E39] mb-4">
-                  Upload Your Photo Adventure
-                </h1>
-                <p className="text-lg text-[#594144]">
-                  Choose a family snapshot, a silly selfie, or your favorite pet and we&apos;ll turn it into a printable coloring page!
-                </p>
-              </div>
+        <main>
+          <div className="relative z-10 container mx-auto px-4 py-12">
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white/90 backdrop-blur border-4 border-dashed border-[#FFB3BA] rounded-[2.5rem] shadow-[12px_12px_0_0_#FF8A80] p-10">
+                <div className="text-center mb-10">
+                  <button
+                    onClick={() => setShowUploader(false)}
+                    className="text-[#FF6F91] hover:text-[#f2557b] mb-6 flex items-center mx-auto font-semibold"
+                  >
+                    ← Back to the playground
+                  </button>
+                  <h1 className="text-4xl font-extrabold text-[#3A2E39] mb-4">
+                    Upload Your Photo Adventure
+                  </h1>
+                  <p className="text-lg text-[#594144]">
+                    Choose a family snapshot, a silly selfie, or your favorite pet and we&apos;ll turn it into a printable coloring page!
+                  </p>
+                </div>
 
-              <ImageUploader />
+                <ImageUploader />
+              </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     )
   }
@@ -116,6 +118,7 @@ export default function Home() {
         </div>
       </nav>
 
+      <main>
       {/* Hero Section */}
       <section className="relative z-10 container mx-auto px-4 py-16">
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 p-12 text-center shadow-[16px_16px_0_0_#55C6C0]">
@@ -286,6 +289,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="relative z-10 container mx-auto mt-20 px-4 pb-16">
