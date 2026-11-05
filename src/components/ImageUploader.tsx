@@ -279,7 +279,7 @@ export default function ImageUploader({ onUploadComplete }: ImageUploaderProps) 
 
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-testid="image-uploader">
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-600 text-sm">{error}</p>
