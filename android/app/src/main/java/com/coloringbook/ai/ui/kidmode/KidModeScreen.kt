@@ -20,9 +20,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -133,19 +133,18 @@ fun KidModeScreen(
             }
         }
 
-        // Hidden unlock button (top-right corner)
-        IconButton(
+        // Unlock button (top-right corner)
+        FilledIconButton(
             onClick = { viewModel.requestUnlock() },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(8.dp)
-                .size(32.dp),
+                .size(48.dp),
         ) {
             Icon(
                 Icons.Filled.Lock,
                 contentDescription = "Unlock",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(24.dp),
             )
         }
     }
