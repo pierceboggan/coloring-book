@@ -76,6 +76,7 @@ struct ARGalleryView: View {
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
             }
+            .accessibilityLabel("Close AR Gallery")
             
             Spacer()
             
@@ -94,6 +95,7 @@ struct ARGalleryView: View {
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
             }
+            .accessibilityLabel(showingInstructions ? "Hide AR Gallery instructions" : "Show AR Gallery instructions")
         }
         .padding()
         .background(
