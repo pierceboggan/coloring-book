@@ -286,7 +286,7 @@ struct ColoringToolPalette: View {
                         }
 
                         // Color picker
-                        ColorPicker("", selection: Binding(
+                        ColorPicker("Custom brush color", selection: Binding(
                             get: { Color(uiColor: selectedColor) },
                             set: { selectedColor = UIColor($0) }
                         ))
