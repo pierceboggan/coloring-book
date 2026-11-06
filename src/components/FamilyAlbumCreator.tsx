@@ -489,6 +489,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
                         type="button"
                         key={image.id}
                         onClick={() => setCoverImageId(image.id)}
+                        aria-pressed={coverImageId === image.id}
                         className={`rounded-2xl border-2 px-4 py-3 text-left transition-all ${
                           coverImageId === image.id
                             ? 'border-[#FF6F91] bg-[#FFE6EB] shadow-[0_6px_0_0_#FFB3BA]'
@@ -516,6 +517,7 @@ export function FamilyAlbumCreator({ images, onClose }: FamilyAlbumCreatorProps)
                       type="button"
                       key={option.id}
                       onClick={() => setExpirationOption(option.id)}
+                      aria-pressed={expirationOption === option.id}
                       className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all ${
                         expirationOption === option.id
                           ? 'border-[#FF6F91] bg-[#FFE6EB] text-[#FF6F91] shadow-[0_4px_0_0_#FFB3BA]'
