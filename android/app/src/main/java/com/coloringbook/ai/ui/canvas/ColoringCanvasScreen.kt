@@ -282,15 +282,21 @@ private fun ColorSwatch(
     )
     Box(
         modifier = Modifier
-            .size(if (isSelected) 40.dp else 36.dp)
-            .shadow(if (isSelected) 4.dp else 2.dp, CircleShape)
-            .clip(CircleShape)
-            .background(color)
-            .border(
-                width = if (isSelected) 3.dp else 2.dp,
-                color = borderColor,
-                shape = CircleShape,
-            )
+            .size(48.dp)
             .clickable(onClick = onClick),
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (isSelected) 40.dp else 36.dp)
+                .shadow(if (isSelected) 4.dp else 2.dp, CircleShape)
+                .clip(CircleShape)
+                .background(color)
+                .border(
+                    width = if (isSelected) 3.dp else 2.dp,
+                    color = borderColor,
+                    shape = CircleShape,
+                ),
+        )
+    }
 }
