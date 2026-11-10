@@ -90,15 +90,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <DashboardHeader
-        userEmail={user?.email}
-        hasCompletedImages={completedImages.length > 0}
-        onShowFamilyAlbumCreator={() => setShowFamilyAlbumCreator(true)}
-        onShowPhotobookCreator={() => setShowPhotobookCreator(true)}
-        onShowUploader={() => setShowUploader(true)}
-      />
+      <div inert={showUploader}>
+        <DashboardHeader
+          userEmail={user?.email}
+          hasCompletedImages={completedImages.length > 0}
+          onShowFamilyAlbumCreator={() => setShowFamilyAlbumCreator(true)}
+          onShowPhotobookCreator={() => setShowPhotobookCreator(true)}
+          onShowUploader={() => setShowUploader(true)}
+        />
+      </div>
 
-      <main className="container mx-auto px-4 pb-10 pt-2.5">
+      <main inert={showUploader} className="container mx-auto px-4 pb-10 pt-2.5">
         <DashboardStatusBanner
           totalImages={totalImages}
           completedCount={coloringDisplayItems.length}
