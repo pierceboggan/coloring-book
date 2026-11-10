@@ -31,6 +31,7 @@ export function UploaderModal({ onClose, onUploadComplete }: UploaderModalProps)
                   <p className="text-sm font-medium text-[#594144]">Drop in your favorite snapshots and we will turn them into coloring adventures.</p>
                 </div>
                 <button
+                  autoFocus
                   onClick={onClose}
                   className="rounded-full border-2 border-[#FFB3BA] bg-white px-3 py-2 text-[#FF6F91] shadow-[4px_4px_0_0_#FF8A80] transition-transform hover:-translate-y-0.5"
                   aria-label="Close uploader"
