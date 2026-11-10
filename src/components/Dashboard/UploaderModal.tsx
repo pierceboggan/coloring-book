@@ -10,7 +10,12 @@ interface UploaderModalProps {
 
 export function UploaderModal({ onClose, onUploadComplete }: UploaderModalProps) {
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#3A2E39]/40 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-[#3A2E39]/40 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="uploader-modal-title"
+    >
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative w-full max-w-4xl">
           <div className="pointer-events-none absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-[#FFB3BA]/40 via-[#FFD166]/40 to-[#9BF6FF]/40 blur-2xl" aria-hidden="true" />
@@ -22,7 +27,7 @@ export function UploaderModal({ onClose, onUploadComplete }: UploaderModalProps)
                     <Sparkles className="h-3 w-3" />
                     Upload station
                   </p>
-                  <h2 className="mt-3 text-2xl font-extrabold text-[#3A2E39]">Upload Photos</h2>
+                  <h2 id="uploader-modal-title" className="mt-3 text-2xl font-extrabold text-[#3A2E39]">Upload Photos</h2>
                   <p className="text-sm font-medium text-[#594144]">Drop in your favorite snapshots and we will turn them into coloring adventures.</p>
                 </div>
                 <button
