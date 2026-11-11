@@ -138,6 +138,7 @@ struct AuthView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(Color(hex: "594144"))
                     }
+                    .accessibilityLabel("Close authentication")
                 }
             }
         }
