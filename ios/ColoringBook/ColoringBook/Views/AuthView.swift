@@ -70,6 +70,7 @@ struct AuthView: View {
 
                                 SecureField("••••••••", text: $password)
                                     .textFieldStyle(CustomTextFieldStyle())
+                                    .accessibilityLabel("Password")
                             }
 
                             // Error message
