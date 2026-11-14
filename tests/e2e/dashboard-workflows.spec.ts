@@ -194,6 +194,9 @@ test.describe('Dashboard workflows', () => {
     await page.getByRole('button', { name: 'Uploads' }).click()
 
     await expect(page.getByRole('button', { name: 'Variants studio' }).first()).toBeVisible()
+    await page.getByRole('button', { name: 'Variants studio' }).first().click()
+    await expect(page.getByRole('textbox', { name: 'Custom scene (optional)' })).toBeVisible()
+    await page.getByRole('button', { name: 'Close variants' }).click()
     await expect(page.getByText('Puppy Playtime')).toBeVisible()
     await expect(page.getByText('Processing').first()).toBeVisible()
   })
