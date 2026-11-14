@@ -352,6 +352,7 @@ export function VariantsModal({
                       type="button"
                       onClick={() => setActiveCategory(category)}
                       disabled={isGenerating}
+                      aria-pressed={isActive}
                       className={`rounded-full border-2 px-4 py-1.5 text-xs font-semibold transition-all ${
                         isActive
                           ? 'border-[#6C63FF] bg-[#6C63FF] text-white shadow-[4px_4px_0_0_#4F46E5]'
@@ -409,6 +410,7 @@ export function VariantsModal({
                             type="button"
                             onClick={() => toggleTheme(theme.id)}
                             disabled={disableSelection}
+                            aria-pressed={isSelected}
                             className={`group flex items-center gap-3 rounded-2xl border-2 px-3 py-3 text-left transition-all ${
                               isSelected
                                 ? 'border-[#6C63FF] bg-[#F3F0FF] text-[#3A2E39] shadow-[4px_4px_0_0_#C3B5FF]'
