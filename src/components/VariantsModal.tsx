@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import {
   Sparkles,
   Loader2,
@@ -58,6 +58,7 @@ export function VariantsModal({
   onVariantsUpdated,
   onUseVariant,
 }: VariantsModalProps) {
+  const customPromptId = useId()
   const [selectedThemes, setSelectedThemes] = useState<Set<string>>(new Set())
   const [customPrompt, setCustomPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -452,10 +453,11 @@ export function VariantsModal({
               </div>
 
               <div className="mt-4">
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#6C63FF]">
+                <label htmlFor={customPromptId} className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#6C63FF]">
                   Custom scene (optional)
                 </label>
                 <textarea
+                  id={customPromptId}
                   value={customPrompt}
                   onChange={event => setCustomPrompt(event.target.value)}
                   rows={3}
