@@ -29,6 +29,45 @@ const PaintSplotches = () => (
   </>
 )
 
+const playfulIdeas = [
+  {
+    icon: Sparkles,
+    title: 'Rainy-day rescue',
+    description: 'Turn a camera roll favorite into a cozy five-minute art activity while the snacks are still warm.',
+    accent: 'border-[#FFB3BA] bg-[#FFE6EB]',
+    shadow: 'shadow-[10px_10px_0_0_#FF8A80]',
+    rotation: 'rotate-[-4deg]',
+  },
+  {
+    icon: Heart,
+    title: 'Birthday table magic',
+    description: 'Make custom coloring sheets that match the guest of honor and keep little hands busy between cake and candles.',
+    accent: 'border-[#A0E7E5] bg-[#E0F7FA]',
+    shadow: 'shadow-[10px_10px_0_0_#55C6C0]',
+    rotation: 'rotate-[3deg]',
+  },
+  {
+    icon: Download,
+    title: 'Classroom-ready printables',
+    description: 'Create printable pages for quiet time, fast finishers, or family take-home folders in just a few taps.',
+    accent: 'border-[#FFD166] bg-[#FFF3BF]',
+    shadow: 'shadow-[10px_10px_0_0_#FFB84C]',
+    rotation: 'rotate-[-2deg]',
+  },
+] as const
+
+const heroHighlights = [
+  'Rainy afternoons',
+  'Birthday party stations',
+  'Classroom calm-down time',
+] as const
+
+const heroStats = [
+  { value: '1 photo', label: 'to get started' },
+  { value: 'Printable', label: 'pages in minutes' },
+  { value: 'Kid-approved', label: 'for home or school' },
+] as const
+
 export default function Home() {
   const [showUploader, setShowUploader] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
@@ -118,59 +157,120 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative z-10 container mx-auto px-4 py-16">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 p-12 text-center shadow-[16px_16px_0_0_#55C6C0]">
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[3rem] border-4 border-[#A0E7E5] bg-white/90 p-8 shadow-[16px_16px_0_0_#55C6C0] md:p-12">
           <div className="pointer-events-none absolute top-6 right-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#FF8A80] text-white shadow-lg" aria-hidden="true">
             <Sparkles className="h-10 w-10" />
           </div>
           <div className="pointer-events-none absolute -bottom-6 left-8 h-28 w-28 rounded-full bg-[#B4F8C8] opacity-70" aria-hidden="true" />
 
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#E97777] mb-8">
-              <Sparkles className="h-4 w-4" />
-              AI Crayons on Duty
-            </div>
+          <div className="relative z-10 grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center">
+            <div className="text-center lg:text-left">
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border-4 border-dashed border-[#FFD166] bg-[#FFF3BF] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#E97777]">
+                <Sparkles className="h-4 w-4" />
+                AI Crayons on Duty
+              </div>
 
-            <h1 className="text-5xl md:text-7xl font-extrabold text-[#3A2E39] mb-6 leading-tight">
-              Turn Your Photos into
-              <span className="block text-[#FF6F91]">Coloring Adventures!</span>
-            </h1>
+              <h1 className="mb-6 text-5xl font-extrabold leading-tight text-[#3A2E39] md:text-7xl">
+                Turn Your Photos into
+                <span className="block text-[#FF6F91]">Coloring Adventures!</span>
+              </h1>
 
-            <p className="mx-auto mb-12 max-w-2xl text-xl text-[#594144] leading-relaxed">
-              Our friendly AI helpers trace every giggle, wiggle, and wagging tail into playful line art that’s ready for crayons, markers, and imagination.
-            </p>
+              <p className="mx-auto mb-8 max-w-2xl text-xl leading-relaxed text-[#594144] lg:mx-0">
+                Our friendly AI helpers trace every giggle, wiggle, and wagging tail into playful line art that’s ready for crayons, markers, and imagination.
+              </p>
 
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row mb-16">
-              <button
-                onClick={() => setShowUploader(true)}
-                className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-8 py-4 text-lg font-semibold text-white shadow-[10px_10px_0_0_#f2557b] transition-transform hover:translate-y-[-3px]"
-              >
-                Create a Coloring Page
-                <ArrowRight className="h-5 w-5" />
-              </button>
-              <Link
-                href="/examples"
-                className="rounded-full border-4 border-[#A0E7E5] bg-white/90 px-8 py-4 text-lg font-semibold text-[#1DB9B3] shadow-[10px_10px_0_0_#55C6C0] transition-transform hover:translate-y-[-3px]"
-              >
-                Peek at Examples
-              </Link>
-            </div>
+              <div className="mb-10 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                {heroHighlights.map((highlight) => (
+                  <span
+                    key={highlight}
+                    className="rounded-full border-2 border-[#FFD166] bg-white/90 px-4 py-2 text-sm font-bold text-[#594144] shadow-[4px_4px_0_0_#FFE066]"
+                  >
+                    {highlight}
+                  </span>
+                ))}
+              </div>
 
-            {/* Demo Image */}
-            <div className="mx-auto max-w-4xl rounded-[2.5rem] border-4 border-dashed border-[#FFB3BA] bg-white/90 p-8 shadow-[12px_12px_0_0_#FF8A80]">
-              <div className="grid gap-10 md:grid-cols-2">
-                <div className="text-center">
-                  <h3 className="mb-4 text-xl font-extrabold text-[#3A2E39]">Original Photo</h3>
-                  <div className="relative flex aspect-square items-center justify-center rounded-[1.75rem] border-4 border-dotted border-[#A0E7E5] bg-[#E0F7FA]">
-                    <span className="text-lg font-semibold text-[#1DB9B3]">Upload your photo</span>
-                    <Star className="absolute -top-4 -right-4 h-10 w-10 text-[#FF6F91]" />
+              <div className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
+                <button
+                  onClick={() => setShowUploader(true)}
+                  className="flex items-center justify-center gap-2 rounded-full border-4 border-[#FFB3BA] bg-[#FF6F91] px-8 py-4 text-lg font-semibold text-white shadow-[10px_10px_0_0_#f2557b] transition-transform hover:translate-y-[-3px]"
+                >
+                  Create a Coloring Page
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+                <Link
+                  href="/examples"
+                  className="rounded-full border-4 border-[#A0E7E5] bg-white/90 px-8 py-4 text-lg font-semibold text-[#1DB9B3] shadow-[10px_10px_0_0_#55C6C0] transition-transform hover:translate-y-[-3px]"
+                >
+                  Peek at Examples
+                </Link>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                {heroStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-[1.75rem] border-4 border-dashed border-[#A0E7E5] bg-[#FDFDFD] px-5 py-5 text-center shadow-[8px_8px_0_0_#D2F6F4]"
+                  >
+                    <div className="text-2xl font-extrabold text-[#3A2E39]">{stat.value}</div>
+                    <div className="mt-1 text-sm font-semibold uppercase tracking-[0.2em] text-[#1DB9B3]">
+                      {stat.label}
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative mx-auto w-full max-w-xl">
+              <div className="absolute inset-4 rounded-[2.5rem] border-4 border-dashed border-[#FFD166] bg-[#FFF8D8]" aria-hidden="true" />
+              <div className="relative rounded-[2.75rem] border-4 border-[#3A2E39] bg-[#FFF5D6] p-6 shadow-[14px_14px_0_0_#3A2E39]">
+                <div className="mb-5 flex items-center justify-between rounded-full border-2 border-[#FFB3BA] bg-white/80 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-[#FF6F91]">
+                  <span>Memory-to-masterpiece ideas</span>
+                  <Star className="h-4 w-4" />
                 </div>
-                <div className="text-center">
-                  <h3 className="mb-4 text-xl font-extrabold text-[#3A2E39]">Coloring Page</h3>
-                  <div className="relative flex aspect-square items-center justify-center rounded-[1.75rem] border-4 border-dotted border-[#FFB3BA] bg-[#FFF3BF]">
-                    <span className="text-lg font-semibold text-[#FF6F91]">AI-lined and ready to color</span>
-                    <Star className="absolute -bottom-4 -left-4 h-10 w-10 text-[#FFD166]" />
-                  </div>
+
+                <div className="space-y-5">
+                  {playfulIdeas.map((idea, index) => (
+                    <div
+                      key={idea.title}
+                      className={`relative rounded-[1.75rem] border-4 p-5 ${idea.accent} ${idea.shadow} ${idea.rotation} ${index === 1 ? 'ml-auto max-w-[90%]' : 'max-w-[92%]'}`}
+                    >
+                      <div className="mb-3 flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-white/80 text-[#3A2E39]">
+                          <idea.icon className="h-6 w-6" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-lg font-extrabold text-[#3A2E39]">{idea.title}</p>
+                          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#594144]">
+                            Favorite-family use case
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-left text-sm leading-relaxed text-[#594144]">{idea.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-14 mx-auto max-w-5xl rounded-[2.5rem] border-4 border-dashed border-[#FFB3BA] bg-white/90 p-8 shadow-[12px_12px_0_0_#FF8A80]">
+            <div className="mb-6 text-center">
+              <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#FF6F91]">From snapshot to printable art</p>
+            </div>
+            <div className="grid gap-10 md:grid-cols-2">
+              <div className="text-center">
+                <h3 className="mb-4 text-xl font-extrabold text-[#3A2E39]">Original Photo</h3>
+                <div className="relative flex aspect-square items-center justify-center rounded-[1.75rem] border-4 border-dotted border-[#A0E7E5] bg-[#E0F7FA]">
+                  <span className="text-lg font-semibold text-[#1DB9B3]">Upload your photo</span>
+                  <Star className="absolute -top-4 -right-4 h-10 w-10 text-[#FF6F91]" />
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="mb-4 text-xl font-extrabold text-[#3A2E39]">Coloring Page</h3>
+                <div className="relative flex aspect-square items-center justify-center rounded-[1.75rem] border-4 border-dotted border-[#FFB3BA] bg-[#FFF3BF]">
+                  <span className="text-lg font-semibold text-[#FF6F91]">AI-lined and ready to color</span>
+                  <Star className="absolute -bottom-4 -left-4 h-10 w-10 text-[#FFD166]" />
                 </div>
               </div>
             </div>
