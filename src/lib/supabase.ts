@@ -191,6 +191,23 @@ export type Database = {
         }
       }
     }
+    Functions: {
+      create_family_album_with_images: {
+        Args: {
+          p_title: string
+          p_description: string
+          p_user_id: string
+          p_share_code: string
+          p_created_at: string
+          p_cover_image_id: string | null
+          p_expires_at: string | null
+          p_comments_enabled: boolean
+          p_downloads_enabled: boolean
+          p_image_ids: string[]
+        }
+        Returns: Database['public']['Tables']['family_albums']['Row']
+      }
+    }
   }
 }
 

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, type Database } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { logger } from '@/lib/logger'
+
+type FamilyAlbumRow = Database['public']['Tables']['family_albums']['Row']
 
 export async function POST(request: NextRequest) {
   logger.info('API route /api/family-albums called')
@@ -20,9 +23,19 @@ export async function POST(request: NextRequest) {
       downloadsEnabled,
     } = body
 
-    if (!title || !imageIds || !userId) {
+    if (!title || !Array.isArray(imageIds) || imageIds.length === 0 || !userId) {
       return NextResponse.json(
         { error: 'Title, imageIds, and userId are required' },
+        { status: 400 }
+      )
+    }
+
+    if (
+      imageIds.some((imageId: unknown) => typeof imageId !== 'string' || imageId.trim() === '') ||
+      (coverImageId !== undefined && coverImageId !== null && typeof coverImageId !== 'string')
+    ) {
+      return NextResponse.json(
+        { error: 'Image IDs must be non-empty strings' },
         { status: 400 }
       )
     }
@@ -36,26 +49,50 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const uniqueImageIds = Array.from(new Set(imageIds as string[]))
+    const imageIdsToValidate = coverImageId
+      ? Array.from(new Set([...uniqueImageIds, coverImageId]))
+      : uniqueImageIds
+
+    const { data: validImages, error: validationError } = await supabaseAdmin
+      .from('images')
+      .select('id')
+      .eq('user_id', userId)
+      .in('id', imageIdsToValidate)
+
+    if (validationError) {
+      logger.error('Failed to validate album images', validationError)
+      throw new Error(`Failed to validate album images: ${validationError.message}`)
+    }
+
+    if ((validImages?.length ?? 0) !== imageIdsToValidate.length) {
+      return NextResponse.json(
+        { error: 'One or more image IDs are invalid' },
+        { status: 400 }
+      )
+    }
+
     // Generate unique share code
     const shareCode = generateShareCode()
 
     logger.info('Creating family album in database...')
 
-    // Create the family album
-    const { data: albumData, error: albumError } = await supabase
-      .from('family_albums')
-      .insert({
-        title,
-        description: description || '',
-        user_id: userId,
-        share_code: shareCode,
-        created_at: new Date().toISOString(),
-        cover_image_id: coverImageId || null,
-        expires_at: parsedExpiresAt ? parsedExpiresAt.toISOString() : null,
-        comments_enabled: commentsEnabled ?? true,
-        downloads_enabled: downloadsEnabled ?? true,
+    const createdAt = new Date().toISOString()
+
+    // Create the family album and image links atomically in the database.
+    const { data: createdAlbum, error: albumError } = await supabaseAdmin
+      .rpc('create_family_album_with_images', {
+        p_title: title,
+        p_description: description || '',
+        p_user_id: userId,
+        p_share_code: shareCode,
+        p_created_at: createdAt,
+        p_cover_image_id: coverImageId || null,
+        p_expires_at: parsedExpiresAt ? parsedExpiresAt.toISOString() : null,
+        p_comments_enabled: commentsEnabled ?? true,
+        p_downloads_enabled: downloadsEnabled ?? true,
+        p_image_ids: uniqueImageIds,
       })
-      .select()
       .single()
 
     if (albumError) {
@@ -63,22 +100,10 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to create album: ${albumError.message}`)
     }
 
-    logger.info('Adding images to album...')
-    
-    // Add images to the album
-    const albumImageInserts = imageIds.map((imageId: string) => ({
-      album_id: albumData.id,
-      image_id: imageId,
-      created_at: new Date().toISOString()
-    }))
+    const albumData = createdAlbum as FamilyAlbumRow | null
 
-    const { error: imageError } = await supabase
-      .from('album_images')
-      .insert(albumImageInserts)
-
-    if (imageError) {
-      logger.error('Failed to add images to album', imageError)
-      throw new Error(`Failed to add images to album: ${imageError.message}`)
+    if (!albumData) {
+      throw new Error('Failed to create album')
     }
 
     logger.info('Family album created successfully')
