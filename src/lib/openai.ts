@@ -225,6 +225,12 @@ export async function generateColoringPageWithCustomPromptDetailed(
       promptLength: customPrompt.length,
     })
 
+    // Warm cold-start module loads while the provider call is in flight
+    const supabaseModule = import('./supabase')
+    const imageProcessorModule = import('./imageProcessor')
+    supabaseModule.catch(() => undefined)
+    imageProcessorModule.catch(() => undefined)
+
     logger.debug('Converting image to base64')
     const { base64: base64Image, mimeType } = await imageUrlToBase64(imageUrl)
     logger.debug('Image converted to base64', { base64Length: base64Image.length })
@@ -248,8 +254,8 @@ export async function generateColoringPageWithCustomPromptDetailed(
       throw new Error('Generated image data is empty')
     }
 
-    const { supabase } = await import('./supabase')
-    const { addWatermark } = await import('./imageProcessor')
+    const { supabase } = await supabaseModule
+    const { addWatermark } = await imageProcessorModule
 
     let buffer: Buffer = Buffer.from(providerResult.base64, 'base64')
     const imageBytes = buffer.length
