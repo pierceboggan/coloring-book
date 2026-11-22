@@ -66,4 +66,16 @@ describe('DashboardToolbar', () => {
     const button = screen.getByText('Favorites').closest('button')
     expect(button?.getAttribute('title')).toBe('Show all items')
   })
+
+  it('exposes the current favorites and layout states as pressed', () => {
+    const { rerender } = render(<DashboardToolbar {...baseProps} />)
+    expect(screen.getByRole('button', { name: 'Favorites' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Expanded view' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Compact view' })).toHaveAttribute('aria-pressed', 'true')
+
+    rerender(<DashboardToolbar {...baseProps} favoritesOnly layoutMode="expanded" />)
+    expect(screen.getByRole('button', { name: 'Favorites' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Expanded view' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Compact view' })).toHaveAttribute('aria-pressed', 'false')
+  })
 })
