@@ -56,6 +56,7 @@ export function DashboardToolbar({
       <button
         type="button"
         onClick={onFavoritesOnlyToggle}
+        aria-pressed={favoritesOnly}
         className={`inline-flex items-center gap-2 rounded-full border-2 px-3 py-1 text-sm font-semibold shadow-[4px_4px_0_0] transition-all ${
           favoritesOnly
             ? 'border-[#FF6F91] bg-[#FF6F91] text-white shadow-[#f2557b]'
@@ -72,6 +73,7 @@ export function DashboardToolbar({
           <button
             type="button"
             onClick={() => onLayoutModeChange('expanded')}
+            aria-pressed={layoutMode === 'expanded'}
             className={`flex items-center justify-center rounded-full p-2 transition-all ${
               layoutMode === 'expanded'
                 ? 'bg-[#FF6F91] text-white shadow-[3px_3px_0_0_#f2557b]'
@@ -84,6 +86,7 @@ export function DashboardToolbar({
           <button
             type="button"
             onClick={() => onLayoutModeChange('compact')}
+            aria-pressed={layoutMode === 'compact'}
             className={`flex items-center justify-center rounded-full p-2 transition-all ${
               layoutMode === 'compact'
                 ? 'bg-[#FF6F91] text-white shadow-[3px_3px_0_0_#f2557b]'
