@@ -168,7 +168,7 @@ fun AuthScreen(
                         Icon(
                             imageVector = if (passwordVisible) Icons.Filled.Visibility
                                 else Icons.Filled.VisibilityOff,
-                            contentDescription = "Toggle password visibility",
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password",
                         )
                     }
                 },
