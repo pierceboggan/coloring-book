@@ -198,6 +198,24 @@ test.describe('Dashboard workflows', () => {
     await expect(page.getByText('Processing').first()).toBeVisible()
   })
 
+  test('opens and closes Prompt Remix by its accessible button', async ({ page }) => {
+    await setupSupabaseImageMock(page, [
+      createMockImage({ id: 'img-remix', name: 'Remix Photo', status: 'completed' }),
+    ])
+    await page.context().addCookies([
+      { name: 'dev-auth-bypass', value: 'true', url: page.url() },
+    ])
+
+    await page.goto('/dashboard')
+    await page.getByRole('button', { name: 'Uploads' }).click()
+    await page.getByRole('button', { name: 'Scene prompts' }).click()
+
+    const dialog = page.getByRole('dialog', { name: 'Prompt Remix Playground' })
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: 'Close prompt remix' }).click()
+    await expect(dialog).not.toBeVisible()
+  })
+
   test('uploads an image and shows a success state', async ({ page }) => {
     const initialImages: MockImageRecord[] = []
     await setupSupabaseImageMock(page, initialImages)
