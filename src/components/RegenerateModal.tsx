@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { X, RefreshCw, Loader2, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react'
 import { logger } from '@/lib/logger'
 
@@ -21,6 +21,8 @@ export function RegenerateModal({
   currentColoringPageUrl,
   onRegenerateComplete
 }: RegenerateModalProps) {
+  const feedbackId = useId()
+  const feedbackTipId = useId()
   const [feedback, setFeedback] = useState('')
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [regeneratedUrl, setRegeneratedUrl] = useState<string | null>(null)
@@ -109,11 +111,13 @@ export function RegenerateModal({
                 </div>
 
                 <div className="rounded-[2rem] border-4 border-dashed border-[#FFD166] bg-[#FFF3BF]/80 p-6">
-                  <label className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[#AA6A00]">
+                  <label htmlFor={feedbackId} className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-[#AA6A00]">
                     <Sparkles className="h-4 w-4" />
                     What would you like to change? (Optional)
                   </label>
                   <textarea
+                    id={feedbackId}
+                    aria-describedby={feedbackTipId}
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     className="mt-3 w-full rounded-2xl border-2 border-[#FFD166] bg-white/80 px-4 py-3 text-[#3A2E39] focus:border-[#FF6F91] focus:outline-none"
@@ -121,7 +125,7 @@ export function RegenerateModal({
                     rows={4}
                     disabled={isRegenerating}
                   />
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-[#AA6A00]">
+                  <p id={feedbackTipId} className="mt-2 text-xs font-semibold uppercase tracking-widest text-[#AA6A00]">
                     Tip: mention line weight, detail level, or mood so our crayons know what to adjust.
                   </p>
                 </div>
