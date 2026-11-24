@@ -195,9 +195,10 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
           </div>
           <button
             onClick={onClose}
+            aria-label="Close prompt remix"
             className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
           >
-            <X className="h-5 w-5" />
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 
