@@ -250,10 +250,15 @@ export function PromptRemixModal({ isOpen, onClose, imageName, imageUrl }: Promp
 
             <div className="rounded-2xl border border-gray-200 bg-white p-5">
               <h3 className="text-lg font-semibold text-gray-800">Create your own remix</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p id="custom-remix-description" className="mt-1 text-sm text-gray-500">
                 Describe the new scene or style you want. Keep it playful—think seasons, holidays, hobbies, or dream destinations.
               </p>
+              <label htmlFor="custom-remix-prompt" className="mt-3 block text-sm font-semibold text-gray-800">
+                Custom remix prompt
+              </label>
               <textarea
+                id="custom-remix-prompt"
+                aria-describedby="custom-remix-description"
                 value={customPrompt}
                 onChange={event => setCustomPrompt(event.target.value)}
                 rows={3}
